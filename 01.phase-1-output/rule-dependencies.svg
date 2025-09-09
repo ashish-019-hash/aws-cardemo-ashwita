@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+     refX="0" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#00000030"/>
+    </filter>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#2c3e50">
+    CardDemo Business Calculation Rules - Dependencies
+  </text>
+  
+  <!-- Legend -->
+  <rect x="20" y="50" width="200" height="120" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+  <text x="30" y="70" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Legend:</text>
+  <rect x="30" y="80" width="15" height="15" fill="#e3f2fd"/>
+  <text x="50" y="92" font-family="Arial, sans-serif" font-size="12" fill="#495057">Payment Processing</text>
+  <rect x="30" y="100" width="15" height="15" fill="#f3e5f5"/>
+  <text x="50" y="112" font-family="Arial, sans-serif" font-size="12" fill="#495057">Account Management</text>
+  <rect x="30" y="120" width="15" height="15" fill="#e8f5e8"/>
+  <text x="50" y="132" font-family="Arial, sans-serif" font-size="12" fill="#495057">Transaction Processing</text>
+  <rect x="30" y="140" width="15" height="15" fill="#fff3e0"/>
+  <text x="50" y="152" font-family="Arial, sans-serif" font-size="12" fill="#495057">Validation Rules</text>
+  
+  <!-- Payment Processing Rules (Blue theme) -->
+  <g id="payment-processing">
+    <!-- RULE-CALC-010: Balance Validation -->
+    <rect x="50" y="200" width="180" height="80" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8" filter="url(#shadow)"/>
+    <text x="140" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1976d2">RULE-CALC-010</text>
+    <text x="140" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Balance Validation</text>
+    <text x="140" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">for Payment</text>
+    <text x="140" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">COBIL00C.cbl:198</text>
+    
+    <!-- RULE-CALC-009: Payment Amount -->
+    <rect x="300" y="200" width="180" height="80" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8" filter="url(#shadow)"/>
+    <text x="390" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1976d2">RULE-CALC-009</text>
+    <text x="390" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Payment Amount</text>
+    <text x="390" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Determination</text>
+    <text x="390" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">COBIL00C.cbl:224</text>
+    
+    <!-- RULE-CALC-001: Balance Update -->
+    <rect x="550" y="200" width="180" height="80" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8" filter="url(#shadow)"/>
+    <text x="640" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1976d2">RULE-CALC-001</text>
+    <text x="640" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Bill Payment</text>
+    <text x="640" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Balance Update</text>
+    <text x="640" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">COBIL00C.cbl:234</text>
+  </g>
+  
+  <!-- Transaction Processing Rules (Green theme) -->
+  <g id="transaction-processing">
+    <!-- RULE-CALC-002: Transaction ID Generation -->
+    <rect x="800" y="200" width="180" height="80" fill="#e8f5e8" stroke="#388e3c" stroke-width="2" rx="8" filter="url(#shadow)"/>
+    <text x="890" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#388e3c">RULE-CALC-002</text>
+    <text x="890" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Transaction ID</text>
+    <text x="890" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Generation</text>
+    <text x="890" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">COBIL00C.cbl:217</text>
+    
+    <!-- RULE-CALC-003: Transaction Amount Processing -->
+    <rect x="800" y="320" width="180" height="80" fill="#e8f5e8" stroke="#388e3c" stroke-width="2" rx="8" filter="url(#shadow)"/>
+    <text x="890" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#388e3c">RULE-CALC-003</text>
+    <text x="890" y="355" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Transaction Amount</text>
+    <text x="890" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Processing</text>
+    <text x="890" y="385" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">COTRN02C.cbl:456</text>
+  </g>
+  
+  <!-- Account Management Rules (Purple theme) -->
+  <g id="account-management">
+    <!-- RULE-CALC-004: Credit Limit -->
+    <rect x="50" y="450" width="160" height="80" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8" filter="url(#shadow)"/>
+    <text x="130" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#7b1fa2">RULE-CALC-004</text>
+    <text x="130" y="485" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Credit Limit</text>
+    <text x="130" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Calculation</text>
+    <text x="130" y="515" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">COACTUPC.cbl:1079</text>
+    
+    <!-- RULE-CALC-005: Cash Credit Limit -->
+    <rect x="240" y="450" width="160" height="80" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8" filter="url(#shadow)"/>
+    <text x="320" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#7b1fa2">RULE-CALC-005</text>
+    <text x="320" y="485" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Cash Credit Limit</text>
+    <text x="320" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Calculation</text>
+    <text x="320" y="515" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">COACTUPC.cbl:1093</text>
+    
+    <!-- RULE-CALC-006: Current Balance -->
+    <rect x="430" y="450" width="160" height="80" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8" filter="url(#shadow)"/>
+    <text x="510" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#7b1fa2">RULE-CALC-006</text>
+    <text x="510" y="485" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Current Balance</text>
+    <text x="510" y="500" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Processing</text>
+    <text x="510" y="515" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">COACTUPC.cbl:1107</text>
+    
+    <!-- RULE-CALC-007: Current Cycle Credit -->
+    <rect x="50" y="560" width="160" height="80" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8" filter="url(#shadow)"/>
+    <text x="130" y="580" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#7b1fa2">RULE-CALC-007</text>
+    <text x="130" y="595" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Current Cycle</text>
+    <text x="130" y="610" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Credit Processing</text>
+    <text x="130" y="625" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">COACTUPC.cbl:1121</text>
+    
+    <!-- RULE-CALC-008: Current Cycle Debit -->
+    <rect x="240" y="560" width="160" height="80" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8" filter="url(#shadow)"/>
+    <text x="320" y="580" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#7b1fa2">RULE-CALC-008</text>
+    <text x="320" y="595" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Current Cycle</text>
+    <text x="320" y="610" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Debit Processing</text>
+    <text x="320" y="625" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">COACTUPC.cbl:1135</text>
+    
+    <!-- Account Master Update (Central node) -->
+    <rect x="450" y="580" width="160" height="60" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8" filter="url(#shadow)"/>
+    <text x="530" y="600" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#f57c00">Account Master</text>
+    <text x="530" y="615" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#333">Update</text>
+    <text x="530" y="630" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">COACTUPC.cbl</text>
+  </g>
+  
+  <!-- Dependency Arrows -->
+  <!-- Payment Processing Flow -->
+  <line x1="230" y1="240" x2="300" y2="240" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="480" y1="240" x2="550" y2="240" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Transaction ID to Balance Update -->
+  <line x1="800" y1="240" x2="730" y2="240" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Account Management to Master Update -->
+  <line x1="210" y1="490" x2="450" y2="580" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="400" y1="490" x2="450" y2="580" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="590" y1="490" x2="550" y2="580" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="210" y1="600" x2="450" y2="610" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="400" y1="600" x2="450" y2="610" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Flow Labels -->
+  <text x="265" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1976d2">validates</text>
+  <text x="515" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#1976d2">determines</text>
+  <text x="765" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#388e3c">generates ID</text>
+  
+  <!-- Summary Box -->
+  <rect x="650" y="450" width="320" height="180" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5" filter="url(#shadow)"/>
+  <text x="810" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#495057">Business Rule Dependencies</text>
+  
+  <text x="660" y="490" font-family="Arial, sans-serif" font-size="11" fill="#495057">Payment Processing Flow:</text>
+  <text x="670" y="505" font-family="Arial, sans-serif" font-size="10" fill="#666">1. Validate balance (RULE-CALC-010)</text>
+  <text x="670" y="518" font-family="Arial, sans-serif" font-size="10" fill="#666">2. Determine amount (RULE-CALC-009)</text>
+  <text x="670" y="531" font-family="Arial, sans-serif" font-size="10" fill="#666">3. Update balance (RULE-CALC-001)</text>
+  
+  <text x="660" y="550" font-family="Arial, sans-serif" font-size="11" fill="#495057">Transaction Processing:</text>
+  <text x="670" y="565" font-family="Arial, sans-serif" font-size="10" fill="#666">• Generate unique ID (RULE-CALC-002)</text>
+  <text x="670" y="578" font-family="Arial, sans-serif" font-size="10" fill="#666">• Process amounts (RULE-CALC-003)</text>
+  
+  <text x="660" y="595" font-family="Arial, sans-serif" font-size="11" fill="#495057">Account Management:</text>
+  <text x="670" y="610" font-family="Arial, sans-serif" font-size="10" fill="#666">• All limit/balance rules feed into</text>
+  <text x="670" y="623" font-family="Arial, sans-serif" font-size="10" fill="#666">  Account Master Update</text>
+  
+  <!-- Footer -->
+  <text x="600" y="760" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">
+    CardDemo COBOL Business Rules Analysis - Generated September 2025
+  </text>
+  <text x="600" y="780" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">
+    Source: ashish-019-hash/aws-cardemo-ashwita repository
+  </text>
+</svg>
