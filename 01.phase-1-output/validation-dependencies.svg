@@ -1,0 +1,147 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; }
+      .section-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; }
+      .rule-text { font-family: Arial, sans-serif; font-size: 10px; }
+      .dependency-line { stroke: #666; stroke-width: 2; fill: none; }
+      .conditional-line { stroke: #ff6600; stroke-width: 2; stroke-dasharray: 5,5; fill: none; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="25" text-anchor="middle" class="title">CardDemo COBOL Validation Dependencies</text>
+  
+  <!-- Authentication & Security Section -->
+  <rect x="50" y="50" width="200" height="120" fill="#e6f3ff" stroke="#0066cc" stroke-width="2" rx="5"/>
+  <text x="150" y="70" text-anchor="middle" class="section-title">Authentication & Security</text>
+  <text x="60" y="90" class="rule-text">RULE-VAL-001: User ID Required</text>
+  <text x="60" y="105" class="rule-text">RULE-VAL-002: Password Required</text>
+  <text x="60" y="120" class="rule-text">RULE-VAL-003: User Exists</text>
+  <text x="60" y="135" class="rule-text">RULE-VAL-004: Password Match</text>
+  <text x="60" y="150" class="rule-text">Dependencies: Sequential validation</text>
+  
+  <!-- Account Management Section -->
+  <rect x="300" y="50" width="200" height="120" fill="#f0fff0" stroke="#009900" stroke-width="2" rx="5"/>
+  <text x="400" y="70" text-anchor="middle" class="section-title">Account Management</text>
+  <text x="310" y="90" class="rule-text">RULE-VAL-005: Account ID Required</text>
+  <text x="310" y="105" class="rule-text">RULE-VAL-006: Status Y/N</text>
+  <text x="310" y="120" class="rule-text">RULE-VAL-007-009: Amount Validation</text>
+  <text x="310" y="135" class="rule-text">RULE-VAL-010-015: Date/SSN Rules</text>
+  <text x="310" y="150" class="rule-text">Dependencies: Field-level + Cross-field</text>
+  
+  <!-- Credit Card Management Section -->
+  <rect x="550" y="50" width="200" height="120" fill="#fff0f5" stroke="#cc0066" stroke-width="2" rx="5"/>
+  <text x="650" y="70" text-anchor="middle" class="section-title">Credit Card Management</text>
+  <text x="560" y="90" class="rule-text">RULE-VAL-016-018: Required Fields</text>
+  <text x="560" y="105" class="rule-text">RULE-VAL-019: Status Y/N</text>
+  <text x="560" y="120" class="rule-text">RULE-VAL-020-021: Date Ranges</text>
+  <text x="560" y="135" class="rule-text">RULE-VAL-022-024: Format Rules</text>
+  <text x="560" y="150" class="rule-text">Dependencies: Account validation</text>
+  
+  <!-- Transaction Processing Section -->
+  <rect x="800" y="50" width="200" height="120" fill="#fffacd" stroke="#ffa500" stroke-width="2" rx="5"/>
+  <text x="900" y="70" text-anchor="middle" class="section-title">Transaction Processing</text>
+  <text x="810" y="90" class="rule-text">RULE-VAL-025-027: ID Validation</text>
+  <text x="810" y="105" class="rule-text">RULE-VAL-028-038: Required Fields</text>
+  <text x="810" y="120" class="rule-text">RULE-VAL-039-043: Format Rules</text>
+  <text x="810" y="135" class="rule-text">RULE-VAL-044: Transaction View</text>
+  <text x="810" y="150" class="rule-text">Dependencies: Account/Card validation</text>
+  
+  <!-- User Management Section -->
+  <rect x="50" y="220" width="200" height="120" fill="#f5f5dc" stroke="#8b4513" stroke-width="2" rx="5"/>
+  <text x="150" y="240" text-anchor="middle" class="section-title">User Management</text>
+  <text x="60" y="260" class="rule-text">RULE-VAL-045-049: User Creation</text>
+  <text x="60" y="275" class="rule-text">RULE-VAL-050-054: User Update</text>
+  <text x="60" y="290" class="rule-text">All fields required</text>
+  <text x="60" y="305" class="rule-text">Dependencies: Authentication</text>
+  <text x="60" y="320" class="rule-text">Conditional: Admin access</text>
+  
+  <!-- Bill Payment Section -->
+  <rect x="300" y="220" width="200" height="120" fill="#e0e6ff" stroke="#4169e1" stroke-width="2" rx="5"/>
+  <text x="400" y="240" text-anchor="middle" class="section-title">Bill Payment</text>
+  <text x="310" y="260" class="rule-text">RULE-VAL-055: Account ID Required</text>
+  <text x="310" y="275" class="rule-text">RULE-VAL-056: Confirmation Y/N</text>
+  <text x="310" y="290" class="rule-text">RULE-VAL-057: Positive Balance</text>
+  <text x="310" y="305" class="rule-text">Dependencies: Account validation</text>
+  <text x="310" y="320" class="rule-text">Conditional: Balance check</text>
+  
+  <!-- Date Validation Utilities Section -->
+  <rect x="550" y="220" width="200" height="120" fill="#f0f8ff" stroke="#00bfff" stroke-width="2" rx="5"/>
+  <text x="650" y="240" text-anchor="middle" class="section-title">Date Validation Utilities</text>
+  <text x="560" y="260" class="rule-text">RULE-VAL-058: CEEDAYS Validation</text>
+  <text x="560" y="275" class="rule-text">RULE-VAL-059: Format Support</text>
+  <text x="560" y="290" class="rule-text">Shared utility for all dates</text>
+  <text x="560" y="305" class="rule-text">Dependencies: Called by others</text>
+  <text x="560" y="320" class="rule-text">Central validation service</text>
+  
+  <!-- Menu and Navigation Section -->
+  <rect x="800" y="220" width="200" height="120" fill="#fdf5e6" stroke="#daa520" stroke-width="2" rx="5"/>
+  <text x="900" y="240" text-anchor="middle" class="section-title">Menu & Navigation</text>
+  <text x="810" y="260" class="rule-text">RULE-VAL-060: Numeric Option</text>
+  <text x="810" y="275" class="rule-text">RULE-VAL-061: Access Control</text>
+  <text x="810" y="290" class="rule-text">User type validation</text>
+  <text x="810" y="305" class="rule-text">Dependencies: Authentication</text>
+  <text x="810" y="320" class="rule-text">Conditional: Admin access</text>
+  
+  <!-- Dependency Lines -->
+  
+  <!-- Authentication to User Management -->
+  <path d="M 150 170 Q 150 195 150 220" class="dependency-line"/>
+  <text x="155" y="195" class="rule-text">Auth Required</text>
+  
+  <!-- Authentication to Menu -->
+  <path d="M 250 110 Q 525 110 800 240" class="dependency-line"/>
+  <text x="525" y="105" class="rule-text">User Type Check</text>
+  
+  <!-- Account to Credit Card -->
+  <path d="M 500 110 L 550 110" class="dependency-line"/>
+  <text x="515" y="105" class="rule-text">Account Link</text>
+  
+  <!-- Account to Transaction -->
+  <path d="M 500 110 Q 650 110 800 110" class="dependency-line"/>
+  <text x="650" y="105" class="rule-text">Account/Card Link</text>
+  
+  <!-- Account to Bill Payment -->
+  <path d="M 400 170 L 400 220" class="dependency-line"/>
+  <text x="405" y="195" class="rule-text">Account Required</text>
+  
+  <!-- Date Utilities to Account -->
+  <path d="M 550 280 Q 475 280 400 170" class="conditional-line"/>
+  <text x="475" y="275" class="rule-text">Date Validation</text>
+  
+  <!-- Date Utilities to Credit Card -->
+  <path d="M 650 220 Q 650 195 650 170" class="conditional-line"/>
+  <text x="655" y="195" class="rule-text">Expiry Dates</text>
+  
+  <!-- Date Utilities to Transaction -->
+  <path d="M 750 280 Q 825 280 900 170" class="conditional-line"/>
+  <text x="825" y="275" class="rule-text">Transaction Dates</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="400" width="300" height="100" fill="#ffffff" stroke="#000000" stroke-width="1" rx="5"/>
+  <text x="200" y="420" text-anchor="middle" class="section-title">Legend</text>
+  <line x1="70" y1="440" x2="120" y2="440" class="dependency-line"/>
+  <text x="130" y="445" class="rule-text">Direct Dependency</text>
+  <line x1="70" y1="460" x2="120" y2="460" class="conditional-line"/>
+  <text x="130" y="465" class="rule-text">Conditional/Shared Validation</text>
+  <text x="70" y="485" class="rule-text">Validation Flow: Authentication → Access Control → Business Rules</text>
+  
+  <!-- Validation Flow Summary -->
+  <rect x="400" y="400" width="750" height="150" fill="#f9f9f9" stroke="#333333" stroke-width="1" rx="5"/>
+  <text x="775" y="420" text-anchor="middle" class="section-title">Validation Flow Summary</text>
+  
+  <text x="420" y="445" class="rule-text">1. Authentication Layer: User credentials validated first (RULE-VAL-001 to 004)</text>
+  <text x="420" y="465" class="rule-text">2. Access Control: User type and menu access validated (RULE-VAL-060, 061)</text>
+  <text x="420" y="485" class="rule-text">3. Field-Level Validation: Required fields, format, and range checks</text>
+  <text x="420" y="505" class="rule-text">4. Cross-Field Validation: Business logic between related fields</text>
+  <text x="420" y="525" class="rule-text">5. Domain-Specific Rules: Account balances, date ranges, status codes</text>
+  <text x="420" y="545" class="rule-text">6. Shared Utilities: Date validation (CSUTLDTC) used across multiple modules</text>
+  
+  <!-- Validation Statistics -->
+  <rect x="50" y="550" width="1100" height="80" fill="#f0f0f0" stroke="#666666" stroke-width="1" rx="5"/>
+  <text x="600" y="570" text-anchor="middle" class="section-title">Validation Statistics</text>
+  <text x="70" y="595" class="rule-text">Total Rules: 61 | Authentication: 4 | Account Mgmt: 11 | Credit Card: 10 | Transactions: 20 | User Mgmt: 10 | Bill Payment: 3 | Utilities: 2 | Navigation: 2</text>
+  <text x="70" y="615" class="rule-text">Common Patterns: Required field validation (28 rules), Format validation (15 rules), Range validation (8 rules), Business logic validation (10 rules)</text>
+  
+</svg>
