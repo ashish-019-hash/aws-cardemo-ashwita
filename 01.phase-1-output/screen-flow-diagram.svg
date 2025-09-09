@@ -1,0 +1,162 @@
+<svg width="1200" height="1600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .screen-box { fill: #e8f4fd; stroke: #2563eb; stroke-width: 2; }
+      .menu-box { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+      .admin-box { fill: #fee2e2; stroke: #dc2626; stroke-width: 2; }
+      .detail-box { fill: #f0fdf4; stroke: #16a34a; stroke-width: 2; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; text-anchor: middle; }
+      .title-text { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-anchor: middle; }
+      .small-text { font-family: Arial, sans-serif; font-size: 10px; text-anchor: middle; }
+      .arrow { stroke: #374151; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .condition-text { font-family: Arial, sans-serif; font-size: 10px; fill: #6b7280; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#374151" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="30" class="title-text" font-size="18">CardDemo COBOL Application Screen Flow</text>
+  
+  <!-- Authentication Layer -->
+  <rect x="500" y="60" width="200" height="60" class="screen-box" rx="5"/>
+  <text x="600" y="85" class="title-text">COSGN00C</text>
+  <text x="600" y="105" class="text">Sign-on Screen</text>
+  
+  <!-- Role-based routing -->
+  <line x1="600" y1="120" x2="600" y2="160" class="arrow"/>
+  <text x="620" y="145" class="condition-text">Role Check</text>
+  
+  <!-- Menu Layer -->
+  <rect x="200" y="180" width="200" height="60" class="menu-box" rx="5"/>
+  <text x="300" y="205" class="title-text">COMEN01C</text>
+  <text x="300" y="225" class="text">Regular User Menu</text>
+  
+  <rect x="800" y="180" width="200" height="60" class="admin-box" rx="5"/>
+  <text x="900" y="205" class="title-text">COADM01C</text>
+  <text x="900" y="225" class="text">Admin Menu</text>
+  
+  <!-- Routing arrows -->
+  <line x1="550" y1="140" x2="350" y2="180" class="arrow"/>
+  <text x="430" y="155" class="condition-text">Regular User</text>
+  
+  <line x1="650" y1="140" x2="850" y2="180" class="arrow"/>
+  <text x="770" y="155" class="condition-text">Admin User</text>
+  
+  <!-- Regular User Functions -->
+  <rect x="50" y="300" width="150" height="50" class="detail-box" rx="5"/>
+  <text x="125" y="320" class="title-text">COACTVWC</text>
+  <text x="125" y="335" class="small-text">Account View</text>
+  
+  <rect x="220" y="300" width="150" height="50" class="detail-box" rx="5"/>
+  <text x="295" y="320" class="title-text">COACTUPC</text>
+  <text x="295" y="335" class="small-text">Account Update</text>
+  
+  <rect x="390" y="300" width="150" height="50" class="detail-box" rx="5"/>
+  <text x="465" y="320" class="title-text">COCRDLIC</text>
+  <text x="465" y="335" class="small-text">Card List</text>
+  
+  <rect x="50" y="380" width="150" height="50" class="detail-box" rx="5"/>
+  <text x="125" y="400" class="title-text">COTRN00C</text>
+  <text x="125" y="415" class="small-text">Transaction List</text>
+  
+  <rect x="220" y="380" width="150" height="50" class="detail-box" rx="5"/>
+  <text x="295" y="400" class="title-text">COBIL00C</text>
+  <text x="295" y="415" class="small-text">Bill Payment</text>
+  
+  <rect x="390" y="380" width="150" height="50" class="detail-box" rx="5"/>
+  <text x="465" y="400" class="title-text">CORPT00C</text>
+  <text x="465" y="415" class="small-text">Reports</text>
+  
+  <!-- Menu to function arrows -->
+  <line x1="250" y1="240" x2="125" y2="300" class="arrow"/>
+  <line x1="280" y1="240" x2="295" y2="300" class="arrow"/>
+  <line x1="320" y1="240" x2="465" y2="300" class="arrow"/>
+  <line x1="250" y1="240" x2="125" y2="380" class="arrow"/>
+  <line x1="280" y1="240" x2="295" y2="380" class="arrow"/>
+  <line x1="320" y1="240" x2="465" y2="380" class="arrow"/>
+  
+  <!-- Admin Functions -->
+  <rect x="750" y="300" width="150" height="50" class="admin-box" rx="5"/>
+  <text x="825" y="320" class="title-text">COUSR00C</text>
+  <text x="825" y="335" class="small-text">User List</text>
+  
+  <rect x="920" y="300" width="150" height="50" class="admin-box" rx="5"/>
+  <text x="995" y="320" class="title-text">COUSR01C</text>
+  <text x="995" y="335" class="small-text">User Add</text>
+  
+  <rect x="750" y="380" width="150" height="50" class="admin-box" rx="5"/>
+  <text x="825" y="400" class="title-text">COUSR02C</text>
+  <text x="825" y="415" class="small-text">User Update</text>
+  
+  <rect x="920" y="380" width="150" height="50" class="admin-box" rx="5"/>
+  <text x="995" y="400" class="title-text">COUSR03C</text>
+  <text x="995" y="415" class="small-text">User Delete</text>
+  
+  <!-- Admin menu arrows -->
+  <line x1="870" y1="240" x2="825" y2="300" class="arrow"/>
+  <line x1="930" y1="240" x2="995" y2="300" class="arrow"/>
+  <line x1="870" y1="240" x2="825" y2="380" class="arrow"/>
+  <line x1="930" y1="240" x2="995" y2="380" class="arrow"/>
+  
+  <!-- Detail Level Screens -->
+  <rect x="50" y="500" width="150" height="50" class="screen-box" rx="5"/>
+  <text x="125" y="520" class="title-text">COTRN01C</text>
+  <text x="125" y="535" class="small-text">Transaction Detail</text>
+  
+  <rect x="220" y="500" width="150" height="50" class="screen-box" rx="5"/>
+  <text x="295" y="520" class="title-text">COTRN02C</text>
+  <text x="295" y="535" class="small-text">Transaction Add</text>
+  
+  <rect x="390" y="500" width="150" height="50" class="screen-box" rx="5"/>
+  <text x="465" y="520" class="title-text">COCRDSLC</text>
+  <text x="465" y="535" class="small-text">Card Detail</text>
+  
+  <rect x="560" y="500" width="150" height="50" class="screen-box" rx="5"/>
+  <text x="635" y="520" class="title-text">COCRDUPC</text>
+  <text x="635" y="535" class="small-text">Card Update</text>
+  
+  <!-- Detail navigation arrows -->
+  <line x1="125" y1="430" x2="125" y2="500" class="arrow"/>
+  <text x="145" y="470" class="condition-text">S=Select</text>
+  
+  <line x1="125" y1="430" x2="295" y2="500" class="arrow"/>
+  <text x="210" y="470" class="condition-text">A=Add</text>
+  
+  <line x1="465" y1="350" x2="465" y2="500" class="arrow"/>
+  <text x="485" y="430" class="condition-text">S=Select</text>
+  
+  <line x1="465" y1="350" x2="635" y2="500" class="arrow"/>
+  <text x="570" y="430" class="condition-text">U=Update</text>
+  
+  <!-- PF Key Legend -->
+  <rect x="50" y="600" width="500" height="120" fill="#f9fafb" stroke="#d1d5db" stroke-width="1" rx="5"/>
+  <text x="300" y="620" class="title-text">PF Key Navigation</text>
+  <text x="70" y="640" class="small-text">F3 = Exit to Previous Screen</text>
+  <text x="70" y="655" class="small-text">F4 = Clear Current Screen</text>
+  <text x="70" y="670" class="small-text">F5 = Special Functions</text>
+  <text x="70" y="685" class="small-text">F7 = Page Up (List Screens)</text>
+  <text x="70" y="700" class="small-text">F8 = Page Down (List Screens)</text>
+  <text x="300" y="640" class="small-text">F12 = Cancel/Return to Menu</text>
+  <text x="300" y="655" class="small-text">ENTER = Process Input</text>
+  <text x="300" y="670" class="small-text">Selection Codes:</text>
+  <text x="300" y="685" class="small-text">S = Select/View, U = Update, D = Delete</text>
+  
+  <!-- Technical Notes -->
+  <rect x="600" y="600" width="550" height="120" fill="#fef7ed" stroke="#ea580c" stroke-width="1" rx="5"/>
+  <text x="875" y="620" class="title-text">Technical Implementation</text>
+  <text x="620" y="640" class="small-text">• EXEC CICS XCTL for program transfers</text>
+  <text x="620" y="655" class="small-text">• CARDDEMO-COMMAREA for state management</text>
+  <text x="620" y="670" class="small-text">• BMS SEND MAP/RECEIVE MAP for screen I/O</text>
+  <text x="620" y="685" class="small-text">• Pseudo-conversational transaction processing</text>
+  <text x="620" y="700" class="small-text">• Dynamic menu options via CDEMO-MENU-OPT-PGMNAME</text>
+  
+  <!-- Navigation Flow Indicators -->
+  <rect x="50" y="750" width="1100" height="80" fill="#ecfdf5" stroke="#10b981" stroke-width="1" rx="5"/>
+  <text x="600" y="770" class="title-text">Screen Flow Patterns</text>
+  <text x="70" y="790" class="small-text">Authentication → Menu Selection → Function Screen → Detail/Update Screen → Return Navigation</text>
+  <text x="70" y="805" class="small-text">All screens support F3 (Exit) and maintain navigation context through CDEMO-FROM-PROGRAM/CDEMO-TO-PROGRAM</text>
+  <text x="70" y="820" class="small-text">List screens (COUSR00C, COTRN00C, COCRDLIC) support pagination with F7/F8 and selection processing</text>
+  
+</svg>
