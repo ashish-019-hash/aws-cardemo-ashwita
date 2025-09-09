@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .entity-box { fill: #e8f4fd; stroke: #2563eb; stroke-width: 2; }
+      .entity-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #1e40af; }
+      .entity-attr { font-family: Arial, sans-serif; font-size: 11px; fill: #374151; }
+      .relationship-line { stroke: #6b7280; stroke-width: 2; }
+      .relationship-label { font-family: Arial, sans-serif; font-size: 10px; fill: #4b5563; }
+      .cardinality { font-family: Arial, sans-serif; font-size: 10px; font-weight: bold; fill: #dc2626; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" class="entity-title" font-size="18">CardDemo Business Entity Relationship Diagram</text>
+  
+  <!-- Customer Entity -->
+  <rect x="50" y="80" width="200" height="180" class="entity-box"/>
+  <text x="150" y="100" text-anchor="middle" class="entity-title">Customer</text>
+  <line x1="60" y1="110" x2="240" y2="110" stroke="#2563eb" stroke-width="1"/>
+  <text x="60" y="125" class="entity-attr">• CUST-ID (PK)</text>
+  <text x="60" y="140" class="entity-attr">• First Name</text>
+  <text x="60" y="155" class="entity-attr">• Last Name</text>
+  <text x="60" y="170" class="entity-attr">• Address Lines</text>
+  <text x="60" y="185" class="entity-attr">• Phone Numbers</text>
+  <text x="60" y="200" class="entity-attr">• SSN</text>
+  <text x="60" y="215" class="entity-attr">• Date of Birth</text>
+  <text x="60" y="230" class="entity-attr">• FICO Score</text>
+  <text x="60" y="245" class="entity-attr">• Primary Card Indicator</text>
+  
+  <!-- Account Entity -->
+  <rect x="350" y="80" width="200" height="180" class="entity-box"/>
+  <text x="450" y="100" text-anchor="middle" class="entity-title">Account</text>
+  <line x1="360" y1="110" x2="540" y2="110" stroke="#2563eb" stroke-width="1"/>
+  <text x="360" y="125" class="entity-attr">• ACCT-ID (PK)</text>
+  <text x="360" y="140" class="entity-attr">• Active Status</text>
+  <text x="360" y="155" class="entity-attr">• Current Balance</text>
+  <text x="360" y="170" class="entity-attr">• Credit Limit</text>
+  <text x="360" y="185" class="entity-attr">• Cash Credit Limit</text>
+  <text x="360" y="200" class="entity-attr">• Open Date</text>
+  <text x="360" y="215" class="entity-attr">• Expiration Date</text>
+  <text x="360" y="230" class="entity-attr">• Current Cycle Credit</text>
+  <text x="360" y="245" class="entity-attr">• Current Cycle Debit</text>
+  
+  <!-- Card Entity -->
+  <rect x="650" y="80" width="200" height="140" class="entity-box"/>
+  <text x="750" y="100" text-anchor="middle" class="entity-title">Card</text>
+  <line x1="660" y1="110" x2="840" y2="110" stroke="#2563eb" stroke-width="1"/>
+  <text x="660" y="125" class="entity-attr">• CARD-NUM (PK)</text>
+  <text x="660" y="140" class="entity-attr">• ACCT-ID (FK)</text>
+  <text x="660" y="155" class="entity-attr">• CVV Code</text>
+  <text x="660" y="170" class="entity-attr">• Embossed Name</text>
+  <text x="660" y="185" class="entity-attr">• Expiration Date</text>
+  <text x="660" y="200" class="entity-attr">• Active Status</text>
+  
+  <!-- Transaction Entity -->
+  <rect x="950" y="80" width="200" height="180" class="entity-box"/>
+  <text x="1050" y="100" text-anchor="middle" class="entity-title">Transaction</text>
+  <line x1="960" y1="110" x2="1140" y2="110" stroke="#2563eb" stroke-width="1"/>
+  <text x="960" y="125" class="entity-attr">• TRAN-ID (PK)</text>
+  <text x="960" y="140" class="entity-attr">• CARD-NUM (FK)</text>
+  <text x="960" y="155" class="entity-attr">• Type Code</text>
+  <text x="960" y="170" class="entity-attr">• Category Code</text>
+  <text x="960" y="185" class="entity-attr">• Amount</text>
+  <text x="960" y="200" class="entity-attr">• Description</text>
+  <text x="960" y="215" class="entity-attr">• Original Timestamp</text>
+  <text x="960" y="230" class="entity-attr">• Process Timestamp</text>
+  <text x="960" y="245" class="entity-attr">• Merchant Info</text>
+  
+  <!-- User Entity -->
+  <rect x="50" y="350" width="200" height="120" class="entity-box"/>
+  <text x="150" y="370" text-anchor="middle" class="entity-title">User</text>
+  <line x1="60" y1="380" x2="240" y2="380" stroke="#2563eb" stroke-width="1"/>
+  <text x="60" y="395" class="entity-attr">• USER-ID (PK)</text>
+  <text x="60" y="410" class="entity-attr">• First Name</text>
+  <text x="60" y="425" class="entity-attr">• Last Name</text>
+  <text x="60" y="440" class="entity-attr">• Password</text>
+  <text x="60" y="455" class="entity-attr">• User Type</text>
+  
+  <!-- Card Cross-Reference Entity -->
+  <rect x="350" y="350" width="200" height="100" class="entity-box"/>
+  <text x="450" y="370" text-anchor="middle" class="entity-title">Card Cross-Reference</text>
+  <line x1="360" y1="380" x2="540" y2="380" stroke="#2563eb" stroke-width="1"/>
+  <text x="360" y="395" class="entity-attr">• ACCT-ID (FK)</text>
+  <text x="360" y="410" class="entity-attr">• CUST-ID (FK)</text>
+  <text x="360" y="425" class="entity-attr">• CARD-NUM (FK)</text>
+  
+  <!-- Relationships -->
+  
+  <!-- Customer to Account (1:N) via Cross-Reference -->
+  <line x1="250" y1="170" x2="350" y2="170" class="relationship-line"/>
+  <text x="280" y="165" class="cardinality">1</text>
+  <text x="320" y="165" class="cardinality">N</text>
+  <text x="300" y="185" text-anchor="middle" class="relationship-label">owns</text>
+  
+  <!-- Account to Card (1:N) -->
+  <line x1="550" y1="150" x2="650" y2="150" class="relationship-line"/>
+  <text x="580" y="145" class="cardinality">1</text>
+  <text x="620" y="145" class="cardinality">N</text>
+  <text x="600" y="165" text-anchor="middle" class="relationship-label">has</text>
+  
+  <!-- Card to Transaction (1:N) -->
+  <line x1="850" y1="150" x2="950" y2="150" class="relationship-line"/>
+  <text x="880" y="145" class="cardinality">1</text>
+  <text x="920" y="145" class="cardinality">N</text>
+  <text x="900" y="165" text-anchor="middle" class="relationship-label">generates</text>
+  
+  <!-- User to Customer (1:1) -->
+  <line x1="150" y1="350" x2="150" y2="260" class="relationship-line"/>
+  <text x="145" y="320" class="cardinality">1</text>
+  <text x="145" y="280" class="cardinality">1</text>
+  <text x="170" y="305" class="relationship-label">authenticates</text>
+  
+  <!-- Customer to Cross-Reference -->
+  <line x1="250" y1="200" x2="350" y2="380" class="relationship-line"/>
+  <text x="280" y="280" class="relationship-label">linked via</text>
+  
+  <!-- Account to Cross-Reference -->
+  <line x1="450" y1="260" x2="450" y2="350" class="relationship-line"/>
+  <text x="460" y="305" class="relationship-label">indexed by</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="550" width="300" height="200" fill="#f9fafb" stroke="#d1d5db" stroke-width="1"/>
+  <text x="200" y="570" text-anchor="middle" class="entity-title">Legend</text>
+  <line x1="60" y1="580" x2="290" y2="580" stroke="#d1d5db" stroke-width="1"/>
+  
+  <text x="60" y="600" class="entity-attr">• PK = Primary Key</text>
+  <text x="60" y="615" class="entity-attr">• FK = Foreign Key</text>
+  <text x="60" y="630" class="entity-attr">• 1:1 = One-to-One relationship</text>
+  <text x="60" y="645" class="entity-attr">• 1:N = One-to-Many relationship</text>
+  
+  <text x="60" y="670" class="entity-attr">Relationship Types:</text>
+  <text x="60" y="685" class="entity-attr">• Customer owns Accounts</text>
+  <text x="60" y="700" class="entity-attr">• Account has Cards</text>
+  <text x="60" y="715" class="entity-attr">• Card generates Transactions</text>
+  <text x="60" y="730" class="entity-attr">• User authenticates Customer</text>
+  
+  <!-- Notes -->
+  <text x="450" y="550" class="entity-attr">Notes:</text>
+  <text x="450" y="570" class="entity-attr">• Cross-Reference entity enables navigation between</text>
+  <text x="450" y="585" class="entity-attr">  Customers, Accounts, and Cards</text>
+  <text x="450" y="605" class="entity-attr">• All entities support CRUD operations via</text>
+  <text x="450" y="620" class="entity-attr">  corresponding COBOL programs</text>
+  <text x="450" y="640" class="entity-attr">• Business rules enforce data integrity</text>
+  <text x="450" y="655" class="entity-attr">  and validation constraints</text>
+  
+</svg>
