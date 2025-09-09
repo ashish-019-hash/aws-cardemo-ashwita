@@ -1,0 +1,141 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+     refX="0" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" font-size="20" font-weight="bold" fill="#333">
+    CardDemo Validation Dependencies
+  </text>
+  
+  <!-- Date Validation Utility (Central) -->
+  <rect x="500" y="60" width="200" height="80" fill="#e8f4fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+  <text x="600" y="85" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">CSUTLDTC</text>
+  <text x="600" y="105" text-anchor="middle" font-size="12" fill="#1976d2">Date Validation Utility</text>
+  <text x="600" y="125" text-anchor="middle" font-size="10" fill="#666">RULE-VAL-056</text>
+  
+  <!-- Account Management Validations -->
+  <rect x="50" y="200" width="250" height="120" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+  <text x="175" y="225" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b1fa2">COACTUPC</text>
+  <text x="175" y="245" text-anchor="middle" font-size="12" fill="#7b1fa2">Account Management</text>
+  <text x="175" y="265" text-anchor="middle" font-size="10" fill="#666">Date of Birth: RULE-VAL-029</text>
+  <text x="175" y="280" text-anchor="middle" font-size="10" fill="#666">Open Date: RULE-VAL-024</text>
+  <text x="175" y="295" text-anchor="middle" font-size="10" fill="#666">State-ZIP Cross: RULE-VAL-043</text>
+  <text x="175" y="310" text-anchor="middle" font-size="10" fill="#666">23 validation rules</text>
+  
+  <!-- Credit Card Validations -->
+  <rect x="350" y="200" width="200" height="120" fill="#e8f5e8" stroke="#388e3c" stroke-width="2" rx="5"/>
+  <text x="450" y="225" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">COCRDUPC</text>
+  <text x="450" y="245" text-anchor="middle" font-size="12" fill="#388e3c">Credit Card Update</text>
+  <text x="450" y="265" text-anchor="middle" font-size="10" fill="#666">Month Range: RULE-VAL-021</text>
+  <text x="450" y="280" text-anchor="middle" font-size="10" fill="#666">Year Range: RULE-VAL-022</text>
+  <text x="450" y="295" text-anchor="middle" font-size="10" fill="#666">Name Format: RULE-VAL-019</text>
+  <text x="450" y="310" text-anchor="middle" font-size="10" fill="#666">6 validation rules</text>
+  
+  <!-- Transaction Validations -->
+  <rect x="600" y="200" width="200" height="120" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="5"/>
+  <text x="700" y="225" text-anchor="middle" font-size="14" font-weight="bold" fill="#f57c00">COTRN02C</text>
+  <text x="700" y="245" text-anchor="middle" font-size="12" fill="#f57c00">Transaction Processing</text>
+  <text x="700" y="265" text-anchor="middle" font-size="10" fill="#666">Required Fields: RULE-VAL-006-014</text>
+  <text x="700" y="280" text-anchor="middle" font-size="10" fill="#666">Numeric Validation: RULE-VAL-003-004</text>
+  <text x="700" y="295" text-anchor="middle" font-size="10" fill="#666">Either/Or Logic: RULE-VAL-005</text>
+  <text x="700" y="310" text-anchor="middle" font-size="10" fill="#666">13 validation rules</text>
+  
+  <!-- Authentication Validations -->
+  <rect x="850" y="200" width="200" height="120" fill="#ffebee" stroke="#d32f2f" stroke-width="2" rx="5"/>
+  <text x="950" y="225" text-anchor="middle" font-size="14" font-weight="bold" fill="#d32f2f">COSGN00C</text>
+  <text x="950" y="245" text-anchor="middle" font-size="12" fill="#d32f2f">Authentication</text>
+  <text x="950" y="265" text-anchor="middle" font-size="10" fill="#666">User ID: RULE-VAL-001</text>
+  <text x="950" y="280" text-anchor="middle" font-size="10" fill="#666">Password: RULE-VAL-002</text>
+  <text x="950" y="310" text-anchor="middle" font-size="10" fill="#666">2 validation rules</text>
+  
+  <!-- User Management Validations -->
+  <rect x="50" y="400" width="200" height="120" fill="#f1f8e9" stroke="#689f38" stroke-width="2" rx="5"/>
+  <text x="150" y="425" text-anchor="middle" font-size="14" font-weight="bold" fill="#689f38">COUSR01C/02C</text>
+  <text x="150" y="445" text-anchor="middle" font-size="12" fill="#689f38">User Management</text>
+  <text x="150" y="465" text-anchor="middle" font-size="10" fill="#666">Required Fields: RULE-VAL-047-055</text>
+  <text x="150" y="480" text-anchor="middle" font-size="10" fill="#666">Create/Update Logic</text>
+  <text x="150" y="510" text-anchor="middle" font-size="10" fill="#666">9 validation rules</text>
+  
+  <!-- Bill Payment Validations -->
+  <rect x="300" y="400" width="200" height="120" fill="#fce4ec" stroke="#c2185b" stroke-width="2" rx="5"/>
+  <text x="400" y="425" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2185b">COBIL00C</text>
+  <text x="400" y="445" text-anchor="middle" font-size="12" fill="#c2185b">Bill Payment</text>
+  <text x="400" y="465" text-anchor="middle" font-size="10" fill="#666">Account ID: RULE-VAL-044</text>
+  <text x="400" y="480" text-anchor="middle" font-size="10" fill="#666">Balance Check: RULE-VAL-046</text>
+  <text x="400" y="510" text-anchor="middle" font-size="10" fill="#666">3 validation rules</text>
+  
+  <!-- Other Programs -->
+  <rect x="550" y="400" width="200" height="120" fill="#f5f5f5" stroke="#757575" stroke-width="2" rx="5"/>
+  <text x="650" y="425" text-anchor="middle" font-size="14" font-weight="bold" fill="#757575">Other Programs</text>
+  <text x="650" y="445" text-anchor="middle" font-size="12" fill="#757575">COCRDLIC, COCRDSLC</text>
+  <text x="650" y="465" text-anchor="middle" font-size="10" fill="#666">COACTVWC, COTRN00C</text>
+  <text x="650" y="480" text-anchor="middle" font-size="10" fill="#666">COTRN01C, COUSR00C</text>
+  <text x="650" y="495" text-anchor="middle" font-size="10" fill="#666">COMEN01C, COADM01C</text>
+  <text x="650" y="510" text-anchor="middle" font-size="10" fill="#666">Display/Navigation Logic</text>
+  
+  <!-- Dependencies (arrows) -->
+  <!-- Date utility dependencies -->
+  <line x1="550" y1="140" x2="250" y2="200" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="380" y="175" font-size="10" fill="#666">Date validation</text>
+  
+  <!-- Cross-field validation -->
+  <line x1="175" y1="320" x2="175" y2="360" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="180" y="345" font-size="10" fill="#666">State-ZIP cross validation</text>
+  
+  <!-- Shared validation patterns -->
+  <line x1="300" y1="260" x2="350" y2="260" stroke="#666" stroke-width="1" stroke-dasharray="5,5"/>
+  <text x="315" y="255" font-size="9" fill="#666">Y/N pattern</text>
+  
+  <line x1="550" y1="260" x2="600" y2="260" stroke="#666" stroke-width="1" stroke-dasharray="5,5"/>
+  <text x="565" y="255" font-size="9" fill="#666">Numeric pattern</text>
+  
+  <!-- Legend -->
+  <rect x="850" y="400" width="300" height="180" fill="#fafafa" stroke="#ccc" stroke-width="1" rx="5"/>
+  <text x="1000" y="425" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">Legend</text>
+  
+  <line x1="870" y1="445" x2="900" y2="445" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="910" y="450" font-size="11" fill="#666">Direct dependency</text>
+  
+  <line x1="870" y1="465" x2="900" y2="465" stroke="#666" stroke-width="1" stroke-dasharray="5,5"/>
+  <text x="910" y="470" font-size="11" fill="#666">Shared pattern</text>
+  
+  <rect x="870" y="485" width="20" height="15" fill="#e8f4fd" stroke="#1976d2"/>
+  <text x="900" y="495" font-size="11" fill="#666">Utility/Shared</text>
+  
+  <rect x="870" y="510" width="20" height="15" fill="#f3e5f5" stroke="#7b1fa2"/>
+  <text x="900" y="520" font-size="11" fill="#666">Complex validation</text>
+  
+  <rect x="870" y="535" width="20" height="15" fill="#e8f5e8" stroke="#388e3c"/>
+  <text x="900" y="545" font-size="11" fill="#666">Range validation</text>
+  
+  <rect x="870" y="560" width="20" height="15" fill="#fff3e0" stroke="#f57c00"/>
+  <text x="900" y="570" font-size="11" fill="#666">Field validation</text>
+  
+  <!-- Validation Patterns Box -->
+  <rect x="50" y="600" width="1100" height="150" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+  <text x="600" y="625" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Common Validation Patterns</text>
+  
+  <text x="70" y="650" font-size="12" font-weight="bold" fill="#495057">Field-Level:</text>
+  <text x="70" y="670" font-size="11" fill="#666">• Non-empty validation (SPACES/LOW-VALUES check)</text>
+  <text x="70" y="685" font-size="11" fill="#666">• Numeric validation (IS NUMERIC test)</text>
+  <text x="70" y="700" font-size="11" fill="#666">• Length validation (fixed character counts)</text>
+  
+  <text x="400" y="650" font-size="12" font-weight="bold" fill="#495057">Range Validation:</text>
+  <text x="400" y="670" font-size="11" fill="#666">• Month: 1 THRU 12</text>
+  <text x="400" y="685" font-size="11" fill="#666">• Year: 1950 THRU 2099</text>
+  <text x="400" y="700" font-size="11" fill="#666">• FICO Score: 3-digit numeric</text>
+  
+  <text x="700" y="650" font-size="12" font-weight="bold" fill="#495057">Code/Value:</text>
+  <text x="700" y="670" font-size="11" fill="#666">• Y/N validation (Yes/No flags)</text>
+  <text x="700" y="685" font-size="11" fill="#666">• State code validation</text>
+  <text x="700" y="700" font-size="11" fill="#666">• Format validation (phone, SSN)</text>
+  
+  <text x="950" y="650" font-size="12" font-weight="bold" fill="#495057">Conditional:</text>
+  <text x="950" y="670" font-size="11" fill="#666">• Either/Or logic (Account OR Card)</text>
+  <text x="950" y="685" font-size="11" fill="#666">• Cross-field (State-ZIP)</text>
+  <text x="950" y="700" font-size="11" fill="#666">• Date reasonableness checks</text>
+</svg>
