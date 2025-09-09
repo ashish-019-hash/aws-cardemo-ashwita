@@ -1,0 +1,157 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .domain-box { fill: #f0f8ff; stroke: #4682b4; stroke-width: 2; }
+      .auth-box { fill: #ffe4e1; stroke: #dc143c; stroke-width: 2; }
+      .account-box { fill: #f0fff0; stroke: #228b22; stroke-width: 2; }
+      .card-box { fill: #fff8dc; stroke: #daa520; stroke-width: 2; }
+      .transaction-box { fill: #f5f5dc; stroke: #8b4513; stroke-width: 2; }
+      .user-box { fill: #e6e6fa; stroke: #9370db; stroke-width: 2; }
+      .payment-box { fill: #ffefd5; stroke: #ff8c00; stroke-width: 2; }
+      .report-box { fill: #f0f8ff; stroke: #4169e1; stroke-width: 2; }
+      .menu-box { fill: #f5f5f5; stroke: #696969; stroke-width: 2; }
+      .utility-box { fill: #fdf5e6; stroke: #d2691e; stroke-width: 2; }
+      .title-text { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; }
+      .rule-text { font-family: Arial, sans-serif; font-size: 10px; }
+      .connection-line { stroke: #666; stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
+      .dependency-line { stroke: #ff6b6b; stroke-width: 2; fill: none; stroke-dasharray: 5,5; marker-end: url(#arrowhead-red); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+    </marker>
+    <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ff6b6b" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="25" text-anchor="middle" class="title-text" font-size="18">CardDemo COBOL Validation Rules - Domain Relationships</text>
+  
+  <!-- Authentication Domain -->
+  <rect x="50" y="50" width="200" height="80" class="auth-box" rx="5"/>
+  <text x="150" y="70" text-anchor="middle" class="title-text">Authentication</text>
+  <text x="60" y="85" class="rule-text">• User ID Required (VAL-001)</text>
+  <text x="60" y="100" class="rule-text">• Password Required (VAL-002)</text>
+  <text x="60" y="115" class="rule-text">• User Existence (VAL-003)</text>
+  
+  <!-- Account Management Domain -->
+  <rect x="300" y="50" width="200" height="100" class="account-box" rx="5"/>
+  <text x="400" y="70" text-anchor="middle" class="title-text">Account Management</text>
+  <text x="310" y="85" class="rule-text">• Account Status Y/N (VAL-004)</text>
+  <text x="310" y="100" class="rule-text">• SSN 9 digits (VAL-005)</text>
+  <text x="310" y="115" class="rule-text">• Phone 10 digits (VAL-006)</text>
+  <text x="310" y="130" class="rule-text">• Account ID numeric (VAL-007)</text>
+  
+  <!-- Credit Card Domain -->
+  <rect x="550" y="50" width="200" height="120" class="card-box" rx="5"/>
+  <text x="650" y="70" text-anchor="middle" class="title-text">Credit Card</text>
+  <text x="560" y="85" class="rule-text">• Card Name Alpha (VAL-008)</text>
+  <text x="560" y="100" class="rule-text">• Card Status Y/N (VAL-009)</text>
+  <text x="560" y="115" class="rule-text">• Expiry Month 1-12 (VAL-010)</text>
+  <text x="560" y="130" class="rule-text">• Expiry Year Range (VAL-011)</text>
+  <text x="560" y="145" class="rule-text">• Card Number Format (VAL-013)</text>
+  
+  <!-- Transaction Domain -->
+  <rect x="800" y="50" width="200" height="140" class="transaction-box" rx="5"/>
+  <text x="900" y="70" text-anchor="middle" class="title-text">Transaction</text>
+  <text x="810" y="85" class="rule-text">• Transaction ID Numeric (VAL-014)</text>
+  <text x="810" y="100" class="rule-text">• Required Fields (VAL-019-023)</text>
+  <text x="810" y="115" class="rule-text">• Amount Format (VAL-026)</text>
+  <text x="810" y="130" class="rule-text">• Date Format YYYY-MM-DD</text>
+  <text x="810" y="145" class="rule-text">• Account/Card Link (VAL-018)</text>
+  <text x="810" y="160" class="rule-text">• Type Codes Numeric (VAL-024-25)</text>
+  
+  <!-- User Management Domain -->
+  <rect x="50" y="200" width="200" height="120" class="user-box" rx="5"/>
+  <text x="150" y="220" text-anchor="middle" class="title-text">User Management</text>
+  <text x="60" y="235" class="rule-text">• First Name Required (VAL-029)</text>
+  <text x="60" y="250" class="rule-text">• Last Name Required (VAL-030)</text>
+  <text x="60" y="265" class="rule-text">• User ID Required (VAL-031)</text>
+  <text x="60" y="280" class="rule-text">• Password Required (VAL-032)</text>
+  <text x="60" y="295" class="rule-text">• User Type Required (VAL-033)</text>
+  <text x="60" y="310" class="rule-text">• Selection Actions U/D (VAL-040)</text>
+  
+  <!-- Bill Payment Domain -->
+  <rect x="300" y="200" width="200" height="100" class="payment-box" rx="5"/>
+  <text x="400" y="220" text-anchor="middle" class="title-text">Bill Payment</text>
+  <text x="310" y="235" class="rule-text">• Account ID Required (VAL-041)</text>
+  <text x="310" y="250" class="rule-text">• Confirmation Y/N (VAL-042)</text>
+  <text x="310" y="265" class="rule-text">• Positive Balance (VAL-043)</text>
+  <text x="310" y="280" class="rule-text">• Links to Account Domain</text>
+  
+  <!-- Reporting Domain -->
+  <rect x="550" y="200" width="200" height="120" class="report-box" rx="5"/>
+  <text x="650" y="220" text-anchor="middle" class="title-text">Reporting</text>
+  <text x="560" y="235" class="rule-text">• Date Fields Required (VAL-044-49)</text>
+  <text x="560" y="250" class="rule-text">• Month Range 1-12 (VAL-050,53)</text>
+  <text x="560" y="265" class="rule-text">• Day Range 1-31 (VAL-051,54)</text>
+  <text x="560" y="280" class="rule-text">• Year Numeric (VAL-052,55)</text>
+  <text x="560" y="295" class="rule-text">• Uses Date Utility</text>
+  
+  <!-- Menu/Navigation Domain -->
+  <rect x="800" y="200" width="200" height="100" class="menu-box" rx="5"/>
+  <text x="900" y="220" text-anchor="middle" class="title-text">Menu/Navigation</text>
+  <text x="810" y="235" class="rule-text">• Option Number Valid (VAL-056)</text>
+  <text x="810" y="250" class="rule-text">• Access Level Check (VAL-057)</text>
+  <text x="810" y="265" class="rule-text">• Admin Options (VAL-058)</text>
+  <text x="810" y="280" class="rule-text">• Links to User Domain</text>
+  
+  <!-- Date Utility Domain -->
+  <rect x="300" y="350" width="200" height="80" class="utility-box" rx="5"/>
+  <text x="400" y="370" text-anchor="middle" class="title-text">Date Utility</text>
+  <text x="310" y="385" class="rule-text">• Date Format Valid (VAL-059)</text>
+  <text x="310" y="400" class="rule-text">• Calendar Rules (VAL-060)</text>
+  <text x="310" y="415" class="rule-text">• Used by Multiple Domains</text>
+  
+  <!-- Validation Flow Connections -->
+  <!-- Authentication to User Management -->
+  <line x1="150" y1="130" x2="150" y2="200" class="connection-line"/>
+  
+  <!-- Account to Credit Card -->
+  <line x1="500" y1="100" x2="550" y2="100" class="connection-line"/>
+  
+  <!-- Account/Card to Transaction -->
+  <line x1="650" y1="120" x2="800" y2="120" class="connection-line"/>
+  <line x1="500" y1="120" x2="800" y2="140" class="connection-line"/>
+  
+  <!-- Account to Bill Payment -->
+  <line x1="400" y1="150" x2="400" y2="200" class="connection-line"/>
+  
+  <!-- User Management to Menu -->
+  <line x1="250" y1="260" x2="800" y2="250" class="connection-line"/>
+  
+  <!-- Date Utility Dependencies (dashed red lines) -->
+  <line x1="400" y1="350" x2="650" y2="320" class="dependency-line"/>
+  <line x1="450" y1="350" x2="900" y2="190" class="dependency-line"/>
+  <line x1="350" y1="350" x2="400" y2="150" class="dependency-line"/>
+  
+  <!-- Legend -->
+  <rect x="50" y="480" width="300" height="120" fill="white" stroke="#ccc" stroke-width="1" rx="5"/>
+  <text x="200" y="500" text-anchor="middle" class="title-text">Legend</text>
+  <line x1="70" y1="520" x2="120" y2="520" class="connection-line"/>
+  <text x="130" y="525" class="rule-text">Direct Validation Flow</text>
+  <line x1="70" y1="540" x2="120" y2="540" class="dependency-line"/>
+  <text x="130" y="545" class="rule-text">Utility Dependency</text>
+  <rect x="70" y="555" width="15" height="15" class="auth-box"/>
+  <text x="95" y="567" class="rule-text">Authentication (3 rules)</text>
+  <rect x="70" y="575" width="15" height="15" class="utility-box"/>
+  <text x="95" y="587" class="rule-text">Shared Utilities (2 rules)</text>
+  
+  <!-- Summary Box -->
+  <rect x="400" y="480" width="350" height="120" fill="#f9f9f9" stroke="#333" stroke-width="1" rx="5"/>
+  <text x="575" y="500" text-anchor="middle" class="title-text">Validation Summary</text>
+  <text x="420" y="520" class="rule-text">Total Rules: 60 across 9 business domains</text>
+  <text x="420" y="535" class="rule-text">Cross-Domain Dependencies: Account ↔ Card ↔ Transaction</text>
+  <text x="420" y="550" class="rule-text">Shared Utilities: Date validation used by 4 domains</text>
+  <text x="420" y="565" class="rule-text">Access Control: User type determines menu access</text>
+  <text x="420" y="580" class="rule-text">Data Integrity: Required fields + format validation</text>
+  
+  <!-- Modernization Notes -->
+  <rect x="800" y="480" width="350" height="120" fill="#fff5ee" stroke="#ff7f50" stroke-width="1" rx="5"/>
+  <text x="975" y="500" text-anchor="middle" class="title-text">Modernization Considerations</text>
+  <text x="820" y="520" class="rule-text">Frontend: Client-side validation for immediate feedback</text>
+  <text x="820" y="535" class="rule-text">Backend: Server-side validation for data integrity</text>
+  <text x="820" y="550" class="rule-text">API Layer: Consistent validation across all endpoints</text>
+  <text x="820" y="565" class="rule-text">Shared Libraries: Reusable validation components</text>
+  <text x="820" y="580" class="rule-text">Error Handling: Standardized validation messages</text>
+</svg>
