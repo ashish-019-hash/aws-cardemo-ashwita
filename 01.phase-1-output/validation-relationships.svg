@@ -1,0 +1,170 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #2c3e50; }
+      .category-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #34495e; }
+      .rule-text { font-family: Arial, sans-serif; font-size: 11px; fill: #2c3e50; }
+      .program-text { font-family: Arial, sans-serif; font-size: 10px; fill: #7f8c8d; }
+      .connection-line { stroke: #3498db; stroke-width: 2; fill: none; }
+      .dependency-line { stroke: #e74c3c; stroke-width: 1.5; fill: none; stroke-dasharray: 5,5; }
+      .auth-box { fill: #ecf0f1; stroke: #34495e; stroke-width: 2; }
+      .card-box { fill: #e8f5e8; stroke: #27ae60; stroke-width: 2; }
+      .account-box { fill: #fef9e7; stroke: #f39c12; stroke-width: 2; }
+      .transaction-box { fill: #ebf3fd; stroke: #3498db; stroke-width: 2; }
+      .menu-box { fill: #f4ecf7; stroke: #9b59b6; stroke-width: 2; }
+      .utility-box { fill: #fdf2e9; stroke: #e67e22; stroke-width: 2; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="25" text-anchor="middle" class="title">COBOL Business Validation Rules - Relationships &amp; Dependencies</text>
+  
+  <!-- Authentication & User Management Category -->
+  <rect x="20" y="50" width="280" height="200" class="auth-box" rx="5"/>
+  <text x="30" y="70" class="category-title">Authentication &amp; User Management</text>
+  
+  <!-- Auth validation rules -->
+  <text x="30" y="90" class="rule-text">RULE-VAL-001: User ID Mandatory (Sign-on)</text>
+  <text x="30" y="105" class="program-text">COSGN00C.cbl</text>
+  
+  <text x="30" y="125" class="rule-text">RULE-VAL-002: Password Mandatory (Sign-on)</text>
+  <text x="30" y="140" class="program-text">COSGN00C.cbl</text>
+  
+  <text x="30" y="160" class="rule-text">RULE-VAL-003-007: User Add Validations</text>
+  <text x="30" y="175" class="program-text">COUSR01C.cbl (First/Last Name, User ID, Password, Type)</text>
+  
+  <text x="30" y="195" class="rule-text">RULE-VAL-008: Duplicate User ID Check</text>
+  <text x="30" y="210" class="program-text">COUSR01C.cbl</text>
+  
+  <text x="30" y="230" class="rule-text">RULE-VAL-009-010: User Update/Delete Validations</text>
+  <text x="30" y="245" class="program-text">COUSR02C.cbl, COUSR03C.cbl</text>
+  
+  <!-- Credit Card Validations Category -->
+  <rect x="320" y="50" width="280" height="200" class="card-box" rx="5"/>
+  <text x="330" y="70" class="category-title">Credit Card Validations</text>
+  
+  <text x="330" y="90" class="rule-text">RULE-VAL-011: Expiration Month (1-12)</text>
+  <text x="330" y="105" class="program-text">COCRDUPC.cbl</text>
+  
+  <text x="330" y="125" class="rule-text">RULE-VAL-012: Expiration Year (1950-2099)</text>
+  <text x="330" y="140" class="program-text">COCRDUPC.cbl</text>
+  
+  <text x="330" y="160" class="rule-text">RULE-VAL-013: Yes/No Field Validation</text>
+  <text x="330" y="175" class="program-text">COCRDUPC.cbl</text>
+  
+  <text x="330" y="195" class="rule-text">RULE-VAL-014: Account Filter Validation</text>
+  <text x="330" y="210" class="program-text">COCRDUPC.cbl</text>
+  
+  <!-- Account Management Category -->
+  <rect x="620" y="50" width="280" height="200" class="account-box" rx="5"/>
+  <text x="630" y="70" class="category-title">Account Management</text>
+  
+  <text x="630" y="90" class="rule-text">RULE-VAL-015: Account ID Mandatory (Bill Pay)</text>
+  <text x="630" y="105" class="program-text">COBIL00C.cbl</text>
+  
+  <text x="630" y="125" class="rule-text">RULE-VAL-016: Phone Number Format</text>
+  <text x="630" y="140" class="program-text">COACTUPC.cbl</text>
+  
+  <text x="630" y="160" class="rule-text">RULE-VAL-017: Account Number Numeric</text>
+  <text x="630" y="175" class="program-text">COACTVWC.cbl</text>
+  
+  <!-- Transaction Processing Category -->
+  <rect x="920" y="50" width="260" height="200" class="transaction-box" rx="5"/>
+  <text x="930" y="70" class="category-title">Transaction Processing</text>
+  
+  <text x="930" y="90" class="rule-text">RULE-VAL-018: Transaction ID Mandatory</text>
+  <text x="930" y="105" class="program-text">COTRN01C.cbl</text>
+  
+  <text x="930" y="125" class="rule-text">RULE-VAL-019: Transaction Type Code</text>
+  <text x="930" y="140" class="program-text">COTRN02C.cbl</text>
+  
+  <text x="930" y="160" class="rule-text">RULE-VAL-020: Transaction Category Code</text>
+  <text x="930" y="175" class="program-text">COTRN02C.cbl</text>
+  
+  <!-- Menu Navigation Category -->
+  <rect x="20" y="280" width="380" height="150" class="menu-box" rx="5"/>
+  <text x="30" y="300" class="category-title">Menu Navigation &amp; Authorization</text>
+  
+  <text x="30" y="320" class="rule-text">RULE-VAL-021: Menu Option Numeric (Regular User)</text>
+  <text x="30" y="335" class="program-text">COMEN01C.cbl</text>
+  
+  <text x="30" y="355" class="rule-text">RULE-VAL-022: Admin-Only Access Control</text>
+  <text x="30" y="370" class="program-text">COMEN01C.cbl</text>
+  
+  <text x="30" y="390" class="rule-text">RULE-VAL-023: Menu Option Numeric (Admin User)</text>
+  <text x="30" y="405" class="program-text">COADM01C.cbl</text>
+  
+  <!-- Date Validation Utility Category -->
+  <rect x="420" y="280" width="380" height="150" class="utility-box" rx="5"/>
+  <text x="430" y="300" class="category-title">Date Validation Utilities</text>
+  
+  <text x="430" y="320" class="rule-text">RULE-VAL-024: Date Format Validation (CEEDAYS API)</text>
+  <text x="430" y="335" class="program-text">CSUTLDTC.cbl</text>
+  
+  <text x="430" y="355" class="rule-text">RULE-VAL-025: Report Date Range Validation</text>
+  <text x="430" y="370" class="program-text">CORPT00C.cbl</text>
+  
+  <!-- Shared Validation Patterns -->
+  <rect x="820" y="280" width="360" height="150" class="utility-box" rx="5"/>
+  <text x="830" y="300" class="category-title">Shared Validation Patterns</text>
+  
+  <text x="830" y="320" class="rule-text">Mandatory Field Pattern:</text>
+  <text x="830" y="335" class="program-text">Field = SPACES OR LOW-VALUES</text>
+  
+  <text x="830" y="355" class="rule-text">Numeric Range Pattern:</text>
+  <text x="830" y="370" class="program-text">88-level conditions with value ranges</text>
+  
+  <text x="830" y="390" class="rule-text">User Authorization Pattern:</text>
+  <text x="830" y="405" class="program-text">User type validation before access</text>
+  
+  <!-- Dependency Arrows -->
+  <!-- User Management Flow -->
+  <path d="M 160 250 Q 160 270 160 290" class="dependency-line" marker-end="url(#arrowhead)"/>
+  <text x="170" y="275" class="program-text">Sequential validation flow</text>
+  
+  <!-- Card Validation Dependencies -->
+  <path d="M 460 250 Q 480 270 500 290" class="dependency-line" marker-end="url(#arrowhead)"/>
+  <text x="470" y="275" class="program-text">Month + Year validation</text>
+  
+  <!-- Transaction Dependencies -->
+  <path d="M 1050 250 Q 1050 270 1050 290" class="dependency-line" marker-end="url(#arrowhead)"/>
+  <text x="1060" y="275" class="program-text">Type + Category required</text>
+  
+  <!-- Cross-category relationships -->
+  <!-- Auth to Menu -->
+  <path d="M 300 150 Q 350 200 200 280" class="connection-line" marker-end="url(#arrowhead)"/>
+  <text x="250" y="220" class="program-text">User type determines menu access</text>
+  
+  <!-- Account to Transaction -->
+  <path d="M 900 150 Q 950 200 1000 250" class="connection-line" marker-end="url(#arrowhead)"/>
+  <text x="920" y="200" class="program-text">Account validation enables transactions</text>
+  
+  <!-- Date utility used by multiple modules -->
+  <path d="M 600 280 Q 600 260 600 250" class="connection-line" marker-end="url(#arrowhead)"/>
+  <text x="610" y="265" class="program-text">Date validation used across modules</text>
+  
+  <!-- Legend -->
+  <rect x="20" y="460" width="1160" height="120" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1" rx="5"/>
+  <text x="30" y="480" class="category-title">Legend &amp; Validation Flow Patterns</text>
+  
+  <line x1="30" y1="500" x2="80" y2="500" class="connection-line"/>
+  <text x="90" y="505" class="rule-text">Functional relationship (user type enables access)</text>
+  
+  <line x1="30" y1="520" x2="80" y2="520" class="dependency-line"/>
+  <text x="90" y="525" class="rule-text">Sequential dependency (validation order matters)</text>
+  
+  <text x="30" y="545" class="rule-text">Common Triggers: DFHENTER (Enter key), PF3 (Exit), PF4 (Clear), PF5 (Action)</text>
+  <text x="30" y="560" class="rule-text">Common Patterns: Mandatory field validation → Business rule validation → Database operation → Success/Error response</text>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3498db"/>
+    </marker>
+  </defs>
+  
+  <!-- Validation Categories Summary -->
+  <text x="600" y="620" text-anchor="middle" class="category-title">Validation Categories: 6 | Total Rules: 25 | Programs Analyzed: 18</text>
+  <text x="600" y="640" text-anchor="middle" class="rule-text">Ready for migration to modern frontend + backend validation layers</text>
+  
+</svg>
