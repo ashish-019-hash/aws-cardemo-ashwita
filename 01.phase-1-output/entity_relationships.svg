@@ -1,0 +1,260 @@
+<svg width="1000" height="700" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1000" height="700" fill="#f8f9fa" stroke="none"/>
+  
+  <!-- Title -->
+  <text x="500" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#2c3e50">
+    CardDemo Business Entity Relationship Diagram
+  </text>
+  
+  <!-- Customer Entity -->
+  <g id="customer">
+    <rect x="50" y="80" width="200" height="180" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+    <text x="150" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1976d2">
+      Customer
+    </text>
+    <line x1="60" y1="110" x2="240" y2="110" stroke="#1976d2" stroke-width="1"/>
+    <text x="60" y="125" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CUST-ID (PK)
+    </text>
+    <text x="60" y="140" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CUST-FIRST-NAME
+    </text>
+    <text x="60" y="155" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CUST-LAST-NAME
+    </text>
+    <text x="60" y="170" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CUST-SSN
+    </text>
+    <text x="60" y="185" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CUST-PHONE-NUM-1
+    </text>
+    <text x="60" y="200" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CUST-ADDR-LINE-1
+    </text>
+    <text x="60" y="215" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CUST-FICO-CREDIT-SCORE
+    </text>
+    <text x="60" y="230" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CUST-DOB-YYYY-MM-DD
+    </text>
+    <text x="60" y="245" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • ... (18 attributes total)
+    </text>
+  </g>
+  
+  <!-- Account Entity -->
+  <g id="account">
+    <rect x="400" y="80" width="200" height="180" fill="#e8f5e8" stroke="#388e3c" stroke-width="2" rx="5"/>
+    <text x="500" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#388e3c">
+      Account
+    </text>
+    <line x1="410" y1="110" x2="590" y2="110" stroke="#388e3c" stroke-width="1"/>
+    <text x="410" y="125" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • ACCT-ID (PK)
+    </text>
+    <text x="410" y="140" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • ACCT-CURR-BAL
+    </text>
+    <text x="410" y="155" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • ACCT-CREDIT-LIMIT
+    </text>
+    <text x="410" y="170" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • ACCT-CASH-CREDIT-LIMIT
+    </text>
+    <text x="410" y="185" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • ACCT-OPEN-DATE
+    </text>
+    <text x="410" y="200" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • ACCT-EXPIRY-DATE
+    </text>
+    <text x="410" y="215" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • ACCT-CURR-CYC-CREDIT
+    </text>
+    <text x="410" y="230" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • ACCT-CURR-CYC-DEBIT
+    </text>
+    <text x="410" y="245" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • ... (10 attributes total)
+    </text>
+  </g>
+  
+  <!-- Card Entity -->
+  <g id="card">
+    <rect x="750" y="80" width="200" height="180" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="5"/>
+    <text x="850" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#f57c00">
+      Card
+    </text>
+    <line x1="760" y1="110" x2="940" y2="110" stroke="#f57c00" stroke-width="1"/>
+    <text x="760" y="125" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CARD-NUM (PK)
+    </text>
+    <text x="760" y="140" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CARD-ACCT-ID (FK)
+    </text>
+    <text x="760" y="155" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CARD-CVV-CD
+    </text>
+    <text x="760" y="170" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CARD-EMBOSSED-NAME
+    </text>
+    <text x="760" y="185" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CARD-EXPIRY-DATE
+    </text>
+    <text x="760" y="200" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • CARD-ACTIVE-STATUS
+    </text>
+  </g>
+  
+  <!-- Transaction Entity -->
+  <g id="transaction">
+    <rect x="750" y="350" width="200" height="200" fill="#fce4ec" stroke="#c2185b" stroke-width="2" rx="5"/>
+    <text x="850" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#c2185b">
+      Transaction
+    </text>
+    <line x1="760" y1="380" x2="940" y2="380" stroke="#c2185b" stroke-width="1"/>
+    <text x="760" y="395" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • TRAN-ID (PK)
+    </text>
+    <text x="760" y="410" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • TRAN-CARD-NUM (FK)
+    </text>
+    <text x="760" y="425" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • TRAN-TYPE-CD
+    </text>
+    <text x="760" y="440" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • TRAN-AMT
+    </text>
+    <text x="760" y="455" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • TRAN-MERCHANT-ID
+    </text>
+    <text x="760" y="470" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • TRAN-MERCHANT-NAME
+    </text>
+    <text x="760" y="485" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • TRAN-MERCHANT-CITY
+    </text>
+    <text x="760" y="500" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • TRAN-ORIG-TS
+    </text>
+    <text x="760" y="515" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • TRAN-PROC-TS
+    </text>
+    <text x="760" y="530" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • ... (13 attributes total)
+    </text>
+  </g>
+  
+  <!-- User Entity -->
+  <g id="user">
+    <rect x="50" y="350" width="200" height="140" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+    <text x="150" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#7b1fa2">
+      User
+    </text>
+    <line x1="60" y1="380" x2="240" y2="380" stroke="#7b1fa2" stroke-width="1"/>
+    <text x="60" y="395" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • SEC-USR-ID (PK)
+    </text>
+    <text x="60" y="410" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • SEC-USR-FNAME
+    </text>
+    <text x="60" y="425" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • SEC-USR-LNAME
+    </text>
+    <text x="60" y="440" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • SEC-USR-PWD
+    </text>
+    <text x="60" y="455" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • SEC-USR-TYPE
+    </text>
+  </g>
+  
+  <!-- Cross-Reference Entity -->
+  <g id="crossref">
+    <rect x="400" y="350" width="200" height="140" fill="#e0f2f1" stroke="#00695c" stroke-width="2" rx="5"/>
+    <text x="500" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#00695c">
+      Cross-Reference
+    </text>
+    <line x1="410" y1="380" x2="590" y2="380" stroke="#00695c" stroke-width="1"/>
+    <text x="410" y="395" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • XREF-ACCT-ID (PK)
+    </text>
+    <text x="410" y="410" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • XREF-CARD-NUM (PK)
+    </text>
+    <text x="410" y="425" font-family="Arial, sans-serif" font-size="10" fill="#333">
+      • XREF-CUST-ID
+    </text>
+  </g>
+  
+  <!-- Relationships -->
+  
+  <!-- Customer to Cross-Reference (1:N) -->
+  <line x1="250" y1="170" x2="400" y2="420" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="320" y="290" font-family="Arial, sans-serif" font-size="12" fill="#666" transform="rotate(-45 320 290)">
+    1:N
+  </text>
+  
+  <!-- Account to Cross-Reference (1:N) -->
+  <line x1="500" y1="260" x2="500" y2="350" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="510" y="305" font-family="Arial, sans-serif" font-size="12" fill="#666">
+    1:N
+  </text>
+  
+  <!-- Account to Card (1:N) -->
+  <line x1="600" y1="170" x2="750" y2="170" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="675" y="160" font-family="Arial, sans-serif" font-size="12" fill="#666">
+    1:N
+  </text>
+  
+  <!-- Card to Transaction (1:N) -->
+  <line x1="850" y1="260" x2="850" y2="350" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="860" y="305" font-family="Arial, sans-serif" font-size="12" fill="#666">
+    1:N
+  </text>
+  
+  <!-- Cross-Reference to Card (N:M) -->
+  <line x1="600" y1="420" x2="750" y2="170" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="680" y="290" font-family="Arial, sans-serif" font-size="12" fill="#666" transform="rotate(45 680 290)">
+    N:M
+  </text>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+     refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+  
+  <!-- Legend -->
+  <g id="legend">
+    <rect x="50" y="580" width="300" height="100" fill="#ffffff" stroke="#ccc" stroke-width="1" rx="5"/>
+    <text x="60" y="600" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">
+      Legend
+    </text>
+    <text x="60" y="620" font-family="Arial, sans-serif" font-size="12" fill="#333">
+      • PK = Primary Key
+    </text>
+    <text x="60" y="635" font-family="Arial, sans-serif" font-size="12" fill="#333">
+      • FK = Foreign Key
+    </text>
+    <text x="60" y="650" font-family="Arial, sans-serif" font-size="12" fill="#333">
+      • 1:N = One-to-Many relationship
+    </text>
+    <text x="60" y="665" font-family="Arial, sans-serif" font-size="12" fill="#333">
+      • N:M = Many-to-Many relationship
+    </text>
+  </g>
+  
+  <!-- Notes -->
+  <text x="500" y="620" font-family="Arial, sans-serif" font-size="12" fill="#666">
+    Note: Cross-Reference entity enables flexible Customer-Account-Card relationships
+  </text>
+  <text x="500" y="640" font-family="Arial, sans-serif" font-size="12" fill="#666">
+    All entities exclude technical variables (WS-, FILLER, FLAGS, etc.)
+  </text>
+  <text x="500" y="660" font-family="Arial, sans-serif" font-size="12" fill="#666">
+    Entity attributes represent business-relevant data only
+  </text>
+</svg>
