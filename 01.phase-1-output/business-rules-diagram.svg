@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .rule-box { fill: #e1f5fe; stroke: #0277bd; stroke-width: 2; }
+      .validation-box { fill: #f3e5f5; stroke: #7b1fa2; stroke-width: 2; }
+      .conversion-box { fill: #e8f5e8; stroke: #388e3c; stroke-width: 2; }
+      .main-calc-box { fill: #fff3e0; stroke: #f57c00; stroke-width: 3; }
+      .rule-text { font-family: Arial, sans-serif; font-size: 12px; text-anchor: middle; }
+      .rule-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-anchor: middle; }
+      .arrow { stroke: #424242; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .dependency-text { font-family: Arial, sans-serif; font-size: 10px; fill: #666; text-anchor: middle; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#424242" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" class="rule-title" font-size="18">CardDemo Business Rules Dependencies</text>
+  
+  <!-- RULE-CALC-002: Transaction ID Generation -->
+  <rect x="50" y="80" width="180" height="80" class="conversion-box" rx="5"/>
+  <text x="140" y="105" class="rule-title">RULE-CALC-002</text>
+  <text x="140" y="125" class="rule-text">Transaction ID</text>
+  <text x="140" y="140" class="rule-text">Generation</text>
+  <text x="140" y="155" class="rule-text">ADD 1 TO TRAN-ID</text>
+  
+  <!-- RULE-CALC-004: Amount Conversion -->
+  <rect x="50" y="200" width="180" height="80" class="conversion-box" rx="5"/>
+  <text x="140" y="225" class="rule-title">RULE-CALC-004</text>
+  <text x="140" y="245" class="rule-text">Amount Conversion</text>
+  <text x="140" y="260" class="rule-text">NUMVAL-C Function</text>
+  
+  <!-- RULE-CALC-001: Balance Update (Main Calculation) -->
+  <rect x="350" y="140" width="200" height="100" class="main-calc-box" rx="5"/>
+  <text x="450" y="165" class="rule-title">RULE-CALC-001</text>
+  <text x="450" y="185" class="rule-text">Bill Payment</text>
+  <text x="450" y="200" class="rule-text">Balance Update</text>
+  <text x="450" y="220" class="rule-text">ACCT-BAL = ACCT-BAL - TRAN-AMT</text>
+  
+  <!-- RULE-CALC-003: FICO Score Validation -->
+  <rect x="580" y="80" width="180" height="80" class="validation-box" rx="5"/>
+  <text x="670" y="105" class="rule-title">RULE-CALC-003</text>
+  <text x="670" y="125" class="rule-text">FICO Score</text>
+  <text x="670" y="140" class="rule-text">Validation</text>
+  <text x="670" y="155" class="rule-text">300 ≤ Score ≤ 850</text>
+  
+  <!-- RULE-CALC-005: Credit Limit Validation -->
+  <rect x="580" y="200" width="180" height="80" class="validation-box" rx="5"/>
+  <text x="670" y="225" class="rule-title">RULE-CALC-005</text>
+  <text x="670" y="245" class="rule-text">Credit Limit</text>
+  <text x="670" y="260" class="rule-text">Validation</text>
+  
+  <!-- Dependency Arrows -->
+  <!-- Transaction ID Generation → Balance Update -->
+  <line x1="230" y1="120" x2="350" y2="170" class="arrow"/>
+  <text x="290" y="140" class="dependency-text">provides</text>
+  <text x="290" y="152" class="dependency-text">transaction ID</text>
+  
+  <!-- Amount Conversion → Balance Update -->
+  <line x1="230" y1="240" x2="350" y2="210" class="arrow"/>
+  <text x="290" y="230" class="dependency-text">provides</text>
+  <text x="290" y="242" class="dependency-text">numeric amount</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="350" width="700" height="200" fill="none" stroke="#ccc" stroke-width="1" rx="5"/>
+  <text x="400" y="375" class="rule-title">Legend</text>
+  
+  <!-- Legend items -->
+  <rect x="70" y="390" width="30" height="20" class="main-calc-box" rx="2"/>
+  <text x="110" y="405" class="rule-text" text-anchor="start">Core Financial Calculation (Balance Update)</text>
+  
+  <rect x="70" y="420" width="30" height="20" class="conversion-box" rx="2"/>
+  <text x="110" y="435" class="rule-text" text-anchor="start">Data Conversion Rules (ID Generation, Amount Conversion)</text>
+  
+  <rect x="70" y="450" width="30" height="20" class="validation-box" rx="2"/>
+  <text x="110" y="465" class="rule-text" text-anchor="start">Business Validation Rules (FICO Score, Credit Limit)</text>
+  
+  <line x1="70" y1="485" x2="100" y2="485" class="arrow"/>
+  <text x="110" y="490" class="rule-text" text-anchor="start">Data Flow Dependency</text>
+  
+  <!-- Summary -->
+  <text x="70" y="520" class="rule-text" text-anchor="start">Summary: 5 business rules identified - 1 core financial calculation, 2 data conversion rules, 2 validation rules</text>
+  <text x="70" y="535" class="rule-text" text-anchor="start">Dependencies: Transaction ID and Amount Conversion feed into Balance Update calculation</text>
+</svg>
