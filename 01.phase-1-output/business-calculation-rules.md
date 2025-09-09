@@ -187,15 +187,134 @@ new_transaction_id = highest_existing_transaction_id + 1
 ADD 1 TO WS-TRAN-ID-NUM
 ```
 
+## RULE-CALC-008: Report Date Range Calculation
+
+**Rule ID:** RULE-CALC-008
+
+**Rule Description:** Calculates end date for report generation by incrementing month and handling year rollover when month exceeds 12.
+
+**COBOL Source Location:** CORPT00C.cbl, lines 224-230
+
+**Involved Variables:**
+- `WS-CURDATE-MONTH` - Current month for calculation
+- `WS-CURDATE-YEAR` - Current year for calculation
+- `WS-CURDATE-DAY` - Day component (set to 1)
+- `WS-CURDATE-N` - Numeric date for calculation
+
+**Input Conditions:**
+- Report date range needs to be calculated
+
+**Calculation Logic/Formula:**
+```
+SET day = 1
+month = month + 1
+IF month > 12 THEN
+    year = year + 1
+    month = 1
+END IF
+end_date = FUNCTION DATE-OF-INTEGER(FUNCTION INTEGER-OF-DATE(current_date) - 1)
+```
+
+## RULE-CALC-009: Transaction Pagination Index Calculation
+
+**Rule ID:** RULE-CALC-009
+
+**Rule Description:** Manages pagination for transaction browsing by calculating page numbers and index positions for forward and backward navigation.
+
+**COBOL Source Location:** COTRN00C.cbl, lines 301, 306-307, 317-318, 355, 364
+
+**Involved Variables:**
+- `WS-IDX` - Current index position in transaction list
+- `CDEMO-CT00-PAGE-NUM` - Current page number
+- `TRANSACT-NOT-EOF` - End of file indicator
+- `ERR-FLG-OFF` - Error flag status
+
+**Input Conditions:**
+- User navigating through transaction pages (forward/backward)
+- Transaction records available for display
+
+**Calculation Logic/Formula:**
+```
+FOR forward_navigation:
+    index = index + 1
+    IF more_records_available THEN
+        page_number = page_number + 1
+    END IF
+
+FOR backward_navigation:
+    index = index - 1
+    IF previous_page_exists AND page_number > 1 THEN
+        page_number = page_number - 1
+    ELSE
+        page_number = 1
+    END IF
+```
+
+## RULE-CALC-010: Current Balance Processing
+
+**Rule ID:** RULE-CALC-010
+
+**Rule Description:** Validates and converts current account balance from string input to numeric format for account updates.
+
+**COBOL Source Location:** COACTUPC.cbl, lines 1107-1108
+
+**Involved Variables:**
+- `ACURBALI OF CACTUPAI` - Current balance input from screen
+- `ACUP-NEW-CURR-BAL-X` - Current balance string working storage
+- `ACUP-NEW-CURR-BAL-N` - Current balance numeric working storage
+
+**Input Conditions:**
+```cobol
+IF FUNCTION TEST-NUMVAL-C(ACUP-NEW-CURR-BAL-X) = 0
+```
+
+**Calculation Logic/Formula:**
+```
+IF current_balance_input_is_valid_numeric THEN
+    numeric_current_balance = FUNCTION NUMVAL-C(current_balance_input)
+ELSE
+    SET validation_error
+END IF
+```
+
+## RULE-CALC-011: Current Cycle Debit Processing
+
+**Rule ID:** RULE-CALC-011
+
+**Rule Description:** Validates and converts current cycle debit amount from string input to numeric format for account updates.
+
+**COBOL Source Location:** COACTUPC.cbl, lines 1135-1136
+
+**Involved Variables:**
+- `ACRCYDBI OF CACTUPAI` - Current cycle debit input from screen
+- `ACUP-NEW-CURR-CYC-DEBIT-X` - Current cycle debit string working storage
+- `ACUP-NEW-CURR-CYC-DEBIT-N` - Current cycle debit numeric working storage
+
+**Input Conditions:**
+```cobol
+IF FUNCTION TEST-NUMVAL-C(ACUP-NEW-CURR-CYC-DEBIT-X) = 0
+```
+
+**Calculation Logic/Formula:**
+```
+IF current_cycle_debit_input_is_valid_numeric THEN
+    numeric_current_cycle_debit = FUNCTION NUMVAL-C(current_cycle_debit_input)
+ELSE
+    SET validation_error
+END IF
+```
+
 ## Summary
 
-The CardDemo application contains 7 primary business calculation rules focused on:
+The CardDemo application contains 11 primary business calculation rules focused on:
 
 1. **Balance Management** - Validating account balances and calculating payment amounts
 2. **Amount Processing** - Converting string inputs to numeric values for calculations
 3. **Credit Limit Management** - Validating and processing various credit limit types
 4. **Transaction Processing** - Generating unique IDs and processing transaction amounts
+5. **Date Calculations** - Computing report date ranges with month/year rollover logic
+6. **Pagination Logic** - Managing transaction browsing with page number calculations
 
 The system is primarily a transaction processing application with straightforward business rules. No complex financial calculations such as interest rates, fees, penalties, or sophisticated business formulas were found in the codebase.
 
-All rules follow a consistent pattern of input validation, numeric conversion, and data movement between working storage and record structures, which is typical for COBOL-based transaction processing systems.
+All rules follow a consistent pattern of input validation, numeric conversion, data movement between working storage and record structures, and basic arithmetic operations for pagination and date handling, which is typical for COBOL-based transaction processing systems.

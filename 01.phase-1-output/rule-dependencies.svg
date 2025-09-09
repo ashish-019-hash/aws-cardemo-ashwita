@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+<svg width="1000" height="800" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" 
      refX="0" refY="3.5" orient="auto">
@@ -11,7 +11,7 @@
   </defs>
   
   <!-- Title -->
-  <text x="400" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#2c3e50">
+  <text x="500" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#2c3e50">
     CardDemo COBOL Business Rules Dependencies
   </text>
   
@@ -59,6 +59,30 @@
   <text x="400" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Transaction ID</text>
   <text x="400" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Generation</text>
   
+  <!-- RULE-CALC-008: Report Date Range Calculation -->
+  <rect x="50" y="500" width="200" height="80" rx="8" ry="8" fill="#eaf2f8" stroke="#5dade2" stroke-width="2" filter="url(#shadow)"/>
+  <text x="150" y="525" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">RULE-CALC-008</text>
+  <text x="150" y="545" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Report Date Range</text>
+  <text x="150" y="560" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Calculation</text>
+  
+  <!-- RULE-CALC-009: Transaction Pagination -->
+  <rect x="300" y="500" width="200" height="80" rx="8" ry="8" fill="#eaf2f8" stroke="#5dade2" stroke-width="2" filter="url(#shadow)"/>
+  <text x="400" y="525" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">RULE-CALC-009</text>
+  <text x="400" y="545" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Transaction</text>
+  <text x="400" y="560" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Pagination</text>
+  
+  <!-- RULE-CALC-010: Current Balance Processing -->
+  <rect x="550" y="500" width="200" height="80" rx="8" ry="8" fill="#f4ecf7" stroke="#8e44ad" stroke-width="2" filter="url(#shadow)"/>
+  <text x="650" y="525" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">RULE-CALC-010</text>
+  <text x="650" y="545" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Current Balance</text>
+  <text x="650" y="560" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Processing</text>
+  
+  <!-- RULE-CALC-011: Current Cycle Debit Processing -->
+  <rect x="800" y="500" width="200" height="80" rx="8" ry="8" fill="#f4ecf7" stroke="#8e44ad" stroke-width="2" filter="url(#shadow)"/>
+  <text x="900" y="525" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">RULE-CALC-011</text>
+  <text x="900" y="545" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Current Cycle Debit</text>
+  <text x="900" y="560" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Processing</text>
+  
   <!-- Dependency arrows -->
   
   <!-- RULE-CALC-001 feeds into RULE-CALC-002 -->
@@ -77,17 +101,27 @@
   <line x1="250" y1="260" x2="300" y2="260" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
   <line x1="500" y1="260" x2="550" y2="260" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
   
+  <!-- Account processing rules are related -->
+  <line x1="750" y1="540" x2="800" y2="540" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
+  
+  <!-- Pagination is independent -->
+  <!-- Report date calculation is independent -->
+  
   <!-- Legend -->
-  <rect x="50" y="500" width="700" height="80" rx="5" ry="5" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1"/>
-  <text x="60" y="520" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">Legend:</text>
+  <rect x="50" y="640" width="900" height="120" rx="5" ry="5" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1"/>
+  <text x="60" y="660" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">Legend:</text>
   
-  <line x1="60" y1="535" x2="90" y2="535" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
-  <text x="100" y="540" font-family="Arial, sans-serif" font-size="10" fill="#666">Direct dependency (one rule requires another)</text>
+  <line x1="60" y1="675" x2="90" y2="675" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="100" y="680" font-family="Arial, sans-serif" font-size="10" fill="#666">Direct dependency (one rule requires another)</text>
   
-  <line x1="60" y1="550" x2="90" y2="550" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
-  <text x="100" y="555" font-family="Arial, sans-serif" font-size="10" fill="#666">Related functionality (similar processing pattern)</text>
+  <line x1="60" y1="690" x2="90" y2="690" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
+  <text x="100" y="695" font-family="Arial, sans-serif" font-size="10" fill="#666">Related functionality (similar processing pattern)</text>
   
-  <text x="400" y="540" font-family="Arial, sans-serif" font-size="10" fill="#666">• Bill payment rules (001-002) form a validation-calculation chain</text>
-  <text x="400" y="555" font-family="Arial, sans-serif" font-size="10" fill="#666">• Credit limit rules (004-006) follow similar validation patterns</text>
-  <text x="400" y="570" font-family="Arial, sans-serif" font-size="10" fill="#666">• Transaction ID generation (007) supports both payment and transaction processing</text>
+  <text x="60" y="715" font-family="Arial, sans-serif" font-size="10" fill="#666">• Bill payment rules (001-002) form a validation-calculation chain</text>
+  <text x="60" y="730" font-family="Arial, sans-serif" font-size="10" fill="#666">• Credit limit rules (004-006) follow similar validation patterns</text>
+  <text x="60" y="745" font-family="Arial, sans-serif" font-size="10" fill="#666">• Transaction ID generation (007) supports both payment and transaction processing</text>
+  
+  <text x="500" y="715" font-family="Arial, sans-serif" font-size="10" fill="#666">• Account balance processing rules (010-011) handle numeric conversions</text>
+  <text x="500" y="730" font-family="Arial, sans-serif" font-size="10" fill="#666">• Report date calculation (008) and pagination (009) are independent utilities</text>
+  <text x="500" y="745" font-family="Arial, sans-serif" font-size="10" fill="#666">• All rules follow COBOL numeric validation and conversion patterns</text>
 </svg>
