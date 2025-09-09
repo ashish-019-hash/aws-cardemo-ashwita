@@ -1,0 +1,177 @@
+<svg width="1400" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+     refX="0" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+    <style>
+      .screen-box { fill: #e6f3ff; stroke: #0066cc; stroke-width: 2; }
+      .menu-box { fill: #fff2e6; stroke: #cc6600; stroke-width: 2; }
+      .function-box { fill: #e6ffe6; stroke: #009900; stroke-width: 2; }
+      .admin-box { fill: #ffe6e6; stroke: #cc0000; stroke-width: 2; }
+      .flow-line { stroke: #333; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .pf-line { stroke: #666; stroke-width: 1; stroke-dasharray: 5,5; fill: none; marker-end: url(#arrowhead); }
+      .screen-text { font-family: Arial, sans-serif; font-size: 12px; text-anchor: middle; }
+      .title-text { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; text-anchor: middle; }
+      .label-text { font-family: Arial, sans-serif; font-size: 10px; text-anchor: middle; fill: #666; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="700" y="30" class="title-text">CardDemo Application - Screen Flow Diagram</text>
+  
+  <!-- Sign-on Screen -->
+  <rect x="600" y="60" width="200" height="60" class="screen-box" />
+  <text x="700" y="85" class="screen-text">COSGN00C</text>
+  <text x="700" y="105" class="screen-text">Sign-on Screen</text>
+  
+  <!-- User Type Decision -->
+  <polygon points="700,150 750,180 700,210 650,180" fill="#ffffe6" stroke="#cccc00" stroke-width="2" />
+  <text x="700" y="185" class="screen-text">User Type?</text>
+  
+  <!-- Admin Menu -->
+  <rect x="400" y="250" width="200" height="60" class="admin-box" />
+  <text x="500" y="275" class="screen-text">COADM01C</text>
+  <text x="500" y="295" class="screen-text">Admin Menu</text>
+  
+  <!-- Regular User Menu -->
+  <rect x="800" y="250" width="200" height="60" class="menu-box" />
+  <text x="900" y="275" class="screen-text">COMEN01C</text>
+  <text x="900" y="295" class="screen-text">Main Menu</text>
+  
+  <!-- Account Management Functions -->
+  <rect x="50" y="400" width="150" height="50" class="function-box" />
+  <text x="125" y="420" class="screen-text">COACTVWC</text>
+  <text x="125" y="435" class="screen-text">Account View</text>
+  
+  <rect x="220" y="400" width="150" height="50" class="function-box" />
+  <text x="295" y="420" class="screen-text">COACTUPC</text>
+  <text x="295" y="435" class="screen-text">Account Update</text>
+  
+  <!-- Card Management Functions -->
+  <rect x="400" y="400" width="150" height="50" class="function-box" />
+  <text x="475" y="420" class="screen-text">COCRDLIC</text>
+  <text x="475" y="435" class="screen-text">Card List</text>
+  
+  <rect x="570" y="400" width="150" height="50" class="function-box" />
+  <text x="645" y="420" class="screen-text">COCRDSLC</text>
+  <text x="645" y="435" class="screen-text">Card Detail</text>
+  
+  <rect x="740" y="400" width="150" height="50" class="function-box" />
+  <text x="815" y="420" class="screen-text">COCRDUPC</text>
+  <text x="815" y="435" class="screen-text">Card Update</text>
+  
+  <!-- Transaction Management Functions -->
+  <rect x="920" y="400" width="150" height="50" class="function-box" />
+  <text x="995" y="420" class="screen-text">COTRN00C</text>
+  <text x="995" y="435" class="screen-text">Transaction List</text>
+  
+  <rect x="1090" y="400" width="150" height="50" class="function-box" />
+  <text x="1165" y="420" class="screen-text">COTRN01C</text>
+  <text x="1165" y="435" class="screen-text">Transaction View</text>
+  
+  <rect x="1260" y="400" width="150" height="50" class="function-box" />
+  <text x="1335" y="420" class="screen-text">COTRN02C</text>
+  <text x="1335" y="435" class="screen-text">Add Transaction</text>
+  
+  <!-- User Administration Functions (Admin Only) -->
+  <rect x="50" y="550" width="150" height="50" class="admin-box" />
+  <text x="125" y="570" class="screen-text">COUSR00C</text>
+  <text x="125" y="585" class="screen-text">User List</text>
+  
+  <rect x="220" y="550" width="150" height="50" class="admin-box" />
+  <text x="295" y="570" class="screen-text">COUSR01C</text>
+  <text x="295" y="585" class="screen-text">Add User</text>
+  
+  <rect x="390" y="550" width="150" height="50" class="admin-box" />
+  <text x="465" y="570" class="screen-text">COUSR02C</text>
+  <text x="465" y="585" class="screen-text">Update User</text>
+  
+  <rect x="560" y="550" width="150" height="50" class="admin-box" />
+  <text x="635" y="570" class="screen-text">COUSR03C</text>
+  <text x="635" y="585" class="screen-text">Delete User</text>
+  
+  <!-- Bill Payment and Reporting -->
+  <rect x="920" y="550" width="150" height="50" class="function-box" />
+  <text x="995" y="570" class="screen-text">COBIL00C</text>
+  <text x="995" y="585" class="screen-text">Bill Payment</text>
+  
+  <rect x="1090" y="550" width="150" height="50" class="function-box" />
+  <text x="1165" y="570" class="screen-text">CORPT00C</text>
+  <text x="1165" y="585" class="screen-text">Reports</text>
+  
+  <!-- Utility -->
+  <rect x="1260" y="550" width="150" height="50" class="function-box" />
+  <text x="1335" y="570" class="screen-text">CSUTLDTC</text>
+  <text x="1335" y="585" class="screen-text">Date Utility</text>
+  
+  <!-- Main Flow Lines -->
+  <line x1="700" y1="120" x2="700" y2="150" class="flow-line" />
+  <line x1="675" y1="180" x2="550" y2="250" class="flow-line" />
+  <line x1="725" y1="180" x2="850" y2="250" class="flow-line" />
+  
+  <!-- Admin Menu to Functions -->
+  <line x1="450" y1="310" x2="125" y2="400" class="flow-line" />
+  <line x1="470" y1="310" x2="295" y2="400" class="flow-line" />
+  <line x1="500" y1="310" x2="475" y2="400" class="flow-line" />
+  <line x1="500" y1="310" x2="125" y2="550" class="flow-line" />
+  <line x1="520" y1="310" x2="295" y2="550" class="flow-line" />
+  <line x1="540" y1="310" x2="465" y2="550" class="flow-line" />
+  <line x1="550" y1="310" x2="635" y2="550" class="flow-line" />
+  
+  <!-- User Menu to Functions -->
+  <line x1="850" y1="310" x2="475" y2="400" class="flow-line" />
+  <line x1="870" y1="310" x2="645" y2="400" class="flow-line" />
+  <line x1="890" y1="310" x2="815" y2="400" class="flow-line" />
+  <line x1="920" y1="310" x2="995" y2="400" class="flow-line" />
+  <line x1="950" y1="310" x2="995" y2="550" class="flow-line" />
+  <line x1="970" y1="310" x2="1165" y2="550" class="flow-line" />
+  
+  <!-- Inter-function Navigation -->
+  <line x1="550" y1="425" x2="570" y2="425" class="flow-line" />
+  <line x1="720" y1="425" x2="740" y2="425" class="flow-line" />
+  <line x1="1070" y1="425" x2="1090" y2="425" class="flow-line" />
+  <line x1="1240" y1="425" x2="1260" y2="425" class="flow-line" />
+  <line x1="995" y1="450" x2="1165" y2="450" class="flow-line" />
+  <line x1="1165" y1="450" x2="1335" y2="450" class="flow-line" />
+  
+  <!-- PF Key Navigation (dashed lines) -->
+  <line x1="125" y1="450" x2="125" y2="480" class="pf-line" />
+  <line x1="125" y1="480" x2="900" y2="480" class="pf-line" />
+  <line x1="900" y1="480" x2="900" y2="310" class="pf-line" />
+  
+  <!-- Labels -->
+  <text x="620" y="200" class="label-text">Admin</text>
+  <text x="780" y="200" class="label-text">Regular</text>
+  <text x="700" y="750" class="label-text">Solid lines: Menu selections and ENTER key navigation</text>
+  <text x="700" y="770" class="label-text">Dashed lines: PF key navigation (PF3=Exit, PF4=Clear, PF5=Return, PF7/8=Page)</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="800" width="1300" height="150" fill="none" stroke="#ccc" stroke-width="1" />
+  <text x="700" y="820" class="title-text">Legend</text>
+  
+  <rect x="100" y="840" width="80" height="30" class="screen-box" />
+  <text x="140" y="860" class="label-text">Entry Point</text>
+  
+  <rect x="200" y="840" width="80" height="30" class="menu-box" />
+  <text x="240" y="860" class="label-text">Menu Screen</text>
+  
+  <rect x="300" y="840" width="80" height="30" class="function-box" />
+  <text x="340" y="860" class="label-text">Business Function</text>
+  
+  <rect x="400" y="840" width="80" height="30" class="admin-box" />
+  <text x="440" y="860" class="label-text">Admin Only</text>
+  
+  <text x="600" y="860" class="label-text">Key Navigation:</text>
+  <text x="600" y="880" class="label-text">ENTER - Process selection</text>
+  <text x="600" y="900" class="label-text">PF3 - Exit/Return to previous</text>
+  <text x="600" y="920" class="label-text">PF4 - Clear screen</text>
+  
+  <text x="800" y="880" class="label-text">PF5 - Return to list</text>
+  <text x="800" y="900" class="label-text">PF7 - Page up</text>
+  <text x="800" y="920" class="label-text">PF8 - Page down</text>
+  
+  <text x="1000" y="880" class="label-text">Selection Codes:</text>
+  <text x="1000" y="900" class="label-text">S - View/Select record</text>
+  <text x="1000" y="920" class="label-text">U - Update record</text>
+</svg>
