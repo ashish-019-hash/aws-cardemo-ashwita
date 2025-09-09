@@ -1,0 +1,173 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #2c3e50; }
+      .group-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #34495e; }
+      .rule-text { font-family: Arial, sans-serif; font-size: 10px; fill: #2c3e50; }
+      .program-text { font-family: Arial, sans-serif; font-size: 9px; fill: #7f8c8d; }
+      .auth-group { fill: #e8f5e8; stroke: #27ae60; stroke-width: 2; }
+      .user-group { fill: #e8f4fd; stroke: #3498db; stroke-width: 2; }
+      .account-group { fill: #fef9e7; stroke: #f39c12; stroke-width: 2; }
+      .transaction-group { fill: #fdf2e9; stroke: #e67e22; stroke-width: 2; }
+      .card-group { fill: #f4ecf7; stroke: #9b59b6; stroke-width: 2; }
+      .menu-group { fill: #eaeded; stroke: #95a5a6; stroke-width: 2; }
+      .bill-group { fill: #fdedec; stroke: #e74c3c; stroke-width: 2; }
+      .utility-group { fill: #e8f8f5; stroke: #16a085; stroke-width: 2; }
+      .dependency-line { stroke: #34495e; stroke-width: 1.5; stroke-dasharray: 5,5; fill: none; }
+      .shared-pattern { fill: #ecf0f1; stroke: #34495e; stroke-width: 1; stroke-dasharray: 3,3; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="25" text-anchor="middle" class="title">COBOL Business Validation Rules - Relationships &amp; Dependencies</text>
+  
+  <!-- Authentication Group -->
+  <rect x="20" y="50" width="280" height="120" class="auth-group" rx="5"/>
+  <text x="30" y="70" class="group-title">Authentication &amp; Sign-on (COSGN00C)</text>
+  <text x="30" y="85" class="rule-text">RULE-VAL-001: User ID mandatory</text>
+  <text x="30" y="100" class="rule-text">RULE-VAL-002: Password mandatory</text>
+  <text x="30" y="115" class="rule-text">RULE-VAL-003: Credential matching</text>
+  <text x="30" y="130" class="rule-text">RULE-VAL-004: User existence check</text>
+  <text x="30" y="150" class="program-text">Dependencies: USRSEC file validation</text>
+  
+  <!-- User Management Group -->
+  <rect x="320" y="50" width="280" height="140" class="user-group" rx="5"/>
+  <text x="330" y="70" class="group-title">User Management (COUSR01C, COUSR03C)</text>
+  <text x="330" y="85" class="rule-text">RULE-VAL-005: First name mandatory</text>
+  <text x="330" y="100" class="rule-text">RULE-VAL-006: Last name mandatory</text>
+  <text x="330" y="115" class="rule-text">RULE-VAL-007: User ID mandatory</text>
+  <text x="330" y="130" class="rule-text">RULE-VAL-008: Password mandatory</text>
+  <text x="330" y="145" class="rule-text">RULE-VAL-009: User type mandatory</text>
+  <text x="330" y="160" class="rule-text">RULE-VAL-010: User ID uniqueness</text>
+  <text x="330" y="175" class="rule-text">RULE-VAL-011: User ID for deletion</text>
+  
+  <!-- Account Management Group -->
+  <rect x="620" y="50" width="280" height="160" class="account-group" rx="5"/>
+  <text x="630" y="70" class="group-title">Account Management (COACTUPC)</text>
+  <text x="630" y="85" class="rule-text">RULE-VAL-012: Account ID numeric</text>
+  <text x="630" y="100" class="rule-text">RULE-VAL-013: Account ID 11 digits</text>
+  <text x="630" y="115" class="rule-text">RULE-VAL-014: Mandatory fields</text>
+  <text x="630" y="130" class="rule-text">RULE-VAL-015: Yes/No validation</text>
+  <text x="630" y="145" class="rule-text">RULE-VAL-016-019: US Phone validation</text>
+  <text x="630" y="160" class="rule-text">RULE-VAL-020: Signed numeric fields</text>
+  <text x="630" y="180" class="program-text">Complex validation framework</text>
+  <text x="630" y="195" class="program-text">Reusable validation patterns</text>
+  
+  <!-- Transaction Management Group -->
+  <rect x="920" y="50" width="260" height="140" class="transaction-group" rx="5"/>
+  <text x="930" y="70" class="group-title">Transactions (COTRN00C, COTRN01C, COTRN02C)</text>
+  <text x="930" y="85" class="rule-text">RULE-VAL-021: Account ID numeric</text>
+  <text x="930" y="100" class="rule-text">RULE-VAL-022: Card number numeric</text>
+  <text x="930" y="115" class="rule-text">RULE-VAL-023: Account/Card required</text>
+  <text x="930" y="130" class="rule-text">RULE-VAL-024: Merchant ID numeric</text>
+  <text x="930" y="145" class="rule-text">RULE-VAL-025-026: Date validation</text>
+  <text x="930" y="160" class="rule-text">RULE-VAL-027-028: Transaction ID</text>
+  <text x="930" y="180" class="program-text">Uses CSUTLDTC utility</text>
+  
+  <!-- Card Management Group -->
+  <rect x="20" y="230" width="280" height="100" class="card-group" rx="5"/>
+  <text x="30" y="250" class="group-title">Card Management (COCRDUPC)</text>
+  <text x="30" y="265" class="rule-text">RULE-VAL-029: Account filter 11 digits</text>
+  <text x="30" y="280" class="rule-text">RULE-VAL-030: Card ID filter 16 digits</text>
+  <text x="30" y="295" class="rule-text">RULE-VAL-031: Card number not empty</text>
+  <text x="30" y="315" class="program-text">Similar to account validation patterns</text>
+  
+  <!-- Menu & Navigation Group -->
+  <rect x="320" y="230" width="280" height="100" class="menu-group" rx="5"/>
+  <text x="330" y="250" class="group-title">Menu &amp; Navigation (COMEN01C)</text>
+  <text x="330" y="265" class="rule-text">RULE-VAL-032: Menu option numeric</text>
+  <text x="330" y="280" class="rule-text">RULE-VAL-033: User access control</text>
+  <text x="330" y="300" class="program-text">Links to user type validation</text>
+  <text x="330" y="315" class="program-text">Range validation pattern</text>
+  
+  <!-- Bill Payment Group -->
+  <rect x="620" y="230" width="280" height="100" class="bill-group" rx="5"/>
+  <text x="630" y="250" class="group-title">Bill Payment (COBIL00C)</text>
+  <text x="630" y="265" class="rule-text">RULE-VAL-034: Account ID mandatory</text>
+  <text x="630" y="280" class="rule-text">RULE-VAL-035: Confirmation Y/N</text>
+  <text x="630" y="295" class="rule-text">RULE-VAL-036: Positive balance</text>
+  <text x="630" y="315" class="program-text">Business logic validation</text>
+  
+  <!-- Date Validation Utility Group -->
+  <rect x="920" y="230" width="260" height="120" class="utility-group" rx="5"/>
+  <text x="930" y="250" class="group-title">Date Validation Utility (CSUTLDTC)</text>
+  <text x="930" y="265" class="rule-text">RULE-VAL-037: CEEDAYS API validation</text>
+  <text x="930" y="280" class="rule-text">RULE-VAL-038: Sufficient data</text>
+  <text x="930" y="295" class="rule-text">RULE-VAL-039: Valid date value</text>
+  <text x="930" y="310" class="rule-text">RULE-VAL-040: Valid month</text>
+  <text x="930" y="330" class="program-text">Shared utility for date validation</text>
+  
+  <!-- Shared Validation Patterns -->
+  <rect x="50" y="380" width="1100" height="180" class="shared-pattern" rx="5"/>
+  <text x="60" y="400" class="group-title">Common Validation Patterns &amp; Dependencies</text>
+  
+  <!-- Pattern boxes -->
+  <rect x="70" y="420" width="150" height="60" fill="#ecf0f1" stroke="#34495e" stroke-width="1" rx="3"/>
+  <text x="75" y="435" class="rule-text">Mandatory Field Pattern</text>
+  <text x="75" y="450" class="program-text">NOT SPACES/LOW-VALUES</text>
+  <text x="75" y="465" class="program-text">Used in: VAL-001,002,005-009,</text>
+  <text x="75" y="475" class="program-text">011,027,034</text>
+  
+  <rect x="240" y="420" width="150" height="60" fill="#ecf0f1" stroke="#34495e" stroke-width="1" rx="3"/>
+  <text x="245" y="435" class="rule-text">Numeric Validation Pattern</text>
+  <text x="245" y="450" class="program-text">IS NUMERIC test</text>
+  <text x="245" y="465" class="program-text">Used in: VAL-012,016,018,019,</text>
+  <text x="245" y="475" class="program-text">021,022,024,028-032</text>
+  
+  <rect x="410" y="420" width="150" height="60" fill="#ecf0f1" stroke="#34495e" stroke-width="1" rx="3"/>
+  <text x="415" y="435" class="rule-text">Length Validation Pattern</text>
+  <text x="415" y="450" class="program-text">Fixed length requirements</text>
+  <text x="415" y="465" class="program-text">Used in: VAL-013 (11 digits),</text>
+  <text x="415" y="475" class="program-text">VAL-029,030 (11/16 digits)</text>
+  
+  <rect x="580" y="420" width="150" height="60" fill="#ecf0f1" stroke="#34495e" stroke-width="1" rx="3"/>
+  <text x="585" y="435" class="rule-text">Range Validation Pattern</text>
+  <text x="585" y="450" class="program-text">Value within bounds</text>
+  <text x="585" y="465" class="program-text">Used in: VAL-032 (menu range),</text>
+  <text x="585" y="475" class="program-text">VAL-016-019 (phone parts)</text>
+  
+  <rect x="750" y="420" width="150" height="60" fill="#ecf0f1" stroke="#34495e" stroke-width="1" rx="3"/>
+  <text x="755" y="435" class="rule-text">Code Validation Pattern</text>
+  <text x="755" y="450" class="program-text">Predefined valid values</text>
+  <text x="755" y="465" class="program-text">Used in: VAL-015 (Y/N),</text>
+  <text x="755" y="475" class="program-text">VAL-035 (Y/N confirmation)</text>
+  
+  <rect x="920" y="420" width="150" height="60" fill="#ecf0f1" stroke="#34495e" stroke-width="1" rx="3"/>
+  <text x="925" y="435" class="rule-text">Business Logic Pattern</text>
+  <text x="925" y="450" class="program-text">Domain-specific rules</text>
+  <text x="925" y="465" class="program-text">Used in: VAL-003,004,010,</text>
+  <text x="925" y="475" class="program-text">033,036</text>
+  
+  <!-- Cross-program dependencies -->
+  <rect x="70" y="500" width="1060" height="50" fill="#f8f9fa" stroke="#6c757d" stroke-width="1" rx="3"/>
+  <text x="80" y="515" class="rule-text">Cross-Program Dependencies &amp; Shared Resources:</text>
+  <text x="80" y="530" class="program-text">• USRSEC file: Used by Authentication (VAL-003,004) and User Management (VAL-010)</text>
+  <text x="80" y="545" class="program-text">• CSUTLDTC utility: Called by Transaction Management (VAL-025,026) for date validation (VAL-037-040)</text>
+  
+  <!-- Dependency arrows -->
+  <line x1="1050" y1="180" x2="1050" y2="230" class="dependency-line" marker-end="url(#arrowhead)"/>
+  <line x1="460" y1="190" x2="460" y2="230" class="dependency-line" marker-end="url(#arrowhead)"/>
+  <line x1="160" y1="170" x2="330" y2="190" class="dependency-line" marker-end="url(#arrowhead)"/>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495e"/>
+    </marker>
+  </defs>
+  
+  <!-- Legend -->
+  <rect x="50" y="580" width="1100" height="180" fill="#f8f9fa" stroke="#6c757d" stroke-width="1" rx="5"/>
+  <text x="60" y="600" class="group-title">Validation Rule Categories &amp; Migration Guidance</text>
+  
+  <text x="70" y="620" class="rule-text">Frontend Validation Candidates (Immediate feedback):</text>
+  <text x="80" y="635" class="program-text">• Mandatory field validations (VAL-001,002,005-009,011,027,034)</text>
+  <text x="80" y="650" class="program-text">• Format validations (VAL-012,016-022,024,028-032)</text>
+  <text x="80" y="665" class="program-text">• Length validations (VAL-013,029,030)</text>
+  
+  <text x="70" y="685" class="rule-text">Backend API Validation Candidates (Business logic):</text>
+  <text x="80" y="700" class="program-text">• Uniqueness checks (VAL-010)</text>
+  <text x="80" y="715" class="program-text">• Cross-reference validations (VAL-003,004,023)</text>
+  <text x="80" y="730" class="program-text">• Business rule validations (VAL-033,036)</text>
+  <text x="80" y="745" class="program-text">• External service validations (VAL-025,026,037-040)</text>
+</svg>
