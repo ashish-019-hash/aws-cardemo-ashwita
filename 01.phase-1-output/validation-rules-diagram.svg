@@ -1,0 +1,179 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font: bold 18px sans-serif; text-anchor: middle; }
+      .category { font: bold 14px sans-serif; text-anchor: middle; }
+      .rule { font: 10px sans-serif; text-anchor: middle; }
+      .connection { stroke: #666; stroke-width: 1; fill: none; }
+      .auth { fill: #ff9999; stroke: #cc0000; }
+      .menu { fill: #99ccff; stroke: #0066cc; }
+      .user { fill: #99ff99; stroke: #00cc00; }
+      .account { fill: #ffcc99; stroke: #cc6600; }
+      .card { fill: #cc99ff; stroke: #6600cc; }
+      .transaction { fill: #ffff99; stroke: #cccc00; }
+      .bill { fill: #ff99cc; stroke: #cc0066; }
+      .date { fill: #99ffcc; stroke: #00cc66; }
+      .report { fill: #cccccc; stroke: #666666; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="30" class="title">CardDemo Application - Business Validation Rules Relationships</text>
+  
+  <!-- User Authentication Group -->
+  <g id="auth-group">
+    <rect x="50" y="60" width="150" height="80" class="auth" rx="5"/>
+    <text x="125" y="80" class="category">User Authentication</text>
+    <text x="125" y="95" class="rule">RULE-VAL-001: User ID</text>
+    <text x="125" y="105" class="rule">RULE-VAL-002: Password</text>
+    <text x="125" y="125" class="rule">Trigger: Sign-on Screen</text>
+  </g>
+  
+  <!-- Menu Navigation Group -->
+  <g id="menu-group">
+    <rect x="220" y="60" width="150" height="80" class="menu" rx="5"/>
+    <text x="295" y="80" class="category">Menu Navigation</text>
+    <text x="295" y="95" class="rule">RULE-VAL-003: Menu Option</text>
+    <text x="295" y="105" class="rule">RULE-VAL-004: Admin Access</text>
+    <text x="295" y="115" class="rule">RULE-VAL-005: Admin Menu</text>
+    <text x="295" y="125" class="rule">Trigger: Menu Selection</text>
+  </g>
+  
+  <!-- User Management Group -->
+  <g id="user-group">
+    <rect x="50" y="160" width="200" height="120" class="user" rx="5"/>
+    <text x="150" y="180" class="category">User Management</text>
+    <text x="150" y="195" class="rule">RULE-VAL-006-010: Add User</text>
+    <text x="150" y="205" class="rule">RULE-VAL-011-014: Update User</text>
+    <text x="150" y="215" class="rule">RULE-VAL-015: Delete User</text>
+    <text x="150" y="225" class="rule">RULE-VAL-016: Selection Code</text>
+    <text x="150" y="245" class="rule">Common: Mandatory Fields</text>
+    <text x="150" y="265" class="rule">Trigger: User CRUD Operations</text>
+  </g>
+  
+  <!-- Account Management Group -->
+  <g id="account-group">
+    <rect x="270" y="160" width="200" height="120" class="account" rx="5"/>
+    <text x="370" y="180" class="category">Account Management</text>
+    <text x="370" y="195" class="rule">RULE-VAL-017: Account Number</text>
+    <text x="370" y="205" class="rule">RULE-VAL-018: Account Status</text>
+    <text x="370" y="215" class="rule">RULE-VAL-019: 11-digit Validation</text>
+    <text x="370" y="225" class="rule">RULE-VAL-020-022: SSN/Phone/DOB</text>
+    <text x="370" y="245" class="rule">Common: Format Validation</text>
+    <text x="370" y="265" class="rule">Trigger: Account Operations</text>
+  </g>
+  
+  <!-- Credit Card Management Group -->
+  <g id="card-group">
+    <rect x="490" y="160" width="200" height="120" class="card" rx="5"/>
+    <text x="590" y="180" class="category">Credit Card Management</text>
+    <text x="590" y="195" class="rule">RULE-VAL-023: 16-digit Card</text>
+    <text x="590" y="205" class="rule">RULE-VAL-024: Card Status Y/N</text>
+    <text x="590" y="215" class="rule">RULE-VAL-025-026: Expiry Date</text>
+    <text x="590" y="225" class="rule">RULE-VAL-027-031: Card Details</text>
+    <text x="590" y="245" class="rule">Common: Format + Range</text>
+    <text x="590" y="265" class="rule">Trigger: Card Operations</text>
+  </g>
+  
+  <!-- Transaction Processing Group -->
+  <g id="transaction-group">
+    <rect x="50" y="300" width="250" height="140" class="transaction" rx="5"/>
+    <text x="175" y="320" class="category">Transaction Processing</text>
+    <text x="175" y="335" class="rule">RULE-VAL-032-034: Account/Card ID</text>
+    <text x="175" y="345" class="rule">RULE-VAL-035-042: Transaction Data</text>
+    <text x="175" y="355" class="rule">RULE-VAL-043: Y/N Confirmation</text>
+    <text x="175" y="365" class="rule">RULE-VAL-044: Transaction ID</text>
+    <text x="175" y="375" class="rule">RULE-VAL-045: Selection Code</text>
+    <text x="175" y="395" class="rule">Common: Mandatory + Numeric</text>
+    <text x="175" y="415" class="rule">Trigger: Transaction CRUD</text>
+  </g>
+  
+  <!-- Bill Payment Group -->
+  <g id="bill-group">
+    <rect x="320" y="300" width="150" height="80" class="bill" rx="5"/>
+    <text x="395" y="320" class="category">Bill Payment</text>
+    <text x="395" y="335" class="rule">RULE-VAL-046: Y/N Confirm</text>
+    <text x="395" y="345" class="rule">RULE-VAL-047: Balance Check</text>
+    <text x="395" y="365" class="rule">Trigger: Bill Payment</text>
+  </g>
+  
+  <!-- Date/Time Validation Group -->
+  <g id="date-group">
+    <rect x="490" y="300" width="150" height="80" class="date" rx="5"/>
+    <text x="565" y="320" class="category">Date/Time Validation</text>
+    <text x="565" y="335" class="rule">RULE-VAL-048: CEEDAYS API</text>
+    <text x="565" y="345" class="rule">RULE-VAL-049: Error Codes</text>
+    <text x="565" y="365" class="rule">Trigger: Date Validation</text>
+  </g>
+  
+  <!-- Reporting Group -->
+  <g id="report-group">
+    <rect x="660" y="300" width="150" height="80" class="report" rx="5"/>
+    <text x="735" y="320" class="category">Reporting</text>
+    <text x="735" y="335" class="rule">RULE-VAL-050: Date Format</text>
+    <text x="735" y="355" class="rule">Trigger: Report Generation</text>
+  </g>
+  
+  <!-- Common Validation Patterns -->
+  <g id="patterns-group">
+    <rect x="50" y="460" width="760" height="120" class="auth" rx="5" fill="#f0f0f0" stroke="#999"/>
+    <text x="430" y="480" class="category">Common Validation Patterns</text>
+    <text x="150" y="500" class="rule">1. Mandatory Field: SPACES OR LOW-VALUES check</text>
+    <text x="150" y="515" class="rule">2. Numeric Validation: IS NOT NUMERIC condition</text>
+    <text x="150" y="530" class="rule">3. Range Validation: 88-level conditions</text>
+    <text x="150" y="545" class="rule">4. Y/N Confirmation: VALUES 'Y', 'N' pattern</text>
+    <text x="550" y="500" class="rule">5. Selection Codes: S/U/D for operations</text>
+    <text x="550" y="515" class="rule">6. Format Validation: SSN, Phone, Date patterns</text>
+    <text x="550" y="530" class="rule">7. Cross-Field: Either/or requirements</text>
+    <text x="550" y="545" class="rule">8. Domain-Specific: Banking business rules</text>
+  </g>
+  
+  <!-- Validation Flow Connections -->
+  <path d="M 200 100 L 220 100" class="connection" marker-end="url(#arrowhead)"/>
+  <path d="M 125 140 L 150 160" class="connection" marker-end="url(#arrowhead)"/>
+  <path d="M 295 140 L 370 160" class="connection" marker-end="url(#arrowhead)"/>
+  <path d="M 370 280 L 590 160" class="connection" marker-end="url(#arrowhead)"/>
+  <path d="M 250 220 L 320 340" class="connection" marker-end="url(#arrowhead)"/>
+  <path d="M 590 280 L 565 300" class="connection" marker-end="url(#arrowhead)"/>
+  <path d="M 470 340 L 490 340" class="connection" marker-end="url(#arrowhead)"/>
+  <path d="M 640 340 L 660 340" class="connection" marker-end="url(#arrowhead)"/>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+  
+  <!-- Legend -->
+  <g id="legend">
+    <text x="50" y="620" class="category">Validation Rule Categories:</text>
+    <rect x="50" y="630" width="15" height="15" class="auth"/>
+    <text x="75" y="642" class="rule">Authentication</text>
+    <rect x="150" y="630" width="15" height="15" class="menu"/>
+    <text x="175" y="642" class="rule">Menu Navigation</text>
+    <rect x="270" y="630" width="15" height="15" class="user"/>
+    <text x="295" y="642" class="rule">User Management</text>
+    <rect x="400" y="630" width="15" height="15" class="account"/>
+    <text x="425" y="642" class="rule">Account Management</text>
+    <rect x="550" y="630" width="15" height="15" class="card"/>
+    <text x="575" y="642" class="rule">Credit Card</text>
+    
+    <rect x="50" y="650" width="15" height="15" class="transaction"/>
+    <text x="75" y="662" class="rule">Transaction Processing</text>
+    <rect x="200" y="650" width="15" height="15" class="bill"/>
+    <text x="225" y="662" class="rule">Bill Payment</text>
+    <rect x="300" y="650" width="15" height="15" class="date"/>
+    <text x="325" y="662" class="rule">Date/Time</text>
+    <rect x="400" y="650" width="15" height="15" class="report"/>
+    <text x="425" y="662" class="rule">Reporting</text>
+  </g>
+  
+  <!-- Summary Statistics -->
+  <g id="summary">
+    <text x="50" y="700" class="category">Summary: 50 Business Validation Rules from 18 COBOL Programs</text>
+    <text x="50" y="720" class="rule">• Extracted for modernization to frontend + backend API validation layers</text>
+    <text x="50" y="735" class="rule">• Excludes calculation logic, technical validations, and BMS layout constraints</text>
+    <text x="50" y="750" class="rule">• Organized by functional categories with common validation patterns identified</text>
+  </g>
+</svg>
