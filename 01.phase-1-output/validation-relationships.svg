@@ -1,0 +1,126 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; }
+      .category { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; }
+      .rule { font-family: Arial, sans-serif; font-size: 11px; }
+      .field-level { fill: #e1f5fe; stroke: #0277bd; }
+      .range { fill: #f3e5f5; stroke: #7b1fa2; }
+      .code-value { fill: #e8f5e8; stroke: #388e3c; }
+      .domain { fill: #fff3e0; stroke: #f57c00; }
+      .conditional { fill: #fce4ec; stroke: #c2185b; }
+      .connection { stroke: #666; stroke-width: 1; stroke-dasharray: 3,3; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" class="title">COBOL Validation Rules Relationships</text>
+  
+  <!-- Field-Level Validations Group -->
+  <rect x="50" y="60" width="200" height="180" class="field-level" rx="5"/>
+  <text x="150" y="80" text-anchor="middle" class="category">Field-Level Validations</text>
+  <text x="60" y="100" class="rule">RULE-VAL-008: User ID Mandatory</text>
+  <text x="60" y="115" class="rule">RULE-VAL-009: Password Mandatory</text>
+  <text x="60" y="130" class="rule">RULE-VAL-010: First Name Mandatory</text>
+  <text x="60" y="145" class="rule">RULE-VAL-011: Last Name Mandatory</text>
+  <text x="60" y="160" class="rule">RULE-VAL-012: User ID (Creation)</text>
+  <text x="60" y="175" class="rule">RULE-VAL-013: Password (Creation)</text>
+  <text x="60" y="190" class="rule">RULE-VAL-014: User Type Mandatory</text>
+  <text x="60" y="205" class="rule">RULE-VAL-015: Transaction ID</text>
+  <text x="60" y="220" class="rule">RULE-VAL-020: Name Alphabetic</text>
+  
+  <!-- Range Validations Group -->
+  <rect x="300" y="60" width="200" height="120" class="range" rx="5"/>
+  <text x="400" y="80" text-anchor="middle" class="category">Range Validations</text>
+  <text x="310" y="100" class="rule">RULE-VAL-001: SSN Part 1 Invalid</text>
+  <text x="310" y="115" class="rule">RULE-VAL-005: Month Range 1-12</text>
+  <text x="310" y="130" class="rule">RULE-VAL-006: Year Range 1950-2099</text>
+  <text x="310" y="145" class="rule">RULE-VAL-025: Menu Option Range</text>
+  <text x="310" y="160" class="rule">RULE-VAL-018: Account Non-Zero</text>
+  
+  <!-- Code/Value Checks Group -->
+  <rect x="550" y="60" width="200" height="120" class="code-value" rx="5"/>
+  <text x="650" y="80" text-anchor="middle" class="category">Code/Value Checks</text>
+  <text x="560" y="100" class="rule">RULE-VAL-002: Y/N Field Generic</text>
+  <text x="560" y="115" class="rule">RULE-VAL-003: Account Status Y/N</text>
+  <text x="560" y="130" class="rule">RULE-VAL-004: Primary Cardholder Y/N</text>
+  <text x="560" y="145" class="rule">RULE-VAL-007: Card Status Y/N</text>
+  <text x="560" y="160" class="rule">RULE-VAL-022: User Type Admin/Regular</text>
+  
+  <!-- Domain-Specific Validations Group -->
+  <rect x="800" y="60" width="200" height="140" class="domain" rx="5"/>
+  <text x="900" y="80" text-anchor="middle" class="category">Domain-Specific</text>
+  <text x="810" y="100" class="rule">RULE-VAL-016: Phone Format</text>
+  <text x="810" y="115" class="rule">RULE-VAL-017: Date Format</text>
+  <text x="810" y="130" class="rule">RULE-VAL-019: Card 16-Digit</text>
+  <text x="810" y="145" class="rule">RULE-VAL-021: Card Name Alpha</text>
+  <text x="810" y="160" class="rule">RULE-VAL-001: SSN Format</text>
+  <text x="810" y="175" class="rule">RULE-VAL-018: Account Format</text>
+  
+  <!-- Conditional Validations Group -->
+  <rect x="300" y="250" width="400" height="100" class="conditional" rx="5"/>
+  <text x="500" y="270" text-anchor="middle" class="category">Conditional Validations</text>
+  <text x="310" y="290" class="rule">RULE-VAL-022: User Type Access Control</text>
+  <text x="310" y="305" class="rule">RULE-VAL-024: Password Authentication</text>
+  <text x="310" y="320" class="rule">RULE-VAL-023: Duplicate User Prevention</text>
+  
+  <!-- Trigger Contexts -->
+  <rect x="50" y="400" width="150" height="80" fill="#f5f5f5" stroke="#999" rx="5"/>
+  <text x="125" y="420" text-anchor="middle" class="category">Sign-On Context</text>
+  <text x="60" y="440" class="rule">RULE-VAL-008, 009</text>
+  <text x="60" y="455" class="rule">RULE-VAL-024</text>
+  <text x="60" y="470" class="rule">RULE-VAL-022</text>
+  
+  <rect x="250" y="400" width="150" height="80" fill="#f5f5f5" stroke="#999" rx="5"/>
+  <text x="325" y="420" text-anchor="middle" class="category">User Creation</text>
+  <text x="260" y="440" class="rule">RULE-VAL-010, 011</text>
+  <text x="260" y="455" class="rule">RULE-VAL-012, 013, 014</text>
+  <text x="260" y="470" class="rule">RULE-VAL-023</text>
+  
+  <rect x="450" y="400" width="150" height="80" fill="#f5f5f5" stroke="#999" rx="5"/>
+  <text x="525" y="420" text-anchor="middle" class="category">Account Update</text>
+  <text x="460" y="440" class="rule">RULE-VAL-001, 003, 004</text>
+  <text x="460" y="455" class="rule">RULE-VAL-016, 018, 020</text>
+  
+  <rect x="650" y="400" width="150" height="80" fill="#f5f5f5" stroke="#999" rx="5"/>
+  <text x="725" y="420" text-anchor="middle" class="category">Card Update</text>
+  <text x="660" y="440" class="rule">RULE-VAL-005, 006, 007</text>
+  <text x="660" y="455" class="rule">RULE-VAL-019, 021</text>
+  
+  <!-- Connections showing relationships -->
+  <line x1="150" y1="240" x2="125" y2="400" class="connection"/>
+  <line x1="150" y1="240" x2="325" y2="400" class="connection"/>
+  <line x1="400" y1="180" x2="525" y2="400" class="connection"/>
+  <line x1="650" y1="180" x2="725" y2="400" class="connection"/>
+  <line x1="500" y1="350" x2="125" y2="400" class="connection"/>
+  <line x1="500" y1="350" x2="325" y2="400" class="connection"/>
+  
+  <!-- Legend -->
+  <rect x="50" y="520" width="1100" height="120" fill="#f9f9f9" stroke="#ccc" rx="5"/>
+  <text x="600" y="540" text-anchor="middle" class="category">Validation Rule Categories and Relationships</text>
+  
+  <rect x="70" y="550" width="15" height="15" class="field-level"/>
+  <text x="95" y="562" class="rule">Field-Level: Mandatory fields, format checks, character validation</text>
+  
+  <rect x="70" y="570" width="15" height="15" class="range"/>
+  <text x="95" y="582" class="rule">Range: Numeric ranges, value boundaries, enumerated lists</text>
+  
+  <rect x="70" y="590" width="15" height="15" class="code-value"/>
+  <text x="95" y="602" class="rule">Code/Value: Y/N fields, status codes, type indicators</text>
+  
+  <rect x="450" y="550" width="15" height="15" class="domain"/>
+  <text x="475" y="562" class="rule">Domain-Specific: SSN, phone, date, account/card number formats</text>
+  
+  <rect x="450" y="570" width="15" height="15" class="conditional"/>
+  <text x="475" y="582" class="rule">Conditional: User type access, authentication, business logic</text>
+  
+  <line x1="450" y1="590" x2="465" y2="590" class="connection"/>
+  <text x="475" y="602" class="rule">Dashed lines show trigger context relationships</text>
+  
+  <!-- Migration Notes -->
+  <text x="600" y="680" text-anchor="middle" class="category">Migration Strategy</text>
+  <text x="70" y="700" class="rule">• Frontend: Field-level validations (mandatory, format, length)</text>
+  <text x="70" y="715" class="rule">• Backend API: All validations with business logic</text>
+  <text x="70" y="730" class="rule">• Database: Unique constraints, ranges, referential integrity</text>
+  <text x="70" y="745" class="rule">• Business Layer: Conditional validations and cross-field dependencies</text>
+</svg>
