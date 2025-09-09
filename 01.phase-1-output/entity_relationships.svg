@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .entity-box { fill: #f0f8ff; stroke: #4682b4; stroke-width: 2; }
+      .entity-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-anchor: middle; }
+      .entity-attr { font-family: Arial, sans-serif; font-size: 11px; text-anchor: start; }
+      .relationship-line { stroke: #333; stroke-width: 2; }
+      .relationship-label { font-family: Arial, sans-serif; font-size: 10px; text-anchor: middle; fill: #333; }
+    </style>
+  </defs>
+  
+  <!-- Customer Entity -->
+  <rect x="50" y="50" width="200" height="180" class="entity-box"/>
+  <text x="150" y="70" class="entity-title">Customer</text>
+  <text x="60" y="90" class="entity-attr">• Customer ID (PK)</text>
+  <text x="60" y="105" class="entity-attr">• First Name</text>
+  <text x="60" y="120" class="entity-attr">• Last Name</text>
+  <text x="60" y="135" class="entity-attr">• Date of Birth</text>
+  <text x="60" y="150" class="entity-attr">• SSN</text>
+  <text x="60" y="165" class="entity-attr">• Phone Number</text>
+  <text x="60" y="180" class="entity-attr">• Address</text>
+  <text x="60" y="195" class="entity-attr">• FICO Score</text>
+  <text x="60" y="210" class="entity-attr">• Status</text>
+  
+  <!-- Account Entity -->
+  <rect x="350" y="50" width="200" height="180" class="entity-box"/>
+  <text x="450" y="70" class="entity-title">Account</text>
+  <text x="360" y="90" class="entity-attr">• Account ID (PK)</text>
+  <text x="360" y="105" class="entity-attr">• Customer ID (FK)</text>
+  <text x="360" y="120" class="entity-attr">• Account Status</text>
+  <text x="360" y="135" class="entity-attr">• Open Date</text>
+  <text x="360" y="150" class="entity-attr">• Credit Limit</text>
+  <text x="360" y="165" class="entity-attr">• Current Balance</text>
+  <text x="360" y="180" class="entity-attr">• Current Cycle Credit</text>
+  <text x="360" y="195" class="entity-attr">• Current Cycle Debit</text>
+  <text x="360" y="210" class="entity-attr">• Group ID</text>
+  
+  <!-- Card Entity -->
+  <rect x="650" y="50" width="200" height="140" class="entity-box"/>
+  <text x="750" y="70" class="entity-title">Card</text>
+  <text x="660" y="90" class="entity-attr">• Card Number (PK)</text>
+  <text x="660" y="105" class="entity-attr">• Account ID (FK)</text>
+  <text x="660" y="120" class="entity-attr">• CVV Code</text>
+  <text x="660" y="135" class="entity-attr">• Embossed Name</text>
+  <text x="660" y="150" class="entity-attr">• Expiry Date</text>
+  <text x="660" y="165" class="entity-attr">• Card Status</text>
+  <text x="660" y="180" class="entity-attr">• Active Status</text>
+  
+  <!-- Transaction Entity -->
+  <rect x="950" y="50" width="200" height="200" class="entity-box"/>
+  <text x="1050" y="70" class="entity-title">Transaction</text>
+  <text x="960" y="90" class="entity-attr">• Transaction ID (PK)</text>
+  <text x="960" y="105" class="entity-attr">• Card Number (FK)</text>
+  <text x="960" y="120" class="entity-attr">• Type Code</text>
+  <text x="960" y="135" class="entity-attr">• Category Code</text>
+  <text x="960" y="150" class="entity-attr">• Source</text>
+  <text x="960" y="165" class="entity-attr">• Amount</text>
+  <text x="960" y="180" class="entity-attr">• Description</text>
+  <text x="960" y="195" class="entity-attr">• Original Timestamp</text>
+  <text x="960" y="210" class="entity-attr">• Processing Timestamp</text>
+  <text x="960" y="225" class="entity-attr">• Merchant Info</text>
+  
+  <!-- Card Cross-Reference Entity -->
+  <rect x="350" y="350" width="200" height="100" class="entity-box"/>
+  <text x="450" y="370" class="entity-title">Card Cross-Reference</text>
+  <text x="360" y="390" class="entity-attr">• Card Number (PK)</text>
+  <text x="360" y="405" class="entity-attr">• Account ID (FK)</text>
+  <text x="360" y="420" class="entity-attr">• Customer ID (FK)</text>
+  
+  <!-- User Security Entity -->
+  <rect x="50" y="350" width="200" height="120" class="entity-box"/>
+  <text x="150" y="370" class="entity-title">User Security</text>
+  <text x="60" y="390" class="entity-attr">• User ID (PK)</text>
+  <text x="60" y="405" class="entity-attr">• Password</text>
+  <text x="60" y="420" class="entity-attr">• User Type</text>
+  <text x="60" y="435" class="entity-attr">• First Name</text>
+  <text x="60" y="450" class="entity-attr">• Last Name</text>
+  
+  <!-- Relationships -->
+  
+  <!-- Customer to Account (1:N) -->
+  <line x1="250" y1="140" x2="350" y2="140" class="relationship-line"/>
+  <text x="300" y="135" class="relationship-label">1:N</text>
+  
+  <!-- Account to Card (1:N) -->
+  <line x1="550" y1="140" x2="650" y2="140" class="relationship-line"/>
+  <text x="600" y="135" class="relationship-label">1:N</text>
+  
+  <!-- Card to Transaction (1:N) -->
+  <line x1="850" y1="140" x2="950" y2="140" class="relationship-line"/>
+  <text x="900" y="135" class="relationship-label">1:N</text>
+  
+  <!-- Account to Card Cross-Reference (1:N) -->
+  <line x1="450" y1="230" x2="450" y2="350" class="relationship-line"/>
+  <text x="470" y="290" class="relationship-label">1:N</text>
+  
+  <!-- Customer to Card Cross-Reference (1:N) -->
+  <line x1="250" y1="200" x2="350" y2="380" class="relationship-line"/>
+  <text x="280" y="290" class="relationship-label">1:N</text>
+  
+  <!-- User Security to Customer (1:1) -->
+  <line x1="150" y1="350" x2="150" y2="230" class="relationship-line"/>
+  <text x="170" y="290" class="relationship-label">1:1</text>
+  
+  <!-- Title -->
+  <text x="600" y="30" style="font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; text-anchor: middle;">CardDemo Business Entity Relationships</text>
+  
+</svg>
