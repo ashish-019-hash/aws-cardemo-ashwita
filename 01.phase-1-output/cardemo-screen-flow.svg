@@ -1,0 +1,217 @@
+<svg width="1400" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+     refX="0" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+    <style>
+      .screen-box { fill: #e8f4fd; stroke: #2563eb; stroke-width: 2; }
+      .menu-box { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+      .auth-box { fill: #dcfce7; stroke: #16a34a; stroke-width: 2; }
+      .util-box { fill: #f3e8ff; stroke: #7c3aed; stroke-width: 2; }
+      .screen-text { font-family: Arial, sans-serif; font-size: 11px; text-anchor: middle; }
+      .title-text { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-anchor: middle; }
+      .flow-line { stroke: #333; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .trigger-text { font-family: Arial, sans-serif; font-size: 9px; fill: #666; text-anchor: middle; }
+      .group-title { font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #333; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="700" y="25" class="title-text" fill="#1f2937">CardDemo COBOL Screen Flow Diagram</text>
+  
+  <!-- Authentication Layer -->
+  <text x="70" y="70" class="group-title">Authentication</text>
+  <rect x="50" y="80" width="120" height="60" class="auth-box" rx="5"/>
+  <text x="110" y="100" class="screen-text">COSGN00C</text>
+  <text x="110" y="115" class="screen-text">Sign-on Screen</text>
+  <text x="110" y="130" class="screen-text">CC00</text>
+  
+  <!-- Menu Layer -->
+  <text x="350" y="70" class="group-title">Main Menus</text>
+  <rect x="250" y="80" width="120" height="60" class="menu-box" rx="5"/>
+  <text x="310" y="100" class="screen-text">COADM01C</text>
+  <text x="310" y="115" class="screen-text">Admin Menu</text>
+  <text x="310" y="130" class="screen-text">CA00</text>
+  
+  <rect x="400" y="80" width="120" height="60" class="menu-box" rx="5"/>
+  <text x="460" y="100" class="screen-text">COMEN01C</text>
+  <text x="460" y="115" class="screen-text">Regular Menu</text>
+  <text x="460" y="130" class="screen-text">CM00</text>
+  
+  <!-- Card Management Group -->
+  <text x="70" y="220" class="group-title">Card Management</text>
+  <rect x="50" y="230" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="110" y="250" class="screen-text">COCRDLIC</text>
+  <text x="110" y="265" class="screen-text">Card List</text>
+  <text x="110" y="280" class="screen-text">CCLI</text>
+  
+  <rect x="200" y="230" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="260" y="250" class="screen-text">COCRDSLC</text>
+  <text x="260" y="265" class="screen-text">Card Detail</text>
+  <text x="260" y="280" class="screen-text">CCDL</text>
+  
+  <rect x="350" y="230" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="410" y="250" class="screen-text">COCRDUPC</text>
+  <text x="410" y="265" class="screen-text">Card Update</text>
+  <text x="410" y="280" class="screen-text">CCUP</text>
+  
+  <!-- Transaction Management Group -->
+  <text x="570" y="220" class="group-title">Transaction Management</text>
+  <rect x="550" y="230" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="610" y="250" class="screen-text">COTRN00C</text>
+  <text x="610" y="265" class="screen-text">Transaction List</text>
+  <text x="610" y="280" class="screen-text">CT00</text>
+  
+  <rect x="700" y="230" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="760" y="250" class="screen-text">COTRN01C</text>
+  <text x="760" y="265" class="screen-text">Transaction Detail</text>
+  <text x="760" y="280" class="screen-text">CT01</text>
+  
+  <rect x="850" y="230" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="910" y="250" class="screen-text">COTRN02C</text>
+  <text x="910" y="265" class="screen-text">Add Transaction</text>
+  <text x="910" y="280" class="screen-text">CT02</text>
+  
+  <!-- User Administration Group -->
+  <text x="70" y="370" class="group-title">User Administration</text>
+  <rect x="50" y="380" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="110" y="400" class="screen-text">COUSR00C</text>
+  <text x="110" y="415" class="screen-text">User List</text>
+  <text x="110" y="430" class="screen-text">CU00</text>
+  
+  <rect x="200" y="380" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="260" y="400" class="screen-text">COUSR01C</text>
+  <text x="260" y="415" class="screen-text">Add User</text>
+  <text x="260" y="430" class="screen-text">CU01</text>
+  
+  <rect x="350" y="380" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="410" y="400" class="screen-text">COUSR02C</text>
+  <text x="410" y="415" class="screen-text">Update User</text>
+  <text x="410" y="430" class="screen-text">CU02</text>
+  
+  <rect x="500" y="380" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="560" y="400" class="screen-text">COUSR03C</text>
+  <text x="560" y="415" class="screen-text">Delete User</text>
+  <text x="560" y="430" class="screen-text">CU03</text>
+  
+  <!-- Account Management Group -->
+  <text x="720" y="370" class="group-title">Account Management</text>
+  <rect x="700" y="380" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="760" y="400" class="screen-text">COACTVWC</text>
+  <text x="760" y="415" class="screen-text">Account View</text>
+  <text x="760" y="430" class="screen-text">CAVW</text>
+  
+  <rect x="850" y="380" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="910" y="400" class="screen-text">COACTUPC</text>
+  <text x="910" y="415" class="screen-text">Account Update</text>
+  <text x="910" y="430" class="screen-text">CAUP</text>
+  
+  <rect x="1000" y="380" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="1060" y="400" class="screen-text">COBIL00C</text>
+  <text x="1060" y="415" class="screen-text">Bill Payment</text>
+  <text x="1060" y="430" class="screen-text">CBIL</text>
+  
+  <!-- Reports Group -->
+  <text x="1220" y="370" class="group-title">Reports</text>
+  <rect x="1200" y="380" width="120" height="60" class="screen-box" rx="5"/>
+  <text x="1260" y="400" class="screen-text">CORPT00C</text>
+  <text x="1260" y="415" class="screen-text">Report Generation</text>
+  <text x="1260" y="430" class="screen-text">CRPT</text>
+  
+  <!-- Utility -->
+  <rect x="50" y="530" width="120" height="60" class="util-box" rx="5"/>
+  <text x="110" y="550" class="screen-text">CSUTLDTC</text>
+  <text x="110" y="565" class="screen-text">Date Validation</text>
+  <text x="110" y="580" class="screen-text">(Utility)</text>
+  
+  <!-- Authentication Flow Lines -->
+  <line x1="170" y1="110" x2="240" y2="110" class="flow-line"/>
+  <text x="205" y="105" class="trigger-text">Admin User</text>
+  
+  <line x1="170" y1="110" x2="390" y2="110" class="flow-line"/>
+  <text x="280" y="105" class="trigger-text">Regular User</text>
+  
+  <!-- Menu to Function Flow Lines -->
+  <line x1="310" y1="140" x2="110" y2="220" class="flow-line"/>
+  <text x="210" y="180" class="trigger-text">Option 1-4</text>
+  
+  <line x1="460" y1="140" x2="610" y2="220" class="flow-line"/>
+  <text x="535" y="180" class="trigger-text">Menu Options</text>
+  
+  <line x1="460" y1="140" x2="760" y2="370" class="flow-line"/>
+  <text x="610" y="255" class="trigger-text">Account Options</text>
+  
+  <line x1="460" y1="140" x2="110" y2="220" class="flow-line"/>
+  <text x="285" y="180" class="trigger-text">Card Options</text>
+  
+  <!-- Card Management Flow Lines -->
+  <line x1="170" y1="260" x2="190" y2="260" class="flow-line"/>
+  <text x="180" y="255" class="trigger-text">S</text>
+  
+  <line x1="170" y1="260" x2="340" y2="260" class="flow-line"/>
+  <text x="255" y="255" class="trigger-text">U</text>
+  
+  <line x1="320" y1="260" x2="340" y2="260" class="flow-line"/>
+  <text x="330" y="255" class="trigger-text">Update</text>
+  
+  <!-- Transaction Management Flow Lines -->
+  <line x1="670" y1="260" x2="690" y2="260" class="flow-line"/>
+  <text x="680" y="255" class="trigger-text">S</text>
+  
+  <line x1="610" y1="290" x2="610" y2="320" class="flow-line"/>
+  <line x1="610" y1="320" x2="910" y2="320" class="flow-line"/>
+  <line x1="910" y1="320" x2="910" y2="290" class="flow-line"/>
+  <text x="760" y="315" class="trigger-text">Add New</text>
+  
+  <!-- User Administration Flow Lines -->
+  <line x1="170" y1="410" x2="190" y2="410" class="flow-line"/>
+  <text x="180" y="405" class="trigger-text">A</text>
+  
+  <line x1="170" y1="410" x2="340" y2="410" class="flow-line"/>
+  <text x="255" y="405" class="trigger-text">U</text>
+  
+  <line x1="170" y1="410" x2="490" y2="410" class="flow-line"/>
+  <text x="330" y="405" class="trigger-text">D</text>
+  
+  <!-- Account Management Flow Lines -->
+  <line x1="820" y1="410" x2="840" y2="410" class="flow-line"/>
+  <text x="830" y="405" class="trigger-text">Update</text>
+  
+  <line x1="760" y1="440" x2="760" y2="470" class="flow-line"/>
+  <line x1="760" y1="470" x2="1060" y2="470" class="flow-line"/>
+  <line x1="1060" y1="470" x2="1060" y2="440" class="flow-line"/>
+  <text x="910" y="465" class="trigger-text">Bill Payment</text>
+  
+  <!-- PF Key Navigation Legend -->
+  <text x="70" y="650" class="group-title">Standard PF Key Navigation</text>
+  <text x="70" y="670" class="screen-text">PF3: Exit/Return to Previous Screen</text>
+  <text x="70" y="685" class="screen-text">PF4: Clear Current Screen</text>
+  <text x="70" y="700" class="screen-text">PF5: Special Functions (varies by program)</text>
+  <text x="70" y="715" class="screen-text">PF7/PF8: Page Up/Down (list screens)</text>
+  <text x="70" y="730" class="screen-text">PF12: Return to Main Menu</text>
+  
+  <!-- Selection Codes Legend -->
+  <text x="400" y="650" class="group-title">Selection Codes</text>
+  <text x="400" y="670" class="screen-text">S: Select/View Detail</text>
+  <text x="400" y="685" class="screen-text">U: Update Record</text>
+  <text x="400" y="700" class="screen-text">D: Delete Record</text>
+  <text x="400" y="715" class="screen-text">A: Add New Record</text>
+  
+  <!-- Transaction IDs Legend -->
+  <text x="700" y="650" class="group-title">Transaction IDs</text>
+  <text x="700" y="670" class="screen-text">CC00: Sign-on, CA00: Admin Menu, CM00: Regular Menu</text>
+  <text x="700" y="685" class="screen-text">CCLI: Card List, CCDL: Card Detail, CCUP: Card Update</text>
+  <text x="700" y="700" class="screen-text">CT00: Transaction List, CT01: Detail, CT02: Add</text>
+  <text x="700" y="715" class="screen-text">CU00: User List, CU01: Add, CU02: Update, CU03: Delete</text>
+  <text x="700" y="730" class="screen-text">CAVW: Account View, CAUP: Account Update, CBIL: Bill Payment</text>
+  
+  <!-- Return Path Indicators -->
+  <text x="1000" y="650" class="group-title">Return Paths</text>
+  <text x="1000" y="670" class="screen-text">All screens can return to previous via PF3</text>
+  <text x="1000" y="685" class="screen-text">CDEMO-FROM-PROGRAM tracks calling program</text>
+  <text x="1000" y="700" class="screen-text">Default return: COSGN00C (sign-on)</text>
+  <text x="1000" y="715" class="screen-text">Admin screens default to COADM01C</text>
+  <text x="1000" y="730" class="screen-text">Regular screens default to COMEN01C</text>
+  
+</svg>
