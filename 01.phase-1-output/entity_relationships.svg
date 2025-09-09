@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .entity-box {
+        fill: #e8f4fd;
+        stroke: #2563eb;
+        stroke-width: 2;
+        rx: 8;
+      }
+      .entity-title {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        font-weight: bold;
+        fill: #1e40af;
+        text-anchor: middle;
+      }
+      .entity-attribute {
+        font-family: Arial, sans-serif;
+        font-size: 11px;
+        fill: #374151;
+      }
+      .relationship-line {
+        stroke: #6b7280;
+        stroke-width: 2;
+        marker-end: url(#arrowhead);
+      }
+      .cardinality-text {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        fill: #dc2626;
+      }
+      .junction-entity {
+        fill: #fef3c7;
+        stroke: #d97706;
+        stroke-width: 2;
+        rx: 8;
+      }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280" />
+    </marker>
+  </defs>
+  
+  <!-- Customer Entity -->
+  <rect x="50" y="50" width="200" height="180" class="entity-box"/>
+  <text x="150" y="75" class="entity-title">Customer</text>
+  <text x="60" y="95" class="entity-attribute">CUST-ID (PK)</text>
+  <text x="60" y="110" class="entity-attribute">CUST-FIRST-NAME</text>
+  <text x="60" y="125" class="entity-attribute">CUST-LAST-NAME</text>
+  <text x="60" y="140" class="entity-attribute">CUST-SSN</text>
+  <text x="60" y="155" class="entity-attribute">CUST-DOB-YYYY-MM-DD</text>
+  <text x="60" y="170" class="entity-attribute">CUST-ADDR-LINE-1</text>
+  <text x="60" y="185" class="entity-attribute">CUST-FICO-CREDIT-SCORE</text>
+  <text x="60" y="200" class="entity-attribute">...</text>
+  
+  <!-- Account Entity -->
+  <rect x="400" y="50" width="200" height="180" class="entity-box"/>
+  <text x="500" y="75" class="entity-title">Account</text>
+  <text x="410" y="95" class="entity-attribute">ACCT-ID (PK)</text>
+  <text x="410" y="110" class="entity-attribute">ACCT-ACTIVE-STATUS</text>
+  <text x="410" y="125" class="entity-attribute">ACCT-CURR-BAL</text>
+  <text x="410" y="140" class="entity-attribute">ACCT-CREDIT-LIMIT</text>
+  <text x="410" y="155" class="entity-attribute">ACCT-CASH-CREDIT-LIMIT</text>
+  <text x="410" y="170" class="entity-attribute">ACCT-OPEN-DATE</text>
+  <text x="410" y="185" class="entity-attribute">ACCT-EXPIRAION-DATE</text>
+  <text x="410" y="200" class="entity-attribute">...</text>
+  
+  <!-- Card Entity -->
+  <rect x="750" y="50" width="200" height="160" class="entity-box"/>
+  <text x="850" y="75" class="entity-title">Card</text>
+  <text x="760" y="95" class="entity-attribute">CARD-NUM (PK)</text>
+  <text x="760" y="110" class="entity-attribute">CARD-ACCT-ID (FK)</text>
+  <text x="760" y="125" class="entity-attribute">CARD-CVV-CD</text>
+  <text x="760" y="140" class="entity-attribute">CARD-EMBOSSED-NAME</text>
+  <text x="760" y="155" class="entity-attribute">CARD-EXPIRY-DATE</text>
+  <text x="760" y="170" class="entity-attribute">CARD-ACTIVE-STATUS</text>
+  <text x="760" y="185" class="entity-attribute">...</text>
+  
+  <!-- Transaction Entity -->
+  <rect x="750" y="300" width="200" height="200" class="entity-box"/>
+  <text x="850" y="325" class="entity-title">Transaction</text>
+  <text x="760" y="345" class="entity-attribute">TRAN-ID (PK)</text>
+  <text x="760" y="360" class="entity-attribute">TRAN-CARD-NUM (FK)</text>
+  <text x="760" y="375" class="entity-attribute">TRAN-TYPE-CD</text>
+  <text x="760" y="390" class="entity-attribute">TRAN-CAT-CD</text>
+  <text x="760" y="405" class="entity-attribute">TRAN-AMT</text>
+  <text x="760" y="420" class="entity-attribute">TRAN-DESC</text>
+  <text x="760" y="435" class="entity-attribute">TRAN-ORIG-TS</text>
+  <text x="760" y="450" class="entity-attribute">TRAN-MERCHANT-ID (FK)</text>
+  <text x="760" y="465" class="entity-attribute">...</text>
+  
+  <!-- User Entity -->
+  <rect x="50" y="300" width="200" height="140" class="entity-box"/>
+  <text x="150" y="325" class="entity-title">User</text>
+  <text x="60" y="345" class="entity-attribute">SEC-USR-ID (PK)</text>
+  <text x="60" y="360" class="entity-attribute">SEC-USR-FNAME</text>
+  <text x="60" y="375" class="entity-attribute">SEC-USR-LNAME</text>
+  <text x="60" y="390" class="entity-attribute">SEC-USR-PWD</text>
+  <text x="60" y="405" class="entity-attribute">SEC-USR-TYPE</text>
+  <text x="60" y="420" class="entity-attribute">...</text>
+  
+  <!-- Merchant Entity -->
+  <rect x="400" y="300" width="200" height="140" class="entity-box"/>
+  <text x="500" y="325" class="entity-title">Merchant</text>
+  <text x="410" y="345" class="entity-attribute">MERCHANT-ID (PK)</text>
+  <text x="410" y="360" class="entity-attribute">MERCHANT-NAME</text>
+  <text x="410" y="375" class="entity-attribute">MERCHANT-CITY</text>
+  <text x="410" y="390" class="entity-attribute">MERCHANT-ZIP</text>
+  <text x="410" y="405" class="entity-attribute">...</text>
+  
+  <!-- Cross-Reference Entity (Junction Table) -->
+  <rect x="400" y="500" width="200" height="120" class="junction-entity"/>
+  <text x="500" y="525" class="entity-title">Cross-Reference</text>
+  <text x="410" y="545" class="entity-attribute">XREF-CARD-NUM (FK)</text>
+  <text x="410" y="560" class="entity-attribute">XREF-CUST-ID (FK)</text>
+  <text x="410" y="575" class="entity-attribute">XREF-ACCT-ID (FK)</text>
+  <text x="410" y="590" class="entity-attribute">...</text>
+  
+  <!-- Relationships -->
+  
+  <!-- Customer to Account (1:N) -->
+  <line x1="250" y1="140" x2="400" y2="140" class="relationship-line"/>
+  <text x="300" y="130" class="cardinality-text">1</text>
+  <text x="370" y="130" class="cardinality-text">N</text>
+  
+  <!-- Account to Card (1:N) -->
+  <line x1="600" y1="130" x2="750" y2="130" class="relationship-line"/>
+  <text x="650" y="120" class="cardinality-text">1</text>
+  <text x="720" y="120" class="cardinality-text">N</text>
+  
+  <!-- Card to Transaction (1:N) -->
+  <line x1="850" y1="210" x2="850" y2="300" class="relationship-line"/>
+  <text x="860" y="240" class="cardinality-text">1</text>
+  <text x="860" y="280" class="cardinality-text">N</text>
+  
+  <!-- Transaction to Merchant (N:1) -->
+  <line x1="750" y1="400" x2="600" y2="370" class="relationship-line"/>
+  <text x="700" y="390" class="cardinality-text">N</text>
+  <text x="620" y="360" class="cardinality-text">1</text>
+  
+  <!-- Customer to Cross-Reference (1:N) -->
+  <line x1="150" y1="230" x2="150" y2="480" class="relationship-line"/>
+  <line x1="150" y1="480" x2="400" y2="560" class="relationship-line"/>
+  <text x="160" y="350" class="cardinality-text">1</text>
+  <text x="370" y="550" class="cardinality-text">N</text>
+  
+  <!-- Account to Cross-Reference (1:N) -->
+  <line x1="500" y1="230" x2="500" y2="500" class="relationship-line"/>
+  <text x="510" y="350" class="cardinality-text">1:N</text>
+  
+  <!-- Card to Cross-Reference (1:1) -->
+  <line x1="750" y1="180" x2="650" y2="180" class="relationship-line"/>
+  <line x1="650" y1="180" x2="650" y2="500" class="relationship-line"/>
+  <line x1="650" y1="500" x2="600" y2="540" class="relationship-line"/>
+  <text x="680" y="170" class="cardinality-text">1</text>
+  <text x="620" y="530" class="cardinality-text">1</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="650" width="300" height="120" fill="#f9fafb" stroke="#d1d5db" stroke-width="1" rx="4"/>
+  <text x="60" y="670" class="entity-title">Legend</text>
+  <text x="60" y="690" class="entity-attribute">PK = Primary Key</text>
+  <text x="60" y="705" class="entity-attribute">FK = Foreign Key</text>
+  <text x="60" y="720" class="entity-attribute">1:N = One-to-Many relationship</text>
+  <text x="60" y="735" class="entity-attribute">N:1 = Many-to-One relationship</text>
+  <text x="60" y="750" class="entity-attribute">Cross-Reference enables M:N relationships</text>
+  
+  <!-- Title -->
+  <text x="600" y="30" style="font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #1f2937; text-anchor: middle;">CardDemo Business Entity Relationship Diagram</text>
+</svg>
