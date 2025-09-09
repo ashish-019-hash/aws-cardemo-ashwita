@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1400" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .screen-box { fill: #e8f4fd; stroke: #2563eb; stroke-width: 2; }
+      .menu-box { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+      .admin-box { fill: #fee2e2; stroke: #dc2626; stroke-width: 2; }
+      .flow-arrow { stroke: #374151; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .pf-key { fill: #f3f4f6; stroke: #6b7280; stroke-width: 1; }
+      .text-title { font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; }
+      .text-normal { font-family: Arial, sans-serif; font-size: 10px; }
+      .text-small { font-family: Arial, sans-serif; font-size: 8px; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#374151" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="700" y="25" text-anchor="middle" class="text-title" font-size="16">CardDemo Application Screen Flow Diagram</text>
+  
+  <!-- Entry Point: Sign-on Screen -->
+  <rect x="600" y="50" width="200" height="60" class="screen-box" />
+  <text x="700" y="70" text-anchor="middle" class="text-title">COSGN00C</text>
+  <text x="700" y="85" text-anchor="middle" class="text-normal">Sign-on Screen</text>
+  <text x="700" y="100" text-anchor="middle" class="text-small">User Authentication</text>
+  
+  <!-- User Type Routing -->
+  <path d="M 650 110 L 400 150" class="flow-arrow" />
+  <path d="M 750 110 L 1000 150" class="flow-arrow" />
+  <text x="525" y="135" class="text-small">Admin User</text>
+  <text x="875" y="135" class="text-small">Regular User</text>
+  
+  <!-- Admin Menu -->
+  <rect x="300" y="150" width="200" height="80" class="admin-box" />
+  <text x="400" y="175" text-anchor="middle" class="text-title">COADM01C</text>
+  <text x="400" y="190" text-anchor="middle" class="text-normal">Admin Menu</text>
+  <text x="400" y="205" text-anchor="middle" class="text-small">Options 1-6</text>
+  <text x="400" y="220" text-anchor="middle" class="text-small">PF3=Exit</text>
+  
+  <!-- Regular User Menu -->
+  <rect x="900" y="150" width="200" height="80" class="menu-box" />
+  <text x="1000" y="175" text-anchor="middle" class="text-title">COMEN01C</text>
+  <text x="1000" y="190" text-anchor="middle" class="text-normal">Main Menu</text>
+  <text x="1000" y="205" text-anchor="middle" class="text-small">Options 1-11</text>
+  <text x="1000" y="220" text-anchor="middle" class="text-small">PF3=Exit</text>
+  
+  <!-- User Management (Admin Only) -->
+  <rect x="50" y="280" width="150" height="60" class="admin-box" />
+  <text x="125" y="300" text-anchor="middle" class="text-title">COUSR00C</text>
+  <text x="125" y="315" text-anchor="middle" class="text-normal">User List</text>
+  <text x="125" y="330" text-anchor="middle" class="text-small">U=Update, D=Delete</text>
+  
+  <rect x="50" y="360" width="150" height="50" class="admin-box" />
+  <text x="125" y="380" text-anchor="middle" class="text-title">COUSR01C</text>
+  <text x="125" y="395" text-anchor="middle" class="text-normal">Add User</text>
+  
+  <rect x="220" y="360" width="150" height="50" class="admin-box" />
+  <text x="295" y="380" text-anchor="middle" class="text-title">COUSR02C</text>
+  <text x="295" y="395" text-anchor="middle" class="text-normal">Update User</text>
+  
+  <rect x="390" y="360" width="150" height="50" class="admin-box" />
+  <text x="465" y="380" text-anchor="middle" class="text-title">COUSR03C</text>
+  <text x="465" y="395" text-anchor="middle" class="text-normal">Delete User</text>
+  
+  <!-- Transaction Management -->
+  <rect x="600" y="280" width="150" height="60" class="screen-box" />
+  <text x="675" y="300" text-anchor="middle" class="text-title">COTRN00C</text>
+  <text x="675" y="315" text-anchor="middle" class="text-normal">Transaction List</text>
+  <text x="675" y="330" text-anchor="middle" class="text-small">S=Select, PF7/8=Page</text>
+  
+  <rect x="600" y="360" width="150" height="50" class="screen-box" />
+  <text x="675" y="380" text-anchor="middle" class="text-title">COTRN01C</text>
+  <text x="675" y="395" text-anchor="middle" class="text-normal">View Transaction</text>
+  
+  <rect x="770" y="360" width="150" height="50" class="screen-box" />
+  <text x="845" y="380" text-anchor="middle" class="text-title">COTRN02C</text>
+  <text x="845" y="395" text-anchor="middle" class="text-normal">Add Transaction</text>
+  
+  <!-- Card Management -->
+  <rect x="950" y="280" width="150" height="60" class="screen-box" />
+  <text x="1025" y="300" text-anchor="middle" class="text-title">COCRDLIC</text>
+  <text x="1025" y="315" text-anchor="middle" class="text-normal">Card List</text>
+  <text x="1025" y="330" text-anchor="middle" class="text-small">S=View, U=Update</text>
+  
+  <rect x="950" y="360" width="150" height="50" class="screen-box" />
+  <text x="1025" y="380" text-anchor="middle" class="text-title">COCRDSLC</text>
+  <text x="1025" y="395" text-anchor="middle" class="text-normal">Card Details</text>
+  
+  <rect x="1120" y="360" width="150" height="50" class="screen-box" />
+  <text x="1195" y="380" text-anchor="middle" class="text-title">COCRDUPC</text>
+  <text x="1195" y="395" text-anchor="middle" class="text-normal">Update Card</text>
+  
+  <!-- Account Management -->
+  <rect x="600" y="460" width="150" height="50" class="screen-box" />
+  <text x="675" y="480" text-anchor="middle" class="text-title">COACTVWC</text>
+  <text x="675" y="495" text-anchor="middle" class="text-normal">Account View</text>
+  
+  <rect x="770" y="460" width="150" height="50" class="screen-box" />
+  <text x="845" y="480" text-anchor="middle" class="text-title">COACTUPC</text>
+  <text x="845" y="495" text-anchor="middle" class="text-normal">Account Update</text>
+  
+  <!-- Bill Payment -->
+  <rect x="950" y="460" width="150" height="50" class="screen-box" />
+  <text x="1025" y="480" text-anchor="middle" class="text-title">COBIL00C</text>
+  <text x="1025" y="495" text-anchor="middle" class="text-normal">Bill Payment</text>
+  
+  <!-- Reporting -->
+  <rect x="1120" y="460" width="150" height="50" class="screen-box" />
+  <text x="1195" y="480" text-anchor="middle" class="text-title">CORPT00C</text>
+  <text x="1195" y="495" text-anchor="middle" class="text-normal">Reports</text>
+  
+  <!-- Flow Arrows from Admin Menu -->
+  <path d="M 350 230 L 125 280" class="flow-arrow" />
+  <path d="M 400 230 L 400 280" class="flow-arrow" />
+  
+  <!-- Flow Arrows from Regular Menu -->
+  <path d="M 950 230 L 675 280" class="flow-arrow" />
+  <path d="M 1000 230 L 1025 280" class="flow-arrow" />
+  <path d="M 1050 230 L 675 460" class="flow-arrow" />
+  <path d="M 1050 230 L 845 460" class="flow-arrow" />
+  <path d="M 1050 230 L 1025 460" class="flow-arrow" />
+  <path d="M 1050 230 L 1195 460" class="flow-arrow" />
+  
+  <!-- User Management Sub-flows -->
+  <path d="M 125 340 L 125 360" class="flow-arrow" />
+  <path d="M 125 340 L 295 360" class="flow-arrow" />
+  <path d="M 125 340 L 465 360" class="flow-arrow" />
+  
+  <!-- Transaction Sub-flows -->
+  <path d="M 675 340 L 675 360" class="flow-arrow" />
+  <path d="M 675 340 L 845 360" class="flow-arrow" />
+  
+  <!-- Card Sub-flows -->
+  <path d="M 1025 340 L 1025 360" class="flow-arrow" />
+  <path d="M 1025 340 L 1195 360" class="flow-arrow" />
+  
+  <!-- PF Key Legend -->
+  <rect x="50" y="550" width="300" height="120" class="pf-key" />
+  <text x="200" y="570" text-anchor="middle" class="text-title">PF Key Navigation</text>
+  <text x="60" y="590" class="text-normal">PF3 = Exit/Return to Previous Screen</text>
+  <text x="60" y="605" class="text-normal">PF4 = Clear Current Screen</text>
+  <text x="60" y="620" class="text-normal">PF5 = Save/Action (Update screens)</text>
+  <text x="60" y="635" class="text-normal">PF7 = Page Up (List screens)</text>
+  <text x="60" y="650" class="text-normal">PF8 = Page Down (List screens)</text>
+  <text x="60" y="665" class="text-normal">PF12 = Return to Main Menu</text>
+  
+  <!-- Selection Options Legend -->
+  <rect x="400" y="550" width="300" height="120" class="pf-key" />
+  <text x="550" y="570" text-anchor="middle" class="text-title">Selection Options</text>
+  <text x="410" y="590" class="text-normal">S = Select/View Record</text>
+  <text x="410" y="605" class="text-normal">U = Update Record</text>
+  <text x="410" y="620" class="text-normal">D = Delete Record</text>
+  <text x="410" y="635" class="text-normal">Y/N = Confirmation (Payment/Delete)</text>
+  <text x="410" y="650" class="text-normal">1-11 = Menu Option Numbers</text>
+  
+  <!-- Program Communication -->
+  <rect x="750" y="550" width="300" height="120" class="pf-key" />
+  <text x="900" y="570" text-anchor="middle" class="text-title">Technical Implementation</text>
+  <text x="760" y="590" class="text-normal">CICS XCTL = Program Transfer</text>
+  <text x="760" y="605" class="text-normal">COMMAREA = State Management</text>
+  <text x="760" y="620" class="text-normal">SEND/RECEIVE MAP = Screen I/O</text>
+  <text x="760" y="635" class="text-normal">Pseudo-conversational Design</text>
+  <text x="760" y="650" class="text-normal">Role-based Access Control</text>
+  
+  <!-- Return Paths (dotted lines) -->
+  <path d="M 125 360 L 125 340" stroke-dasharray="5,5" class="flow-arrow" />
+  <path d="M 675 360 L 675 340" stroke-dasharray="5,5" class="flow-arrow" />
+  <path d="M 1025 360 L 1025 340" stroke-dasharray="5,5" class="flow-arrow" />
+  
+  <!-- Exit paths to sign-on -->
+  <path d="M 400 150 L 650 110" stroke-dasharray="3,3" stroke="#dc2626" stroke-width="1" fill="none" />
+  <path d="M 1000 150 L 750 110" stroke-dasharray="3,3" stroke="#dc2626" stroke-width="1" fill="none" />
+  
+  <text x="700" y="720" text-anchor="middle" class="text-small">Note: Dotted lines represent return navigation paths (PF3/PF12)</text>
+  <text x="700" y="735" text-anchor="middle" class="text-small">Red dashed lines represent exit paths to sign-on screen</text>
+</svg>
