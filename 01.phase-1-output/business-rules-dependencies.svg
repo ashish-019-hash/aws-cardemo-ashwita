@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .rule-box { fill: #e1f5fe; stroke: #0277bd; stroke-width: 2; }
+      .rule-text { font-family: Arial, sans-serif; font-size: 12px; fill: #01579b; }
+      .title-text { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #01579b; }
+      .variable-box { fill: #f3e5f5; stroke: #7b1fa2; stroke-width: 1; }
+      .variable-text { font-family: Arial, sans-serif; font-size: 10px; fill: #4a148c; }
+      .arrow { stroke: #0277bd; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0277bd" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" class="title-text">CardDemo Business Rules Dependencies</text>
+  
+  <!-- Main Business Rule -->
+  <rect x="300" y="150" width="200" height="80" rx="5" class="rule-box"/>
+  <text x="400" y="175" text-anchor="middle" class="rule-text">RULE-CALC-001</text>
+  <text x="400" y="195" text-anchor="middle" class="rule-text">Bill Payment Balance</text>
+  <text x="400" y="215" text-anchor="middle" class="rule-text">Calculation</text>
+  
+  <!-- Input Variables -->
+  <rect x="50" y="100" width="120" height="40" rx="3" class="variable-box"/>
+  <text x="110" y="125" text-anchor="middle" class="variable-text">ACCT-CURR-BAL</text>
+  
+  <rect x="50" y="200" width="120" height="40" rx="3" class="variable-box"/>
+  <text x="110" y="225" text-anchor="middle" class="variable-text">TRAN-AMT</text>
+  
+  <!-- Output Variable -->
+  <rect x="630" y="150" width="120" height="40" rx="3" class="variable-box"/>
+  <text x="690" y="175" text-anchor="middle" class="variable-text">Updated</text>
+  <text x="690" y="190" text-anchor="middle" class="variable-text">ACCT-CURR-BAL</text>
+  
+  <!-- Arrows -->
+  <line x1="170" y1="120" x2="290" y2="170" class="arrow"/>
+  <line x1="170" y1="220" x2="290" y2="200" class="arrow"/>
+  <line x1="500" y1="190" x2="620" y2="170" class="arrow"/>
+  
+  <!-- Legend -->
+  <text x="50" y="320" class="rule-text">Legend:</text>
+  <rect x="50" y="330" width="15" height="15" class="rule-box"/>
+  <text x="75" y="342" class="variable-text">Business Rule</text>
+  <rect x="200" y="330" width="15" height="15" class="variable-box"/>
+  <text x="225" y="342" class="variable-text">Data Variable</text>
+  
+  <!-- Note -->
+  <text x="400" y="370" text-anchor="middle" class="variable-text">Note: Only one business calculation rule identified in the CardDemo application</text>
+</svg>
