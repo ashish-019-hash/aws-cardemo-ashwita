@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-size="18" font-weight="bold">
+    COBOL Business Rules Dependencies
+  </text>
+  
+  <!-- Rule boxes -->
+  <!-- RULE-CALC-001: Bill Payment Balance Update -->
+  <rect x="300" y="80" width="200" height="60" fill="#e1f5fe" stroke="#01579b" stroke-width="2" rx="5"/>
+  <text x="400" y="105" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-001</text>
+  <text x="400" y="120" text-anchor="middle" font-size="10">Bill Payment Balance Update</text>
+  
+  <!-- RULE-CALC-002: Transaction ID Generation -->
+  <rect x="50" y="200" width="200" height="60" fill="#f3e5f5" stroke="#4a148c" stroke-width="2" rx="5"/>
+  <text x="150" y="225" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-002</text>
+  <text x="150" y="240" text-anchor="middle" font-size="10">Transaction ID Generation</text>
+  
+  <!-- RULE-CALC-003: Monthly Report Dates -->
+  <rect x="550" y="200" width="200" height="60" fill="#e8f5e8" stroke="#1b5e20" stroke-width="2" rx="5"/>
+  <text x="650" y="225" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-003</text>
+  <text x="650" y="240" text-anchor="middle" font-size="10">Monthly Report Dates</text>
+  
+  <!-- RULE-CALC-004: Yearly Report Dates -->
+  <rect x="550" y="320" width="200" height="60" fill="#e8f5e8" stroke="#1b5e20" stroke-width="2" rx="5"/>
+  <text x="650" y="345" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-004</text>
+  <text x="650" y="360" text-anchor="middle" font-size="10">Yearly Report Dates</text>
+  
+  <!-- RULE-CALC-005: Transaction Amount Processing -->
+  <rect x="50" y="320" width="200" height="60" fill="#fff3e0" stroke="#e65100" stroke-width="2" rx="5"/>
+  <text x="150" y="345" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-005</text>
+  <text x="150" y="360" text-anchor="middle" font-size="10">Transaction Amount Processing</text>
+  
+  <!-- RULE-CALC-006: Date Validation -->
+  <rect x="300" y="450" width="200" height="60" fill="#fce4ec" stroke="#880e4f" stroke-width="2" rx="5"/>
+  <text x="400" y="475" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-006</text>
+  <text x="400" y="490" text-anchor="middle" font-size="10">Date Validation</text>
+  
+  <!-- Dependency arrows -->
+  <!-- RULE-CALC-002 -> RULE-CALC-001 -->
+  <line x1="250" y1="230" x2="300" y2="110" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="275" y="165" font-size="9" fill="#666">requires unique ID</text>
+  
+  <!-- RULE-CALC-005 -> RULE-CALC-001 -->
+  <line x1="250" y1="350" x2="300" y2="120" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="275" y="235" font-size="9" fill="#666">amount conversion</text>
+  
+  <!-- RULE-CALC-006 -> RULE-CALC-003 -->
+  <line x1="500" y1="480" x2="550" y2="240" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="525" y="360" font-size="9" fill="#666">validates dates</text>
+  
+  <!-- RULE-CALC-006 -> RULE-CALC-004 -->
+  <line x1="500" y1="480" x2="550" y2="360" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- RULE-CALC-002 -> RULE-CALC-005 -->
+  <line x1="150" y1="260" x2="150" y2="320" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="160" y="290" font-size="9" fill="#666">ID for transactions</text>
+  
+  <!-- Legend -->
+  <rect x="20" y="520" width="760" height="70" fill="#f5f5f5" stroke="#ccc" stroke-width="1" rx="3"/>
+  <text x="30" y="540" font-size="12" font-weight="bold">Legend:</text>
+  <text x="30" y="555" font-size="10">• Arrows indicate dependencies (A → B means A feeds into or is required by B)</text>
+  <text x="30" y="570" font-size="10">• Core financial rules (blue), ID generation (purple), date processing (green), validation (pink)</text>
+</svg>
