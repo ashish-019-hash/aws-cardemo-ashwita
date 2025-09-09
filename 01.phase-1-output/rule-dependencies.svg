@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+     refX="0" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#00000040"/>
+    </filter>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#2c3e50">
+    CardDemo COBOL Business Rules Dependencies
+  </text>
+  
+  <!-- Rule boxes -->
+  
+  <!-- RULE-CALC-001: Bill Payment Balance Validation -->
+  <rect x="50" y="80" width="200" height="80" rx="8" ry="8" fill="#e8f4fd" stroke="#3498db" stroke-width="2" filter="url(#shadow)"/>
+  <text x="150" y="105" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">RULE-CALC-001</text>
+  <text x="150" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Bill Payment</text>
+  <text x="150" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Balance Validation</text>
+  
+  <!-- RULE-CALC-002: Bill Payment Amount Calculation -->
+  <rect x="300" y="80" width="200" height="80" rx="8" ry="8" fill="#e8f6f3" stroke="#27ae60" stroke-width="2" filter="url(#shadow)"/>
+  <text x="400" y="105" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">RULE-CALC-002</text>
+  <text x="400" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Bill Payment</text>
+  <text x="400" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Amount Calculation</text>
+  
+  <!-- RULE-CALC-003: Transaction Amount Processing -->
+  <rect x="550" y="80" width="200" height="80" rx="8" ry="8" fill="#fdf2e9" stroke="#e67e22" stroke-width="2" filter="url(#shadow)"/>
+  <text x="650" y="105" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">RULE-CALC-003</text>
+  <text x="650" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Transaction Amount</text>
+  <text x="650" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Processing</text>
+  
+  <!-- RULE-CALC-004: Credit Limit Validation -->
+  <rect x="50" y="220" width="200" height="80" rx="8" ry="8" fill="#f4ecf7" stroke="#8e44ad" stroke-width="2" filter="url(#shadow)"/>
+  <text x="150" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">RULE-CALC-004</text>
+  <text x="150" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Credit Limit</text>
+  <text x="150" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Validation</text>
+  
+  <!-- RULE-CALC-005: Cash Credit Limit Processing -->
+  <rect x="300" y="220" width="200" height="80" rx="8" ry="8" fill="#f4ecf7" stroke="#8e44ad" stroke-width="2" filter="url(#shadow)"/>
+  <text x="400" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">RULE-CALC-005</text>
+  <text x="400" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Cash Credit Limit</text>
+  <text x="400" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Processing</text>
+  
+  <!-- RULE-CALC-006: Current Cycle Credit Processing -->
+  <rect x="550" y="220" width="200" height="80" rx="8" ry="8" fill="#f4ecf7" stroke="#8e44ad" stroke-width="2" filter="url(#shadow)"/>
+  <text x="650" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">RULE-CALC-006</text>
+  <text x="650" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Current Cycle Credit</text>
+  <text x="650" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Processing</text>
+  
+  <!-- RULE-CALC-007: Transaction ID Generation -->
+  <rect x="300" y="360" width="200" height="80" rx="8" ry="8" fill="#fdedec" stroke="#e74c3c" stroke-width="2" filter="url(#shadow)"/>
+  <text x="400" y="385" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">RULE-CALC-007</text>
+  <text x="400" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Transaction ID</text>
+  <text x="400" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">Generation</text>
+  
+  <!-- Dependency arrows -->
+  
+  <!-- RULE-CALC-001 feeds into RULE-CALC-002 -->
+  <line x1="250" y1="120" x2="300" y2="120" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="275" y="115" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#666">validates</text>
+  
+  <!-- RULE-CALC-002 uses RULE-CALC-007 -->
+  <line x1="400" y1="160" x2="400" y2="360" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="420" y="260" font-family="Arial, sans-serif" font-size="9" fill="#666">requires</text>
+  
+  <!-- RULE-CALC-003 uses RULE-CALC-007 -->
+  <line x1="650" y1="160" x2="500" y2="360" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="580" y="250" font-family="Arial, sans-serif" font-size="9" fill="#666">requires</text>
+  
+  <!-- Credit limit rules are independent but related -->
+  <line x1="250" y1="260" x2="300" y2="260" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
+  <line x1="500" y1="260" x2="550" y2="260" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
+  
+  <!-- Legend -->
+  <rect x="50" y="500" width="700" height="80" rx="5" ry="5" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1"/>
+  <text x="60" y="520" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">Legend:</text>
+  
+  <line x1="60" y1="535" x2="90" y2="535" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="100" y="540" font-family="Arial, sans-serif" font-size="10" fill="#666">Direct dependency (one rule requires another)</text>
+  
+  <line x1="60" y1="550" x2="90" y2="550" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
+  <text x="100" y="555" font-family="Arial, sans-serif" font-size="10" fill="#666">Related functionality (similar processing pattern)</text>
+  
+  <text x="400" y="540" font-family="Arial, sans-serif" font-size="10" fill="#666">• Bill payment rules (001-002) form a validation-calculation chain</text>
+  <text x="400" y="555" font-family="Arial, sans-serif" font-size="10" fill="#666">• Credit limit rules (004-006) follow similar validation patterns</text>
+  <text x="400" y="570" font-family="Arial, sans-serif" font-size="10" fill="#666">• Transaction ID generation (007) supports both payment and transaction processing</text>
+</svg>
