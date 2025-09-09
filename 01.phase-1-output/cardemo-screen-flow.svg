@@ -1,0 +1,221 @@
+<svg width="1400" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .screen-box { fill: #e8f4fd; stroke: #2563eb; stroke-width: 2; }
+      .menu-box { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+      .admin-box { fill: #fee2e2; stroke: #dc2626; stroke-width: 2; }
+      .util-box { fill: #f3e8ff; stroke: #7c3aed; stroke-width: 2; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; text-anchor: middle; }
+      .title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-anchor: middle; }
+      .small-text { font-family: Arial, sans-serif; font-size: 10px; text-anchor: middle; }
+      .arrow { stroke: #374151; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .pf-arrow { stroke: #059669; stroke-width: 1.5; fill: none; marker-end: url(#greenarrow); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#374151" />
+    </marker>
+    <marker id="greenarrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#059669" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="700" y="30" class="title" font-size="18">CardDemo COBOL Application Screen Flow</text>
+  
+  <!-- Sign-on Screen -->
+  <rect x="600" y="60" width="200" height="60" class="screen-box" />
+  <text x="700" y="80" class="title">COSGN00C</text>
+  <text x="700" y="95" class="text">Sign-on Screen</text>
+  <text x="700" y="110" class="small-text">SGON</text>
+  
+  <!-- Role-based routing arrows -->
+  <line x1="650" y1="120" x2="350" y2="180" class="arrow" />
+  <line x1="750" y1="120" x2="1050" y2="180" class="arrow" />
+  <text x="500" y="155" class="small-text">Admin User</text>
+  <text x="900" y="155" class="small-text">Regular User</text>
+  
+  <!-- Admin Menu -->
+  <rect x="250" y="200" width="200" height="60" class="admin-box" />
+  <text x="350" y="220" class="title">COADM01C</text>
+  <text x="350" y="235" class="text">Admin Menu</text>
+  <text x="350" y="250" class="small-text">CA00</text>
+  
+  <!-- User Menu -->
+  <rect x="950" y="200" width="200" height="60" class="menu-box" />
+  <text x="1050" y="220" class="title">COMEN01C</text>
+  <text x="1050" y="235" class="text">Main Menu</text>
+  <text x="1050" y="250" class="small-text">CM00</text>
+  
+  <!-- Admin Menu Options -->
+  <g id="admin-options">
+    <!-- User Management -->
+    <rect x="50" y="320" width="150" height="50" class="admin-box" />
+    <text x="125" y="340" class="text">COUSR00C</text>
+    <text x="125" y="355" class="small-text">User List (CU00)</text>
+    <line x1="300" y1="260" x2="175" y2="320" class="arrow" />
+    <text x="230" y="295" class="small-text">Option 1</text>
+    
+    <!-- User Add -->
+    <rect x="50" y="390" width="150" height="50" class="admin-box" />
+    <text x="125" y="410" class="text">COUSR01C</text>
+    <text x="125" y="425" class="small-text">User Add (CU01)</text>
+    <line x1="125" y1="370" x2="125" y2="390" class="pf-arrow" />
+    
+    <!-- User Update -->
+    <rect x="220" y="390" width="150" height="50" class="admin-box" />
+    <text x="295" y="410" class="text">COUSR02C</text>
+    <text x="295" y="425" class="small-text">User Update (CU02)</text>
+    <line x1="175" y1="370" x2="245" y2="390" class="pf-arrow" />
+    
+    <!-- User Delete -->
+    <rect x="390" y="390" width="150" height="50" class="admin-box" />
+    <text x="465" y="410" class="text">COUSR03C</text>
+    <text x="465" y="425" class="small-text">User Delete (CU03)</text>
+    <line x1="200" y1="345" x2="415" y2="390" class="pf-arrow" />
+    
+    <!-- Reports -->
+    <rect x="250" y="320" width="150" height="50" class="admin-box" />
+    <text x="325" y="340" class="text">CORPT00C</text>
+    <text x="325" y="355" class="small-text">Reports (CR00)</text>
+    <line x1="350" y1="260" x2="325" y2="320" class="arrow" />
+    <text x="340" y="295" class="small-text">Option 4</text>
+  </g>
+  
+  <!-- User Menu Options -->
+  <g id="user-options">
+    <!-- Account View -->
+    <rect x="750" y="320" width="150" height="50" class="screen-box" />
+    <text x="825" y="340" class="text">COACTVWC</text>
+    <text x="825" y="355" class="small-text">Account View (CAVW)</text>
+    <line x1="1000" y1="260" x2="875" y2="320" class="arrow" />
+    <text x="930" y="295" class="small-text">Option 1</text>
+    
+    <!-- Account Update -->
+    <rect x="750" y="390" width="150" height="50" class="screen-box" />
+    <text x="825" y="410" class="text">COACTUPC</text>
+    <text x="825" y="425" class="small-text">Account Update (CAUP)</text>
+    <line x1="825" y1="370" x2="825" y2="390" class="pf-arrow" />
+    
+    <!-- Bill Payment -->
+    <rect x="920" y="320" width="150" height="50" class="screen-box" />
+    <text x="995" y="340" class="text">COBIL00C</text>
+    <text x="995" y="355" class="small-text">Bill Payment (CB00)</text>
+    <line x1="1050" y1="260" x2="995" y2="320" class="arrow" />
+    <text x="1025" y="295" class="small-text">Option 2</text>
+    
+    <!-- Credit Card List -->
+    <rect x="1090" y="320" width="150" height="50" class="screen-box" />
+    <text x="1165" y="340" class="text">COCRDLIC</text>
+    <text x="1165" y="355" class="small-text">Card List (CCLI)</text>
+    <line x1="1100" y1="260" x2="1165" y2="320" class="arrow" />
+    <text x="1135" y="295" class="small-text">Option 3</text>
+    
+    <!-- Card Detail -->
+    <rect x="1090" y="390" width="150" height="50" class="screen-box" />
+    <text x="1165" y="410" class="text">COCRDSLC</text>
+    <text x="1165" y="425" class="small-text">Card View (CCDL)</text>
+    <line x1="1165" y1="370" x2="1165" y2="390" class="pf-arrow" />
+    
+    <!-- Card Update -->
+    <rect x="1260" y="390" width="150" height="50" class="screen-box" />
+    <text x="1335" y="410" class="text">COCRDUPC</text>
+    <text x="1335" y="425" class="small-text">Card Update (CCUP)</text>
+    <line x1="1240" y1="415" x2="1260" y2="415" class="pf-arrow" />
+    
+    <!-- Transaction List -->
+    <rect x="750" y="480" width="150" height="50" class="screen-box" />
+    <text x="825" y="500" class="text">COTRN00C</text>
+    <text x="825" y="515" class="small-text">Transaction List (CT00)</text>
+    <line x1="1000" y1="260" x2="875" y2="480" class="arrow" />
+    <text x="930" y="370" class="small-text">Option 4</text>
+    
+    <!-- Transaction View -->
+    <rect x="920" y="480" width="150" height="50" class="screen-box" />
+    <text x="995" y="500" class="text">COTRN01C</text>
+    <text x="995" y="515" class="small-text">Transaction View (CT01)</text>
+    <line x1="900" y1="505" x2="920" y2="505" class="pf-arrow" />
+    
+    <!-- Transaction Add -->
+    <rect x="1090" y="480" width="150" height="50" class="screen-box" />
+    <text x="1165" y="500" class="text">COTRN02C</text>
+    <text x="1165" y="515" class="small-text">Transaction Add (CT02)</text>
+    <line x1="1070" y1="505" x2="1090" y2="505" class="pf-arrow" />
+  </g>
+  
+  <!-- Utility -->
+  <rect x="600" y="580" width="200" height="50" class="util-box" />
+  <text x="700" y="600" class="text">CSUTLDTC</text>
+  <text x="700" y="615" class="small-text">Date Validation Utility</text>
+  
+  <!-- PF Key Legend -->
+  <g id="legend">
+    <rect x="50" y="650" width="300" height="200" fill="none" stroke="#6b7280" stroke-width="1" />
+    <text x="200" y="670" class="title">PF Key Navigation</text>
+    
+    <line x1="70" y1="690" x2="100" y2="690" class="pf-arrow" />
+    <text x="110" y="695" class="small-text" text-anchor="start">PF3 = Return to Previous/Exit</text>
+    
+    <line x1="70" y1="710" x2="100" y2="710" class="pf-arrow" />
+    <text x="110" y="715" class="small-text" text-anchor="start">PF4 = Clear Screen</text>
+    
+    <line x1="70" y1="730" x2="100" y2="730" class="pf-arrow" />
+    <text x="110" y="735" class="small-text" text-anchor="start">PF5 = Save/Update/Copy</text>
+    
+    <line x1="70" y1="750" x2="100" y2="750" class="pf-arrow" />
+    <text x="110" y="755" class="small-text" text-anchor="start">PF7 = Page Up</text>
+    
+    <line x1="70" y1="770" x2="100" y2="770" class="pf-arrow" />
+    <text x="110" y="775" class="small-text" text-anchor="start">PF8 = Page Down</text>
+    
+    <line x1="70" y1="790" x2="100" y2="790" class="pf-arrow" />
+    <text x="110" y="795" class="small-text" text-anchor="start">PF12 = Cancel/Return to Menu</text>
+    
+    <line x1="70" y1="810" x2="100" y2="810" class="arrow" />
+    <text x="110" y="815" class="small-text" text-anchor="start">ENTER = Process/Navigate</text>
+    
+    <text x="70" y="835" class="small-text" text-anchor="start">Selection Actions:</text>
+    <text x="70" y="850" class="small-text" text-anchor="start">S = Select for View</text>
+    <text x="70" y="865" class="small-text" text-anchor="start">U = Select for Update</text>
+  </g>
+  
+  <!-- Screen Flow Notes -->
+  <g id="notes">
+    <rect x="400" y="650" width="350" height="200" fill="none" stroke="#6b7280" stroke-width="1" />
+    <text x="575" y="670" class="title">Navigation Notes</text>
+    
+    <text x="420" y="690" class="small-text" text-anchor="start">• Role-based routing from sign-on</text>
+    <text x="420" y="705" class="small-text" text-anchor="start">• Admin users: 4 menu options</text>
+    <text x="420" y="720" class="small-text" text-anchor="start">• Regular users: 10 menu options</text>
+    <text x="420" y="735" class="small-text" text-anchor="start">• Pseudo-conversational CICS design</text>
+    <text x="420" y="750" class="small-text" text-anchor="start">• XCTL commands for program transfers</text>
+    <text x="420" y="765" class="small-text" text-anchor="start">• BMS maps for screen interaction</text>
+    <text x="420" y="780" class="small-text" text-anchor="start">• State maintained via COMMAREA</text>
+    <text x="420" y="795" class="small-text" text-anchor="start">• List screens support pagination</text>
+    <text x="420" y="810" class="small-text" text-anchor="start">• Update screens require confirmation</text>
+    <text x="420" y="825" class="small-text" text-anchor="start">• Error handling with user feedback</text>
+    <text x="420" y="840" class="small-text" text-anchor="start">• Date validation via CSUTLDTC utility</text>
+  </g>
+  
+  <!-- Transaction Codes -->
+  <g id="transaction-codes">
+    <rect x="800" y="650" width="300" height="200" fill="none" stroke="#6b7280" stroke-width="1" />
+    <text x="950" y="670" class="title">Transaction Codes</text>
+    
+    <text x="820" y="690" class="small-text" text-anchor="start">SGON - Sign-on Screen</text>
+    <text x="820" y="705" class="small-text" text-anchor="start">CM00 - Main Menu (User)</text>
+    <text x="820" y="720" class="small-text" text-anchor="start">CA00 - Admin Menu</text>
+    <text x="820" y="735" class="small-text" text-anchor="start">CAVW - Account View</text>
+    <text x="820" y="750" class="small-text" text-anchor="start">CAUP - Account Update</text>
+    <text x="820" y="765" class="small-text" text-anchor="start">CB00 - Bill Payment</text>
+    <text x="820" y="780" class="small-text" text-anchor="start">CCLI - Credit Card List</text>
+    <text x="820" y="795" class="small-text" text-anchor="start">CCDL - Credit Card Detail</text>
+    <text x="820" y="810" class="small-text" text-anchor="start">CCUP - Credit Card Update</text>
+    <text x="820" y="825" class="small-text" text-anchor="start">CT00/01/02 - Transactions</text>
+    <text x="820" y="840" class="small-text" text-anchor="start">CU00/01/02/03 - User Mgmt</text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="700" y="920" class="small-text">CardDemo COBOL Application - Business-Level Screen Flow Analysis</text>
+  <text x="700" y="940" class="small-text">Generated from 18 COBOL programs in 00.phase-1-input folder</text>
+  <text x="700" y="960" class="small-text">Focus: Production navigation paths, CICS XCTL commands, PF key mappings</text>
+</svg>
