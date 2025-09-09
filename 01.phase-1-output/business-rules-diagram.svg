@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #2c3e50; }
+      .rule-box { fill: #3498db; stroke: #2980b9; stroke-width: 2; }
+      .rule-text { font-family: Arial, sans-serif; font-size: 12px; fill: white; font-weight: bold; }
+      .description { font-family: Arial, sans-serif; font-size: 10px; fill: #34495e; }
+      .input-box { fill: #e74c3c; stroke: #c0392b; stroke-width: 2; }
+      .output-box { fill: #27ae60; stroke: #229954; stroke-width: 2; }
+      .io-text { font-family: Arial, sans-serif; font-size: 10px; fill: white; font-weight: bold; }
+      .arrow { stroke: #34495e; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495e" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" class="title">CardDemo Business Calculation Rules</text>
+  
+  <!-- Input Variables -->
+  <rect x="50" y="80" width="150" height="60" rx="5" class="input-box"/>
+  <text x="125" y="100" text-anchor="middle" class="io-text">Input Variables</text>
+  <text x="125" y="115" text-anchor="middle" class="io-text">ACCT-CURR-BAL</text>
+  <text x="125" y="130" text-anchor="middle" class="io-text">TRAN-AMT</text>
+  
+  <!-- Main Business Rule -->
+  <rect x="300" y="150" width="200" height="100" rx="10" class="rule-box"/>
+  <text x="400" y="175" text-anchor="middle" class="rule-text">RULE-CALC-001</text>
+  <text x="400" y="195" text-anchor="middle" class="rule-text">Bill Payment</text>
+  <text x="400" y="215" text-anchor="middle" class="rule-text">Balance Calculation</text>
+  <text x="400" y="235" text-anchor="middle" class="rule-text">COBIL00C.cbl:234</text>
+  
+  <!-- Calculation Formula -->
+  <rect x="250" y="280" width="300" height="40" rx="5" fill="#f39c12" stroke="#e67e22" stroke-width="2"/>
+  <text x="400" y="300" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 12px; fill: white; font-weight: bold;">New Balance = Current Balance - Payment Amount</text>
+  
+  <!-- Output -->
+  <rect x="600" y="80" width="150" height="60" rx="5" class="output-box"/>
+  <text x="675" y="100" text-anchor="middle" class="io-text">Updated Balance</text>
+  <text x="675" y="115" text-anchor="middle" class="io-text">ACCT-CURR-BAL</text>
+  <text x="675" y="130" text-anchor="middle" class="io-text">(Reduced)</text>
+  
+  <!-- Arrows -->
+  <line x1="200" y1="110" x2="280" y2="180" class="arrow"/>
+  <line x1="520" y1="200" x2="580" y2="110" class="arrow"/>
+  <line x1="400" y1="250" x2="400" y2="280" class="arrow"/>
+  
+  <!-- Conditions Box -->
+  <rect x="50" y="300" width="150" height="80" rx="5" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+  <text x="125" y="320" text-anchor="middle" class="io-text">Conditions</text>
+  <text x="125" y="335" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 9px; fill: white;">• Valid payment amount</text>
+  <text x="125" y="350" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 9px; fill: white;">• Account exists</text>
+  <text x="125" y="365" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 9px; fill: white;">• Amount > 0</text>
+  
+  <!-- Arrow from conditions -->
+  <line x1="200" y1="340" x2="280" y2="300" class="arrow"/>
+  
+  <!-- Summary text -->
+  <text x="400" y="370" text-anchor="middle" class="description">Single business calculation rule identified from 18 COBOL programs analyzed</text>
+  <text x="400" y="385" text-anchor="middle" class="description">CardDemo focuses on transaction processing patterns rather than complex financial calculations</text>
+</svg>
