@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #2c3e50; }
+      .program-box { fill: #ecf0f1; stroke: #34495e; stroke-width: 2; rx: 5; }
+      .validation-group { fill: #e8f4fd; stroke: #3498db; stroke-width: 1.5; rx: 3; }
+      .validation-text { font-family: Arial, sans-serif; font-size: 10px; fill: #2c3e50; }
+      .program-text { font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #2c3e50; }
+      .category-text { font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; fill: #e74c3c; }
+      .connection-line { stroke: #95a5a6; stroke-width: 1.5; stroke-dasharray: 3,3; }
+      .legend-box { fill: #f8f9fa; stroke: #6c757d; stroke-width: 1; rx: 3; }
+      .legend-text { font-family: Arial, sans-serif; font-size: 10px; fill: #495057; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="25" text-anchor="middle" class="title">COBOL Validation Rules Relationship Diagram</text>
+  
+  <!-- Legend -->
+  <rect x="20" y="40" width="200" height="120" class="legend-box"/>
+  <text x="30" y="55" class="legend-text" font-weight="bold">Legend:</text>
+  <rect x="30" y="65" width="15" height="10" class="program-box"/>
+  <text x="50" y="73" class="legend-text">COBOL Program</text>
+  <rect x="30" y="80" width="15" height="10" class="validation-group"/>
+  <text x="50" y="88" class="legend-text">Validation Group</text>
+  <line x1="30" y1="95" x2="45" y2="95" class="connection-line"/>
+  <text x="50" y="98" class="legend-text">Shared Validation</text>
+  <text x="30" y="113" class="legend-text">Field Types:</text>
+  <text x="30" y="125" class="legend-text">R=Required, F=Format, B=Business Rule</text>
+  <text x="30" y="137" class="legend-text">N=Numeric, D=Date, C=Conditional</text>
+  
+  <!-- User Management Programs -->
+  <rect x="250" y="50" width="180" height="140" class="program-box"/>
+  <text x="340" y="70" text-anchor="middle" class="program-text">User Management</text>
+  
+  <!-- COSGN00C -->
+  <rect x="260" y="80" width="70" height="40" class="validation-group"/>
+  <text x="295" y="95" text-anchor="middle" class="validation-text">COSGN00C</text>
+  <text x="295" y="105" text-anchor="middle" class="validation-text">VAL-001,002</text>
+  <text x="295" y="115" text-anchor="middle" class="validation-text">R,R</text>
+  
+  <!-- COUSR01C -->
+  <rect x="340" y="80" width="80" height="40" class="validation-group"/>
+  <text x="380" y="95" text-anchor="middle" class="validation-text">COUSR01C</text>
+  <text x="380" y="105" text-anchor="middle" class="validation-text">VAL-003-007</text>
+  <text x="380" y="115" text-anchor="middle" class="validation-text">R,R,R,R,R</text>
+  
+  <!-- COUSR02C -->
+  <rect x="260" y="130" width="70" height="40" class="validation-group"/>
+  <text x="295" y="145" text-anchor="middle" class="validation-text">COUSR02C</text>
+  <text x="295" y="155" text-anchor="middle" class="validation-text">VAL-008</text>
+  <text x="295" y="165" text-anchor="middle" class="validation-text">R</text>
+  
+  <!-- COUSR03C -->
+  <rect x="340" y="130" width="80" height="40" class="validation-group"/>
+  <text x="380" y="145" text-anchor="middle" class="validation-text">COUSR03C</text>
+  <text x="380" y="155" text-anchor="middle" class="validation-text">VAL-009</text>
+  <text x="380" y="165" text-anchor="middle" class="validation-text">R</text>
+  
+  <!-- Menu Programs -->
+  <rect x="450" y="50" width="180" height="140" class="program-box"/>
+  <text x="540" y="70" text-anchor="middle" class="program-text">Menu & Navigation</text>
+  
+  <!-- COMEN01C -->
+  <rect x="460" y="80" width="70" height="40" class="validation-group"/>
+  <text x="495" y="95" text-anchor="middle" class="validation-text">COMEN01C</text>
+  <text x="495" y="105" text-anchor="middle" class="validation-text">VAL-010,011</text>
+  <text x="495" y="115" text-anchor="middle" class="validation-text">N,C</text>
+  
+  <!-- COADM01C -->
+  <rect x="540" y="80" width="80" height="40" class="validation-group"/>
+  <text x="580" y="95" text-anchor="middle" class="validation-text">COADM01C</text>
+  <text x="580" y="105" text-anchor="middle" class="validation-text">VAL-012</text>
+  <text x="580" y="115" text-anchor="middle" class="validation-text">N</text>
+  
+  <!-- Account Management -->
+  <rect x="650" y="50" width="200" height="140" class="program-box"/>
+  <text x="750" y="70" text-anchor="middle" class="program-text">Account Management</text>
+  
+  <!-- COACTUPC -->
+  <rect x="660" y="80" width="180" height="100" class="validation-group"/>
+  <text x="750" y="95" text-anchor="middle" class="validation-text">COACTUPC</text>
+  <text x="750" y="105" text-anchor="middle" class="validation-text">VAL-013-020</text>
+  <text x="750" y="115" text-anchor="middle" class="validation-text">Status: B,B</text>
+  <text x="750" y="125" text-anchor="middle" class="validation-text">Names: R,R</text>
+  <text x="750" y="135" text-anchor="middle" class="validation-text">Address: R,R,R,R</text>
+  
+  <!-- Credit Card Programs -->
+  <rect x="870" y="50" width="300" height="140" class="program-box"/>
+  <text x="1020" y="70" text-anchor="middle" class="program-text">Credit Card Management</text>
+  
+  <!-- COCRDUPC -->
+  <rect x="880" y="80" width="90" height="100" class="validation-group"/>
+  <text x="925" y="95" text-anchor="middle" class="validation-text">COCRDUPC</text>
+  <text x="925" y="105" text-anchor="middle" class="validation-text">VAL-021-029</text>
+  <text x="925" y="115" text-anchor="middle" class="validation-text">Required: R,R,R</text>
+  <text x="925" y="125" text-anchor="middle" class="validation-text">Format: F,N,N</text>
+  <text x="925" y="135" text-anchor="middle" class="validation-text">Business: B,N,N</text>
+  
+  <!-- COCRDSLC -->
+  <rect x="980" y="80" width="90" height="100" class="validation-group"/>
+  <text x="1025" y="95" text-anchor="middle" class="validation-text">COCRDSLC</text>
+  <text x="1025" y="105" text-anchor="middle" class="validation-text">VAL-030-033</text>
+  <text x="1025" y="115" text-anchor="middle" class="validation-text">Required: R,R</text>
+  <text x="1025" y="125" text-anchor="middle" class="validation-text">Format: N,N</text>
+  
+  <!-- COCRDLIC -->
+  <rect x="1080" y="80" width="80" height="100" class="validation-group"/>
+  <text x="1120" y="95" text-anchor="middle" class="validation-text">COCRDLIC</text>
+  <text x="1120" y="105" text-anchor="middle" class="validation-text">VAL-034</text>
+  <text x="1120" y="115" text-anchor="middle" class="validation-text">Selection: B</text>
+  
+  <!-- Transaction Programs -->
+  <rect x="250" y="220" width="400" height="140" class="program-box"/>
+  <text x="450" y="240" text-anchor="middle" class="program-text">Transaction Processing</text>
+  
+  <!-- COTRN02C -->
+  <rect x="260" y="250" width="180" height="100" class="validation-group"/>
+  <text x="350" y="265" text-anchor="middle" class="validation-text">COTRN02C</text>
+  <text x="350" y="275" text-anchor="middle" class="validation-text">VAL-035-055</text>
+  <text x="350" y="285" text-anchor="middle" class="validation-text">Account/Card: R,N,N,C</text>
+  <text x="350" y="295" text-anchor="middle" class="validation-text">Transaction: R,R,R,R,R</text>
+  <text x="350" y="305" text-anchor="middle" class="validation-text">Merchant: R,R,R,R</text>
+  <text x="350" y="315" text-anchor="middle" class="validation-text">Format: N,N,F,D,D</text>
+  <text x="350" y="325" text-anchor="middle" class="validation-text">Date Valid: D</text>
+  
+  <!-- COBIL00C -->
+  <rect x="460" y="250" width="180" height="100" class="validation-group"/>
+  <text x="550" y="265" text-anchor="middle" class="validation-text">COBIL00C</text>
+  <text x="550" y="275" text-anchor="middle" class="validation-text">VAL-060</text>
+  <text x="550" y="285" text-anchor="middle" class="validation-text">Account: R</text>
+  
+  <!-- Date Validation Utility -->
+  <rect x="670" y="220" width="200" height="140" class="program-box"/>
+  <text x="770" y="240" text-anchor="middle" class="program-text">Date Validation Utility</text>
+  
+  <!-- CSUTLDTC -->
+  <rect x="680" y="250" width="180" height="100" class="validation-group"/>
+  <text x="770" y="265" text-anchor="middle" class="validation-text">CSUTLDTC</text>
+  <text x="770" y="275" text-anchor="middle" class="validation-text">VAL-056-059</text>
+  <text x="770" y="285" text-anchor="middle" class="validation-text">Format: D</text>
+  <text x="770" y="295" text-anchor="middle" class="validation-text">Completeness: D</text>
+  <text x="770" y="305" text-anchor="middle" class="validation-text">Month Range: D</text>
+  <text x="770" y="315" text-anchor="middle" class="validation-text">Numeric: D</text>
+  
+  <!-- Validation Categories -->
+  <rect x="250" y="400" width="900" height="180" class="program-box"/>
+  <text x="700" y="420" text-anchor="middle" class="program-text">Validation Rule Categories & Relationships</text>
+  
+  <!-- Required Field Validations -->
+  <rect x="270" y="440" width="160" height="60" class="validation-group"/>
+  <text x="350" y="455" text-anchor="middle" class="category-text">Required Fields</text>
+  <text x="350" y="470" text-anchor="middle" class="validation-text">35 Rules (58%)</text>
+  <text x="350" y="480" text-anchor="middle" class="validation-text">User IDs, Names, Addresses</text>
+  <text x="350" y="490" text-anchor="middle" class="validation-text">Transaction Data, Merchant Info</text>
+  
+  <!-- Format Validations -->
+  <rect x="450" y="440" width="160" height="60" class="validation-group"/>
+  <text x="530" y="455" text-anchor="middle" class="category-text">Format Validations</text>
+  <text x="530" y="470" text-anchor="middle" class="validation-text">8 Rules (13%)</text>
+  <text x="530" y="480" text-anchor="middle" class="validation-text">Dates (YYYY-MM-DD)</text>
+  <text x="530" y="490" text-anchor="middle" class="validation-text">Amounts (-99999999.99)</text>
+  
+  <!-- Business Rules -->
+  <rect x="630" y="440" width="160" height="60" class="validation-group"/>
+  <text x="710" y="455" text-anchor="middle" class="category-text">Business Rules</text>
+  <text x="710" y="470" text-anchor="middle" class="validation-text">7 Rules (12%)</text>
+  <text x="710" y="480" text-anchor="middle" class="validation-text">Status Codes (Y/N)</text>
+  <text x="710" y="490" text-anchor="middle" class="validation-text">Selection Actions (S/U)</text>
+  
+  <!-- Numeric Validations -->
+  <rect x="810" y="440" width="160" height="60" class="validation-group"/>
+  <text x="890" y="455" text-anchor="middle" class="category-text">Numeric Validations</text>
+  <text x="890" y="470" text-anchor="middle" class="validation-text">6 Rules (10%)</text>
+  <text x="890" y="480" text-anchor="middle" class="validation-text">Account Numbers (11 digits)</text>
+  <text x="890" y="490" text-anchor="middle" class="validation-text">Card Numbers (16 digits)</text>
+  
+  <!-- Conditional Validations -->
+  <rect x="270" y="510" width="160" height="60" class="validation-group"/>
+  <text x="350" y="525" text-anchor="middle" class="category-text">Conditional Rules</text>
+  <text x="350" y="540" text-anchor="middle" class="validation-text">4 Rules (7%)</text>
+  <text x="350" y="550" text-anchor="middle" class="validation-text">User Type Restrictions</text>
+  <text x="350" y="560" text-anchor="middle" class="validation-text">Admin-Only Functions</text>
+  
+  <!-- Cross-Program Dependencies -->
+  <rect x="450" y="510" width="520" height="60" class="validation-group"/>
+  <text x="710" y="525" text-anchor="middle" class="category-text">Cross-Program Dependencies</text>
+  <text x="710" y="540" text-anchor="middle" class="validation-text">Date Validation: CSUTLDTC used by COTRN02C</text>
+  <text x="710" y="550" text-anchor="middle" class="validation-text">Account/Card Validation: Shared patterns across COCRDUPC, COCRDSLC, COTRN02C</text>
+  <text x="710" y="560" text-anchor="middle" class="validation-text">User Authentication: COSGN00C patterns used in all user management programs</text>
+  
+  <!-- Connection Lines showing relationships -->
+  <!-- Date validation dependency -->
+  <line x1="450" y1="325" x2="680" y2="285" class="connection-line"/>
+  
+  <!-- Account/Card validation patterns -->
+  <line x1="925" y1="180" x2="1025" y2="180" class="connection-line"/>
+  <line x1="925" y1="180" x2="450" y2="250" class="connection-line"/>
+  
+  <!-- User authentication patterns -->
+  <line x1="295" y1="120" x2="380" y2="120" class="connection-line"/>
+  <line x1="295" y1="120" x2="295" y2="145" class="connection-line"/>
+  <line x1="380" y1="120" x2="380" y2="145" class="connection-line"/>
+  
+  <!-- Menu validation patterns -->
+  <line x1="495" y1="120" x2="580" y2="120" class="connection-line"/>
+  
+  <!-- Summary Statistics -->
+  <rect x="900" y="600" width="280" height="180" class="legend-box"/>
+  <text x="1040" y="620" text-anchor="middle" class="program-text">Validation Summary</text>
+  <text x="910" y="640" class="legend-text">Total Validation Rules: 60</text>
+  <text x="910" y="655" class="legend-text">Programs Analyzed: 18</text>
+  <text x="910" y="670" class="legend-text">Most Complex Program: COTRN02C (21 rules)</text>
+  <text x="910" y="685" class="legend-text">Most Common Pattern: Required Fields</text>
+  <text x="910" y="700" class="legend-text">Critical Dependencies: Date Validation</text>
+  <text x="910" y="720" class="legend-text">Modernization Priority:</text>
+  <text x="910" y="735" class="legend-text">1. User Authentication (High)</text>
+  <text x="910" y="750" class="legend-text">2. Required Field Checks (High)</text>
+  <text x="910" y="765" class="legend-text">3. Format Validations (Medium)</text>
+</svg>
