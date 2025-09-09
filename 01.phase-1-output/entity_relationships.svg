@@ -1,0 +1,105 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f8f9fa" stroke="none"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#2c3e50">
+    CardDemo Business Entity Relationships
+  </text>
+  
+  <!-- Customer Entity -->
+  <rect x="50" y="80" width="140" height="100" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+  <text x="120" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1976d2">Customer</text>
+  <text x="120" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">ID, Name, Address</text>
+  <text x="120" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Phone, SSN, DOB</text>
+  <text x="120" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Credit Score</text>
+  
+  <!-- Account Entity -->
+  <rect x="330" y="80" width="140" height="100" fill="#e8f5e8" stroke="#388e3c" stroke-width="2" rx="5"/>
+  <text x="400" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#388e3c">Account</text>
+  <text x="400" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">ID, Balance, Status</text>
+  <text x="400" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Credit Limits</text>
+  <text x="400" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Dates, Group ID</text>
+  
+  <!-- Card Entity -->
+  <rect x="610" y="80" width="140" height="100" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="5"/>
+  <text x="680" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#f57c00">Card</text>
+  <text x="680" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Number, CVV</text>
+  <text x="680" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Embossed Name</text>
+  <text x="680" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Expiry, Status</text>
+  
+  <!-- Transaction Entity -->
+  <rect x="610" y="280" width="140" height="120" fill="#fce4ec" stroke="#c2185b" stroke-width="2" rx="5"/>
+  <text x="680" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#c2185b">Transaction</text>
+  <text x="680" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">ID, Amount, Type</text>
+  <text x="680" y="335" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Description, Source</text>
+  <text x="680" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Merchant Info</text>
+  <text x="680" y="365" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Timestamps</text>
+  
+  <!-- User Entity -->
+  <rect x="50" y="280" width="140" height="100" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+  <text x="120" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#7b1fa2">User</text>
+  <text x="120" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">ID, First Name</text>
+  <text x="120" y="335" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Last Name</text>
+  <text x="120" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Password, Type</text>
+  
+  <!-- Card Cross-Reference Entity -->
+  <rect x="330" y="280" width="140" height="100" fill="#efebe9" stroke="#5d4037" stroke-width="2" rx="5"/>
+  <text x="400" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#5d4037">Card Cross-Ref</text>
+  <text x="400" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Account ID</text>
+  <text x="400" y="335" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Card Number</text>
+  <text x="400" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#424242">Customer ID</text>
+  
+  <!-- Relationships -->
+  
+  <!-- Customer to Account (1:N) -->
+  <line x1="190" y1="130" x2="330" y2="130" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="260" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">1:N</text>
+  <text x="260" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">has</text>
+  
+  <!-- Account to Card (1:N) -->
+  <line x1="470" y1="130" x2="610" y2="130" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="540" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">1:N</text>
+  <text x="540" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">issues</text>
+  
+  <!-- Card to Transaction (1:N) -->
+  <line x1="680" y1="180" x2="680" y2="280" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="695" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">1:N</text>
+  <text x="710" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">generates</text>
+  
+  <!-- Customer to Card Cross-Reference (1:N) -->
+  <line x1="120" y1="180" x2="120" y2="220" stroke="#666" stroke-width="2"/>
+  <line x1="120" y1="220" x2="330" y2="220" stroke="#666" stroke-width="2"/>
+  <line x1="330" y1="220" x2="330" y2="280" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="225" y="215" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">1:N</text>
+  <text x="225" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">linked via</text>
+  
+  <!-- Account to Card Cross-Reference (1:1) -->
+  <line x1="400" y1="180" x2="400" y2="280" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="415" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">1:1</text>
+  <text x="430" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">maps to</text>
+  
+  <!-- Card Cross-Reference to Card (1:N) -->
+  <line x1="470" y1="330" x2="610" y2="330" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="540" y="325" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">1:N</text>
+  <text x="540" y="345" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">references</text>
+  
+  <!-- User System Access (standalone) -->
+  <text x="120" y="410" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#666">System Access</text>
+  <text x="120" y="425" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#666">(Authentication)</text>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+  
+  <!-- Legend -->
+  <rect x="50" y="480" width="700" height="100" fill="#ffffff" stroke="#ddd" stroke-width="1" rx="5"/>
+  <text x="70" y="500" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">Legend:</text>
+  <text x="70" y="520" font-family="Arial, sans-serif" font-size="10" fill="#666">• Rectangles represent business entities with key attributes</text>
+  <text x="70" y="535" font-family="Arial, sans-serif" font-size="10" fill="#666">• Lines show relationships between entities</text>
+  <text x="70" y="550" font-family="Arial, sans-serif" font-size="10" fill="#666">• 1:1 = One-to-One relationship, 1:N = One-to-Many relationship</text>
+  <text x="70" y="565" font-family="Arial, sans-serif" font-size="10" fill="#666">• Card Cross-Reference serves as junction table for entity navigation</text>
+</svg>
