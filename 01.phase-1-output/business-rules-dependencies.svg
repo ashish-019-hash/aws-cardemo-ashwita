@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+     refX="0" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-size="18" font-weight="bold">
+    COBOL Business Rules Dependencies
+  </text>
+  
+  <!-- Rule boxes -->
+  <rect x="50" y="80" width="150" height="60" fill="#e1f5fe" stroke="#01579b" stroke-width="2" rx="5"/>
+  <text x="125" y="105" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-001</text>
+  <text x="125" y="120" text-anchor="middle" font-size="10">Bill Payment</text>
+  <text x="125" y="132" text-anchor="middle" font-size="10">Balance Calc</text>
+  
+  <rect x="300" y="80" width="150" height="60" fill="#f3e5f5" stroke="#4a148c" stroke-width="2" rx="5"/>
+  <text x="375" y="105" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-002</text>
+  <text x="375" y="120" text-anchor="middle" font-size="10">Transaction ID</text>
+  <text x="375" y="132" text-anchor="middle" font-size="10">Generation</text>
+  
+  <rect x="550" y="80" width="150" height="60" fill="#e8f5e8" stroke="#1b5e20" stroke-width="2" rx="5"/>
+  <text x="625" y="105" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-003</text>
+  <text x="625" y="120" text-anchor="middle" font-size="10">Transaction Amount</text>
+  <text x="625" y="132" text-anchor="middle" font-size="10">Processing</text>
+  
+  <rect x="150" y="250" width="150" height="60" fill="#fff3e0" stroke="#e65100" stroke-width="2" rx="5"/>
+  <text x="225" y="275" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-004</text>
+  <text x="225" y="290" text-anchor="middle" font-size="10">Monthly Report</text>
+  <text x="225" y="302" text-anchor="middle" font-size="10">Date Range</text>
+  
+  <rect x="400" y="250" width="150" height="60" fill="#fce4ec" stroke="#880e4f" stroke-width="2" rx="5"/>
+  <text x="475" y="275" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-005</text>
+  <text x="475" y="290" text-anchor="middle" font-size="10">Page Number</text>
+  <text x="475" y="302" text-anchor="middle" font-size="10">Calculation</text>
+  
+  <rect x="275" y="400" width="150" height="60" fill="#e0f2f1" stroke="#004d40" stroke-width="2" rx="5"/>
+  <text x="350" y="425" text-anchor="middle" font-size="12" font-weight="bold">RULE-CALC-006</text>
+  <text x="350" y="440" text-anchor="middle" font-size="10">Date Validation</text>
+  <text x="350" y="452" text-anchor="middle" font-size="10">Processing</text>
+  
+  <!-- Dependency arrows -->
+  <line x1="300" y1="110" x2="200" y2="110" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="250" y="105" text-anchor="middle" font-size="9">depends on</text>
+  
+  <line x1="550" y1="110" x2="200" y2="110" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="375" y="95" text-anchor="middle" font-size="9">depends on</text>
+  
+  <line x1="300" y1="280" x2="350" y2="400" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="315" y="340" text-anchor="middle" font-size="9">depends on</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="520" width="700" height="60" fill="#f5f5f5" stroke="#ccc" stroke-width="1" rx="3"/>
+  <text x="60" y="540" font-size="12" font-weight="bold">Legend:</text>
+  <text x="60" y="555" font-size="10">• Financial Rules: Blue/Purple/Green • Date/Time Rules: Orange/Teal • Navigation Rules: Pink</text>
+  <text x="60" y="570" font-size="10">• Arrows indicate dependencies (A depends on B means A requires B to function)</text>
+</svg>
