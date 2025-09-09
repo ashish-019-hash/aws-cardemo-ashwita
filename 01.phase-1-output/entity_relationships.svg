@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .entity-box { fill: #e6f3ff; stroke: #0066cc; stroke-width: 2; }
+      .entity-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; text-anchor: middle; }
+      .entity-attr { font-family: Arial, sans-serif; font-size: 11px; text-anchor: start; }
+      .relationship-line { stroke: #333; stroke-width: 2; }
+      .cardinality { font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; text-anchor: middle; }
+      .pk { font-weight: bold; text-decoration: underline; }
+      .fk { font-style: italic; color: #666; }
+    </style>
+  </defs>
+  
+  <!-- Customer Entity -->
+  <rect x="50" y="50" width="200" height="180" class="entity-box"/>
+  <text x="150" y="70" class="entity-title">Customer</text>
+  <text x="60" y="90" class="entity-attr pk">CUST-ID (PK)</text>
+  <text x="60" y="105" class="entity-attr">CUST-FNAME</text>
+  <text x="60" y="120" class="entity-attr">CUST-MNAME</text>
+  <text x="60" y="135" class="entity-attr">CUST-LNAME</text>
+  <text x="60" y="150" class="entity-attr">CUST-ADDR-LINE-1</text>
+  <text x="60" y="165" class="entity-attr">CUST-ADDR-LINE-2</text>
+  <text x="60" y="180" class="entity-attr">CUST-CITY</text>
+  <text x="60" y="195" class="entity-attr">CUST-STATE</text>
+  <text x="60" y="210" class="entity-attr">CUST-ZIP</text>
+  
+  <!-- Account Entity -->
+  <rect x="350" y="50" width="220" height="200" class="entity-box"/>
+  <text x="460" y="70" class="entity-title">Account</text>
+  <text x="360" y="90" class="entity-attr pk">ACCT-ID (PK)</text>
+  <text x="360" y="105" class="entity-attr fk">ACCT-CUST-ID (FK)</text>
+  <text x="360" y="120" class="entity-attr">ACCT-STATUS</text>
+  <text x="360" y="135" class="entity-attr">ACCT-OPEN-DATE</text>
+  <text x="360" y="150" class="entity-attr">ACCT-CURR-BAL</text>
+  <text x="360" y="165" class="entity-attr">ACCT-CREDIT-LIMIT</text>
+  <text x="360" y="180" class="entity-attr">ACCT-CASH-CREDIT-LIMIT</text>
+  <text x="360" y="195" class="entity-attr">ACCT-CURR-CYC-CREDIT</text>
+  <text x="360" y="210" class="entity-attr">ACCT-CURR-CYC-DEBIT</text>
+  <text x="360" y="225" class="entity-attr">ACCT-GROUP-ID</text>
+  
+  <!-- Card Entity -->
+  <rect x="650" y="50" width="200" height="160" class="entity-box"/>
+  <text x="750" y="70" class="entity-title">Card</text>
+  <text x="660" y="90" class="entity-attr pk">CARD-NUM (PK)</text>
+  <text x="660" y="105" class="entity-attr fk">CARD-ACCT-ID (FK)</text>
+  <text x="660" y="120" class="entity-attr">CARD-CVV-CD</text>
+  <text x="660" y="135" class="entity-attr">CARD-NAME-EMBOSSED</text>
+  <text x="660" y="150" class="entity-attr">CARD-STATUS</text>
+  <text x="660" y="165" class="entity-attr">CARD-EXPIRY-DATE</text>
+  <text x="660" y="180" class="entity-attr">CARD-ISSUE-DATE</text>
+  <text x="660" y="195" class="entity-attr">CARD-REISSUE-DATE</text>
+  
+  <!-- Transaction Entity -->
+  <rect x="950" y="50" width="220" height="200" class="entity-box"/>
+  <text x="1060" y="70" class="entity-title">Transaction</text>
+  <text x="960" y="90" class="entity-attr pk">TRAN-ID (PK)</text>
+  <text x="960" y="105" class="entity-attr fk">TRAN-CARD-NUM (FK)</text>
+  <text x="960" y="120" class="entity-attr">TRAN-TYPE-CD</text>
+  <text x="960" y="135" class="entity-attr">TRAN-CAT-CD</text>
+  <text x="960" y="150" class="entity-attr">TRAN-SOURCE</text>
+  <text x="960" y="165" class="entity-attr">TRAN-AMT</text>
+  <text x="960" y="180" class="entity-attr">TRAN-DESC</text>
+  <text x="960" y="195" class="entity-attr">TRAN-ORIG-TS</text>
+  <text x="960" y="210" class="entity-attr">TRAN-PROC-TS</text>
+  <text x="960" y="225" class="entity-attr">TRAN-MERCHANT-ID</text>
+  
+  <!-- User Entity -->
+  <rect x="50" y="350" width="180" height="140" class="entity-box"/>
+  <text x="140" y="370" class="entity-title">User</text>
+  <text x="60" y="390" class="entity-attr pk">SEC-USR-ID (PK)</text>
+  <text x="60" y="405" class="entity-attr">SEC-USR-FNAME</text>
+  <text x="60" y="420" class="entity-attr">SEC-USR-LNAME</text>
+  <text x="60" y="435" class="entity-attr">SEC-USR-PWD</text>
+  <text x="60" y="450" class="entity-attr">SEC-USR-TYPE</text>
+  <text x="60" y="465" class="entity-attr">(Admin/Regular)</text>
+  
+  <!-- Card Cross-Reference Entity -->
+  <rect x="350" y="350" width="220" height="120" class="entity-box"/>
+  <text x="460" y="370" class="entity-title">Card Cross-Reference</text>
+  <text x="360" y="390" class="entity-attr fk">XREF-CARD-NUM (FK)</text>
+  <text x="360" y="405" class="entity-attr fk">XREF-CUST-ID (FK)</text>
+  <text x="360" y="420" class="entity-attr fk">XREF-ACCT-ID (FK)</text>
+  <text x="360" y="440" class="entity-attr">(Composite Key)</text>
+  
+  <!-- Relationship Lines -->
+  
+  <!-- Customer to Account (1:N) -->
+  <line x1="250" y1="140" x2="350" y2="140" class="relationship-line"/>
+  <text x="300" y="135" class="cardinality">1</text>
+  <text x="340" y="135" class="cardinality">N</text>
+  
+  <!-- Account to Card (1:N) -->
+  <line x1="570" y1="140" x2="650" y2="140" class="relationship-line"/>
+  <text x="610" y="135" class="cardinality">1</text>
+  <text x="640" y="135" class="cardinality">N</text>
+  
+  <!-- Card to Transaction (1:N) -->
+  <line x1="850" y1="140" x2="950" y2="140" class="relationship-line"/>
+  <text x="890" y="135" class="cardinality">1</text>
+  <text x="940" y="135" class="cardinality">N</text>
+  
+  <!-- Customer to Cross-Reference (1:N) -->
+  <line x1="150" y1="230" x2="150" y2="300" class="relationship-line"/>
+  <line x1="150" y1="300" x2="400" y2="300" class="relationship-line"/>
+  <line x1="400" y1="300" x2="400" y2="350" class="relationship-line"/>
+  <text x="155" y="290" class="cardinality">1</text>
+  <text x="405" y="340" class="cardinality">N</text>
+  
+  <!-- Account to Cross-Reference (1:N) -->
+  <line x1="460" y1="250" x2="460" y2="350" class="relationship-line"/>
+  <text x="465" y="300" class="cardinality">1:N</text>
+  
+  <!-- Card to Cross-Reference (1:N) -->
+  <line x1="750" y1="210" x2="750" y2="300" class="relationship-line"/>
+  <line x1="750" y1="300" x2="520" y2="300" class="relationship-line"/>
+  <line x1="520" y1="300" x2="520" y2="350" class="relationship-line"/>
+  <text x="755" y="290" class="cardinality">1</text>
+  <text x="525" y="340" class="cardinality">N</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="550" width="300" height="200" fill="#f9f9f9" stroke="#ccc" stroke-width="1"/>
+  <text x="200" y="570" class="entity-title">Legend</text>
+  <text x="60" y="590" class="entity-attr">PK = Primary Key</text>
+  <text x="60" y="605" class="entity-attr">FK = Foreign Key</text>
+  <text x="60" y="625" class="entity-attr">1:N = One-to-Many Relationship</text>
+  <text x="60" y="645" class="entity-attr">Lines connect related entities</text>
+  <text x="60" y="665" class="entity-attr">Numbers indicate cardinality</text>
+  <text x="60" y="685" class="entity-attr">Cross-Reference enables</text>
+  <text x="60" y="700" class="entity-attr">efficient multi-table lookups</text>
+  
+  <!-- Title -->
+  <text x="600" y="30" style="font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; text-anchor: middle;">CardDemo System - Entity Relationship Diagram</text>
+  
+</svg>
