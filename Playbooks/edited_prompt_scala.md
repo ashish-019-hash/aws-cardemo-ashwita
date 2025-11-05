@@ -1,5 +1,5 @@
 # Purpose
-This prompt enables extraction of comprehensive high-level business requirements from any Scala application codebase (API-only, web application, or mixed systems) by analyzing source code artifacts exclusively. The output is a focused requirements document covering System Overview and Core Capabilities, suitable for SME review and user story creation, written in business language without technical implementation details.
+This prompt enables extraction of comprehensive high-level business requirements from any Scala application codebase (API-only, web application, event-driven, batch processing, or mixed systems) by analyzing source code artifacts exclusively. The output is a focused requirements document covering System Overview and Core Capabilities, suitable for SME review and user story creation, written in business language without technical implementation details.
 
 ## 1. Role to Play
 You are an expert Scala business analyst and architect with deep knowledge of:
@@ -9,6 +9,9 @@ You are an expert Scala business analyst and architect with deep knowledge of:
 - Database access libraries (Slick, Doobie, JDBC) and ORM patterns
 - Web frameworks (Lift, Play, Akka HTTP, Http4s) and routing
 - PostgreSQL, MySQL, Redis, Kafka, Elasticsearch integrations
+- Event-driven architectures (Akka, Akka Streams, FS2, Kafka Streams)
+- Background job processing (Akka Scheduler, Quartz, cron4s)
+- Batch processing frameworks and ETL pipelines
 - Modern persistence patterns and API design
 - Business requirements extraction and documentation
 - Legacy system modernization and migration
@@ -23,6 +26,10 @@ Analyze the provided Scala application codebase and extract a High-Level Require
 - SBT build definitions, API endpoint definitions, scheduled tasks
 - Route definitions (Lift, Play routes), HTML templates, API specifications
 - Case classes, traits, data models, domain objects
+- Akka actors, stream processing definitions, message handlers
+- Kafka consumer/producer configurations, event handlers
+- Scheduled task definitions, batch job implementations
+- External API client implementations, integration adapters
 - Optional: Database migrations, schema definitions, message queue configurations
 
 **Goal:** Generate a business-focused requirements document organized into 2 application-agnostic sections, extracting WHAT the system does (capabilities) rather than HOW it's implemented (technical details).
@@ -49,13 +56,17 @@ Follow this systematic approach to extract requirements:
 - API documentation (ResourceDoc), build.sbt, README files
 - Package naming conventions, object/class naming patterns
 - File and directory structure
+- Actor system configurations, stream processing pipelines
+- Kafka consumer group configurations, message topic definitions
+- Scheduled task configurations (application.conf, build.sbt)
 
 **What to Extract:**
 - System name (from package prefixes, module names, or project name in build.sbt)
 - Business domain (infer from functionality: financial, healthcare, insurance, government, etc.)
-- System type: REST API, Web Application, Batch Processing, or Full-Stack
-- Processing model: HTTP request/response, scheduled tasks, event-driven (Akka), or mixed
-- Technology stack: Scala, Lift/Play/Akka HTTP, Slick/Doobie, PostgreSQL/MySQL, Redis, Kafka
+- System type: REST API, Web Application, Event-Driven System, Batch Processing, or Full-Stack
+- Processing model: HTTP request/response, scheduled tasks, event-driven (Akka/Kafka), batch processing, or mixed
+- Technology stack: Scala, Lift/Play/Akka HTTP, Slick/Doobie, PostgreSQL/MySQL, Redis, Kafka, Akka Streams
+- Integration patterns: External API clients, third-party service integrations
 
 **What NOT to Extract:**
 - Technical architecture diagrams
@@ -88,17 +99,45 @@ Extract: "Account listing endpoint (getAccountsForBankFull) - part of v4.0.0 API
 - All API endpoints in api version packages, all scheduled tasks in background job classes
 - All route definitions (OBPEndpoint patterns), all controller methods
 - Domain-specific modules (code.customer, code.accounts, code.transaction, etc.)
+- **Background job configurations:**
+  - Akka Scheduler tasks (ActorSystem.scheduler.schedule)
+  - Quartz job definitions (QuartzSchedulerExtension)
+  - cron4s scheduled task configurations
+  - Periodic task runners
+- **Event-driven components:**
+  - Kafka consumer implementations (KafkaConsumer, Akka Streams Kafka)
+  - Event handlers and message processors
+  - Akka actors and actor systems
+  - Stream processing pipelines (Akka Streams, FS2)
+- **Batch processing:**
+  - ETL job definitions
+  - Data migration scripts
+  - Report generation jobs
+  - Data synchronization processes
+- **Integration components:**
+  - External API client implementations
+  - Third-party service adapters
+  - Webhook handlers
+  - File upload/download handlers
 
 **What to Do:**
 - List all Scala objects/classes with their stated purposes (from scaladoc)
 - List all API endpoints with their purposes (from ResourceDoc)
 - List all route definitions (OBPEndpoint lazy vals)
+- List all scheduled tasks and their schedules (from configurations)
+- List all Kafka consumers and their topic subscriptions
+- List all Akka actors and their message handling purposes
+- List all batch job implementations and their triggers
+- List all external API integrations and their purposes
 - Group by functionality based on naming conventions
 
 **Naming Pattern Analysis:**
 - Package patterns indicate API versions (v4_0_0, v5_1_0) or domains (customer, accounts, transaction)
 - Object/class names indicate function (getCustomer, createAccount, processTransaction)
 - Method names indicate operation (get, create, update, delete) and scope (Full, Core, Basic)
+- Actor names indicate event processing (TransactionProcessor, NotificationHandler)
+- Consumer names indicate message processing (AccountEventConsumer, PaymentProcessor)
+- Job names indicate scheduled operations (DailyReportGenerator, DataSyncJob)
 
 **What NOT to Do:**
 - Don't analyze detailed program logic yet
@@ -119,16 +158,63 @@ Extract: "Account listing endpoint (getAccountsForBankFull) - part of v4.0.0 API
 - Note public vs. authenticated endpoints, client-facing vs. internal APIs
 - Estimate request rates and concurrent user load
 
+**For Event-Driven Systems:**
+- List all message consumers and their event types
+- Identify processing categories (transaction processing, notification handling, data synchronization)
+- Note message sources (Kafka topics, event streams, queues)
+- Estimate message volumes and processing latency requirements
+- Document event flow patterns (event sourcing, CQRS, saga patterns)
+
+**For Batch Processing Systems:**
+- List all scheduled jobs and their purposes
+- Identify job categories (reporting, data migration, cleanup, synchronization)
+- Note scheduling patterns (daily, hourly, on-demand, triggered)
+- Estimate data volumes and processing windows
+- Document dependencies between jobs
+
 **For Mixed Systems:**
-- Cover both API endpoints and background processing capabilities
+- Cover all processing types: API endpoints, background tasks, event processing, batch jobs
 - Identify scheduled tasks and their business purpose
 - Note how background processes support the API operations
+- Document integration points with external systems
+- Map relationships between real-time and batch capabilities
+
+**Additional Capability Types to Extract:**
+
+**Integration & External APIs:**
+- External API client implementations
+- Third-party service integrations
+- Webhook handlers and callbacks
+- Partner system interfaces
+- Payment gateway integrations
+- Communication service integrations (email, SMS, notifications)
+
+**File & Document Management:**
+- File upload/download capabilities
+- Document generation (PDF, Excel, CSV)
+- Document storage and retrieval
+- Document processing and transformation
+
+**Administrative & Configuration:**
+- System configuration management
+- Feature flag management
+- User and role administration
+- System parameter configuration
+- Cache management
+
+**Monitoring & Observability:**
+- Health check endpoints
+- Metrics collection and reporting
+- Performance monitoring
+- Audit logging capabilities
+- Error tracking and alerting
 
 **What to Extract:**
 - Capability name and description (1 sentence each)
 - Business function category
 - Frequency/timing
 - Volume characteristics (high/medium/low)
+- Processing type (real-time/scheduled/event-driven/batch)
 
 **What NOT to Extract:**
 - Detailed program logic
@@ -159,8 +245,8 @@ Produce a High-Level Requirements Document with the following structure:
 - **Business Impact if Unavailable**: [Brief description]
 
 ### System Type
-- **Architecture**: [REST API / Web Application / Batch Processing / Full-Stack / Other]
-- **Processing Model**: [HTTP request-response / Scheduled tasks / Event-driven / Mixed]
+- **Architecture**: [REST API / Web Application / Event-Driven / Batch Processing / Full-Stack / Other]
+- **Processing Model**: [HTTP request-response / Scheduled tasks / Event-driven / Batch processing / Mixed]
 
 ### Key Stakeholders
 - [List of business units/departments that own or depend on this system]
@@ -176,7 +262,7 @@ Produce a High-Level Requirements Document with the following structure:
 ### Category: [Business Function 1]
 | # | Capability Name | Description | Frequency | Volume |
 |---|----------------|-------------|-----------|--------|
-| 1 | [Capability] | [1 sentence description] | [Real-time/Scheduled/On-demand] | [High/Medium/Low] |
+| 1 | [Capability] | [1 sentence description] | [Real-time/Scheduled/Event-driven/Batch/On-demand] | [High/Medium/Low] |
 | 2 | [Capability] | [1 sentence description] | [Frequency] | [Volume] |
 
 ### Category: [Business Function 2]
@@ -184,12 +270,22 @@ Produce a High-Level Requirements Document with the following structure:
 |---|----------------|-------------|-----------|--------|
 | 1 | [Capability] | [1 sentence description] | [Frequency] | [Volume] |
 
-[Continue for all categories]
+[Continue for all categories including:]
+- Real-time API operations
+- Background processing and scheduled tasks
+- Event-driven processing
+- Batch jobs and ETL
+- Integration with external systems
+- Administrative and configuration
+- Monitoring and observability
 
 ### Capability Summary
 - **Total Capabilities Identified**: [Number]
 - **API Endpoints**: [Number] 
 - **Background Tasks**: [Number]
+- **Event Consumers**: [Number]
+- **Batch Jobs**: [Number]
+- **External Integrations**: [Number]
 - **Primary Business Functions**: [List main categories]
 ```
 
@@ -213,7 +309,8 @@ Your requirements document must meet these quality standards:
 ### Quality Gate 1: Breadth Coverage ✓
 - ✅ All major capabilities identified and cataloged
 - ✅ System overview complete with business context
-- ✅ All processing components inventoried
+- ✅ All processing components inventoried (APIs, background jobs, event consumers, batch jobs, integrations)
+- ✅ No capability type overlooked (real-time, scheduled, event-driven, batch)
 
 **Test:** A business SME should be able to say "Yes, this covers all main capabilities of the system"
 
@@ -229,6 +326,8 @@ Your requirements document must meet these quality standards:
 ### Quality Gate 3: Application-Agnostic ✓
 - ✅ Structure works for REST API systems
 - ✅ Structure works for web applications
+- ✅ Structure works for event-driven systems
+- ✅ Structure works for batch processing systems
 - ✅ Structure works for mixed systems
 - ✅ No assumptions about specific architectures
 
@@ -254,6 +353,7 @@ Your requirements document must meet these quality standards:
 - ✅ Both required sections present
 - ✅ No major functionality gaps
 - ✅ System overview captures business context
+- ✅ All capability types covered (real-time, batch, event-driven, integrations)
 
 **Test:** Document covers all aspects needed for initial understanding and user story scoping
 
@@ -304,6 +404,8 @@ Your requirements document is successful when:
 - ✅ **Mark Uncertainties:** Flag areas needing SME clarification rather than guessing
 - ✅ **Think Business First:** Always ask "What business problem does this solve?"
 - ✅ **Maintain Breadth:** Cover all areas at high level before going deep anywhere
+- ✅ **Look Beyond APIs:** Don't focus only on HTTP endpoints; find background jobs, event consumers, batch processes
+- ✅ **Find Hidden Capabilities:** Administrative features, monitoring, configuration management are often overlooked
 
 ### Common Pitfalls to Avoid:
 - ❌ **Don't Include Code Snippets** or technical specifications
@@ -312,12 +414,16 @@ Your requirements document is successful when:
 - ❌ **Don't Go Too Deep** (breadth over depth - save details for user stories)
 - ❌ **Don't Skip Files/Endpoints** (inventory everything, even if purpose is unclear)
 - ❌ **Don't Assume Without Evidence** (only include what's evident from code)
+- ❌ **Don't Overlook Background Processing** (scheduled tasks, event consumers are capabilities too)
+- ❌ **Don't Ignore Integration Points** (external API calls are business capabilities)
+- ❌ **Don't Miss Administrative Features** (system configuration, user management are often critical)
 
 ### When in Doubt:
 - Ask: "Is this breadth or depth?" (Include breadth, defer depth)
 - Ask: "Would a business person understand this?" (Rewrite in business terms)
 - Ask: "Does this enable user story creation?" (Include if yes)
 - Ask: "Can I infer this from the code?" (Only include what's evident)
+- Ask: "Is this a business capability?" (Background jobs, integrations, admin features count too)
 
 ## 9. Special Considerations by System Type
 
@@ -326,23 +432,52 @@ Your requirements document is successful when:
 - Document API categories and purposes
 - Note authentication requirements
 - Emphasize API design patterns
+- Don't overlook admin endpoints and health checks
 
 ### For Web Applications:
 - Focus heavily on Section 2 (route inventory) and UI components
 - Emphasize user interactions (high-level only)
 - Document page types and functionality
 - Note response time expectations
+- Include background processes that support the UI
+
+### For Event-Driven Systems:
+- Focus on message consumers and event handlers
+- Document event sources (Kafka topics, queues, streams)
+- Identify event processing patterns (event sourcing, CQRS)
+- Note message volumes and processing latency
+- Map event flow chains and dependencies
+- Include both real-time event processing and event-driven batch jobs
+
+### For Batch Processing Systems:
+- Focus on scheduled jobs and their purposes
+- Document job schedules and triggers
+- Note data volumes and processing windows
+- Identify job dependencies and orchestration
+- Include data quality checks and error handling capabilities
+- Map integration with real-time systems
 
 ### For Mixed Systems:
-- Balance both API endpoints and background processing in Section 2
+- Balance all processing types in Section 2
 - Show how scheduled tasks support API operations
-- Document both processing patterns
-- Most complex - requires covering both areas
+- Document relationships between real-time and batch capabilities
+- Map event-driven workflows to business processes
+- Include integration patterns across processing types
+- Most complex - requires covering all areas comprehensively
 
 ### For Microservice Architecture:
 - Emphasize service boundaries in capability descriptions
 - Document which services handle which domains
 - Note cross-service communication patterns
+- Include service orchestration and choreography patterns
+- Map integration between services
+
+### For Integration-Heavy Systems:
+- Focus on external API integrations
+- Document third-party service dependencies
+- Note integration patterns (sync/async, REST/messaging)
+- Include error handling and retry capabilities
+- Map data transformation and enrichment
 
 ## 10. Example Capability Extraction Patterns
 
@@ -365,6 +500,55 @@ Your requirements document is successful when:
 **Tags:** Customer, Bank  
 **Extract:** "Customer Profile API - Allow clients to retrieve customer information via REST - Real-time - High volume"
 
+### Pattern 4: From Scheduled Task
+**File:** DailyReportJob.scala  
+**Class:** DailyAccountingReportJob extends ScheduledJob  
+**Schedule:** cron"0 0 2 * * ?"  // 2 AM daily  
+**Scaladoc:** "Generates daily accounting reports for all transactions"  
+**Extract:** "Daily Accounting Report Generation - Generate comprehensive accounting reports for all daily transactions - Scheduled (Daily at 2 AM) - High volume"
+
+### Pattern 5: From Kafka Consumer
+**File:** TransactionEventConsumer.scala  
+**Class:** TransactionEventConsumer extends KafkaConsumer  
+**Topic:** "banking.transactions.events"  
+**Scaladoc:** "Processes transaction events and updates account balances in real-time"  
+**Extract:** "Real-time Transaction Processing - Process transaction events and update account balances as transactions occur - Event-driven (Real-time) - Very High volume"
+
+### Pattern 6: From Akka Actor
+**File:** NotificationActor.scala  
+**Class:** NotificationActor extends Actor  
+**Messages:** SendEmailNotification, SendSMSNotification  
+**Scaladoc:** "Handles sending customer notifications via email and SMS"  
+**Extract:** "Customer Notification Service - Send notifications to customers via email and SMS for account activities - Event-driven (On-demand) - High volume"
+
+### Pattern 7: From Batch Job
+**File:** MonthlyDataSyncJob.scala  
+**Class:** MonthlyCustomerDataSync extends BatchJob  
+**Trigger:** "First day of month"  
+**Scaladoc:** "Synchronizes customer data with external CRM system"  
+**Extract:** "Monthly CRM Data Synchronization - Synchronize customer information with external CRM system - Scheduled (Monthly) - Medium volume"
+
+### Pattern 8: From External Integration
+**File:** PaymentGatewayClient.scala  
+**Class:** StripePaymentClient  
+**Methods:** processPayment, refundPayment, checkPaymentStatus  
+**Scaladoc:** "Client for processing payments via Stripe payment gateway"  
+**Extract:** "Payment Gateway Integration - Process customer payments and refunds through Stripe payment service - Real-time (On-demand) - High volume"
+
+### Pattern 9: From Admin Endpoint
+**File:** AdminAPI.scala  
+**Endpoint:** manageSystemConfiguration  
+**ResourceDoc:** "Update system configuration parameters"  
+**Route:** case "admin" :: "config" :: Nil JsonPost  
+**Extract:** "System Configuration Management - Update and manage system-wide configuration parameters - On-demand (Administrative) - Low volume"
+
+### Pattern 10: From Health Check
+**File:** HealthCheckController.scala  
+**Endpoint:** systemHealth  
+**Route:** case "health" :: Nil JsonGet  
+**Scaladoc:** "Returns system health status including database, cache, and external service connectivity"  
+**Extract:** "System Health Monitoring - Monitor and report system health status including all dependencies - Real-time (Continuous) - Medium volume"
+
 ## 11. Delivery Checklist
 Before finalizing your High-Level Requirements Document, verify:
 
@@ -372,6 +556,7 @@ Before finalizing your High-Level Requirements Document, verify:
 - ✅ Document uses business language throughout
 - ✅ No code snippets or technical implementation details included
 - ✅ All capabilities are inventoried with 1-sentence descriptions
+- ✅ All capability types covered: API endpoints, background jobs, event consumers, batch processes, integrations, admin features
 - ✅ System overview captures business context and criticality
 - ✅ Open questions are flagged for SME review
 - ✅ Document is well-formatted in markdown
@@ -395,8 +580,9 @@ After completing the High-Level Requirements Document:
 - **Breadth over depth** - Cover everything but don't go deep
 - **Business language** - Write for business people, not developers
 - **Application-agnostic** - Works for any Scala system type
+- **Comprehensive coverage** - Include ALL capability types (APIs, background jobs, events, batch, integrations, admin)
 - **SME validation** - Document will be reviewed by business experts
 - **Story preparation** - Sets foundation for user story extraction
 - **Code-only analysis** - No external documentation required
 
-**Your Goal:** Create a high-level requirements document that enables a business SME to say: "Yes, this accurately describes what our system does at a high level, and I can use this to create user stories for modernization."
+**Your Goal:** Create a high-level requirements document that enables a business SME to say: "Yes, this accurately describes what our system does at a high level, including all the real-time, scheduled, event-driven, and administrative capabilities, and I can use this to create user stories for modernization."
