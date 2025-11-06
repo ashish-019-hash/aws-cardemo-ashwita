@@ -1,375 +1,429 @@
 # Validation Rules Extraction for Account Listing User Story
+## Based on Actual Open Bank Project API Implementation
+
+This document presents validation rules extracted from the actual Open Bank Project API source code (https://github.com/OpenBankProject/OBP-API.git), specifically analyzing the Account Listing endpoints in APIMethods510.scala.
+
+---
 
 ## Executive Summary
 
-The **Account Listing** functionality allows banking application users to retrieve a list of all bank accounts they have access to. This analysis documents all validation rules that ensure secure, compliant, and efficient account listing operations.
+The **Account Listing** functionality allows banking application users to retrieve a list of all bank accounts they have "held" at a specific bank or across all banks. This analysis documents the **actual validation rules implemented in the OBP-API Scala code**, not assumptions based on the user story alone.
+
+**CRITICAL FINDING**: These endpoints do **NOT** check view permissions. The ResourceDoc explicitly states: *"Get Accounts held by the User if even the User has not been assigned the owner View yet."* This is by design to support account onboarding workflows.
 
 ---
 
-## Validation Rules by Stakeholder Perspective
+## Actual Validation Rules from OBP-API Source Code
 
-### For Business Analysts
+Based on analysis of the Scala implementation, there are **5 core validation rules** enforced by the Account Listing endpoints:
 
-**1. User Authentication Validation**
-- **What it checks**: Whether the user is properly authenticated before accessing account lists
-- **Why it exists**: To ensure only legitimate users can view account information
-- **When it applies**: Before any account listing request is processed
-- **Who it affects**: All users attempting to list accounts
-- **What happens when it fails**: Request is rejected with authentication error
-- **Where it is enforced**: Entry point of API request processing
+### 1. User Authentication Validation
 
-**2. Permission-Based Account Filtering**
-- **What it checks**: User has at least one view permission for each account in the result set
-- **Why it exists**: To enforce data access controls and privacy
-- **When it applies**: During account list generation
-- **Who it affects**: All users, especially those with limited permissions
-- **What happens when it fails**: Accounts without proper permissions are excluded from results
-- **Where it is enforced**: Account retrieval and filtering logic
+**Implementation Location**: Framework level (implicit in CallContext)
 
-**3. Account Type Filtering Validation**
-- **What it checks**: Provided account type filter values match valid account types (e.g., checking, savings)
-- **Why it exists**: To prevent invalid filter values and ensure meaningful results
-- **When it applies**: When optional account type filters are provided
-- **Who it affects**: Users applying account type filters
-- **What happens when it fails**: Error message indicating invalid account type
-- **Where it is enforced**: Query parameter validation
+**What it checks**: Whether the user is authenticated with a valid session/token before accessing account lists
 
-**4. Scope Entitlement Validation**
-- **What it checks**: User has appropriate entitlements (canGetAccountsHeldAtOneBank or canGetAccountsHeldAtAnyBank)
-- **Why it exists**: To control whether users can view accounts at specific banks or across all banks
-- **When it applies**: Based on the scope of the account listing request (single bank vs. all banks)
-- **Who it affects**: Users requesting cross-bank account lists
-- **What happens when it fails**: Request denied with insufficient permissions error
-- **Where it is enforced**: Authorization layer before data retrieval
+**Why it exists**: To ensure only authenticated users can access any account information
 
-### For Compliance Officers
+**When it applies**: First step of every API request, before any processing
 
-**5. User Identity Verification**
-- **What it checks**: Valid User ID exists in the system
-- **Why it exists**: Know Your Customer (KYC) compliance and user accountability
-- **When it applies**: Every account listing request
-- **Who it affects**: All users
-- **What happens when it fails**: Request rejected as invalid user
-- **Where it is enforced**: User validation layer
+**Who it affects**: All API consumers, both authenticated and unauthenticated
 
-**6. Data Privacy Protection**
-- **What it checks**: Only accounts where user has view permissions are returned
-- **Why it exists**: Compliance with data protection regulations (GDPR, CCPA, etc.)
-- **When it applies**: During result set generation
-- **Who it affects**: All users
-- **What happens when it fails**: Unauthorized accounts are automatically excluded
-- **Where it is enforced**: View permission checking logic
+**What happens when it fails**: 
+- HTTP Status: 401 Unauthorized
+- Error Message: "UserNotLoggedIn"
 
-**7. Access Control Audit Trail**
-- **What it checks**: User's entitlements and permissions are properly logged
-- **Why it exists**: Regulatory audit requirements and security monitoring
-- **When it applies**: Every account access attempt
-- **Who it affects**: System administrators and auditors
-- **What happens when it fails**: System logs incomplete access records (quality issue)
-- **Where it is enforced**: Logging and audit subsystem
+**Where it is enforced**: API authentication middleware/framework
 
-### For Quality Assurance Teams
+**Source Code Evidence**:
+- Test: AccountTest.scala lines 46-48 (getAccountsHeldByUserAtBank anonymous test)
+- Test: AccountTest.scala lines 65-67 (getAccountsHeldByUser anonymous test)
 
-**8. Bank ID Format Validation**
-- **What it checks**: Bank ID follows the expected format and structure
-- **Why it exists**: Data integrity and prevention of malformed requests
-- **When it applies**: When bank ID is specified in the request
-- **Who it affects**: API consumers providing bank-specific queries
-- **What happens when it fails**: Error: "Invalid Bank ID format"
-- **Where it is enforced**: Input validation layer
-
-**9. Response Time Performance Validation**
-- **What it checks**: Response time is under 2 seconds for typical user account lists
-- **Why it exists**: User experience and system performance standards
-- **When it applies**: Every account listing request
-- **Who it affects**: All users, especially those with multiple accounts
-- **What happens when it fails**: Performance degradation (may trigger alerts)
-- **Where it is enforced**: Performance monitoring layer
-
-**10. Pagination Boundary Validation**
-- **What it checks**: System properly handles users with many accounts through pagination
-- **Why it exists**: Prevent system overload and ensure responsive UI
-- **When it applies**: When users have large numbers of accounts
-- **Who it affects**: Users with many accounts
-- **What happens when it fails**: Incomplete results or system timeout
-- **Where it is enforced**: Result set pagination logic
-
-### For Product Managers
-
-**11. Multi-Bank Access Limitation**
-- **What it checks**: Whether user's entitlements allow cross-bank account listing
-- **Why it exists**: Business model differentiation (basic vs. premium features)
-- **When it applies**: When user requests accounts across multiple banks
-- **Who it affects**: Basic tier users trying to access premium features
-- **What happens when it fails**: Request limited to single bank scope
-- **Where it is enforced**: Feature entitlement layer
-
-**12. Account Type Filter Flexibility**
-- **What it checks**: System supports multiple account type filters simultaneously
-- **Why it exists**: Enhanced user experience and flexible data retrieval
-- **When it applies**: When users want to filter by multiple account types
-- **Who it affects**: Power users and API consumers
-- **What happens when it fails**: Only single type filtering available (feature limitation)
-- **Where it is enforced**: Filter processing logic
-
-### For Customer Support Teams
-
-**13. User ID Existence Check**
-- **What it checks**: User ID exists in the system
-- **Why it exists**: Prevent errors from non-existent or deleted users
-- **When it applies**: First step of account listing
-- **Who it affects**: Users whose accounts may have been deleted or never created
-- **What happens when it fails**: "User not found" error
-- **Where it is enforced**: User lookup service
-- **Support Resolution**: Verify user account status in admin panel
-
-**14. Empty Result Set Handling**
-- **What it checks**: User has at least one accessible account
-- **Why it exists**: Provide clear feedback when no accounts are available
-- **When it applies**: After permission filtering is applied
-- **Who it affects**: New users or users with revoked permissions
-- **What happens when it fails**: Returns empty array (not an error, but may need explanation)
-- **Where it is enforced**: Result formatting layer
-- **Support Resolution**: Explain account access permissions to customer
-
-### For System Administrators
-
-**15. Bank Connector Availability Validation**
-- **What it checks**: External bank connector system is reachable and responsive
-- **Why it exists**: Ensure data source availability before processing requests
-- **When it applies**: Before retrieving actual account data
-- **Who it affects**: All users when bank connector is down
-- **What happens when it fails**: Service unavailable error
-- **Where it is enforced**: External system health check
-- **Admin Action**: Check connector status and restart if needed
-
-**16. Caching TTL Validation**
-- **What it checks**: Cached account lists are within acceptable time-to-live
-- **Why it exists**: Balance between performance and data freshness
-- **When it applies**: When serving account lists from cache
-- **Who it affects**: Users querying recently accessed account lists
-- **What happens when it fails**: Stale data returned (may trigger cache refresh)
-- **Where it is enforced**: Cache management layer
-- **Admin Action**: Configure cache TTL based on business requirements
-
-### For Security Teams
-
-**17. Authorization Token Validation**
-- **What it checks**: Valid authentication token in request header
-- **Why it exists**: Prevent unauthorized access to account information
-- **When it applies**: First step of every API request
-- **Who it affects**: All API consumers
-- **What happens when it fails**: 401 Unauthorized error
-- **Where it is enforced**: API gateway / authentication middleware
-
-**18. Rate Limiting Check**
-- **What it checks**: User hasn't exceeded allowed request frequency
-- **Why it exists**: Prevent abuse and ensure fair resource usage
-- **When it applies**: Every account listing request
-- **Who it affects**: High-volume API consumers
-- **What happens when it fails**: 429 Too Many Requests error
-- **Where it is enforced**: Rate limiting middleware
-
-**19. View Permission Hierarchy Validation**
-- **What it checks**: User's view permissions are properly authorized
-- **Why it exists**: Multi-layered security to prevent permission escalation
-- **When it applies**: During account filtering
-- **Who it affects**: All users
-- **What happens when it fails**: Accounts excluded from results
-- **Where it is enforced**: Permission checking service
+```scala
+// Test showing 401 for anonymous requests
+val anonymousResponseGet = makeGetRequest(requestGet)
+anonymousResponseGet.code should equal(401)
+anonymousResponseGet.body.extract[ErrorMessage].message should equal(UserNotLoggedIn)
+```
 
 ---
 
-## Validation Rules Organized by Type
+### 2. Entitlement Validation
 
-### Input Validation Rules
-1. User ID format and existence (Rule #5, #13)
-2. Bank ID format validation (Rule #8)
-3. Account type filter validation (Rule #3)
+**Implementation Location**: ResourceDoc entitlements specification in APIMethods510.scala
 
-### Authorization Validation Rules
-4. User authentication (Rule #1)
-5. Authorization token validation (Rule #17)
-6. Scope entitlement validation (Rule #4)
-7. View permission validation (Rule #2, #19)
+**What it checks**: User has the required entitlement(s) to access account listing
 
-### Business Logic Validation Rules
-8. Permission-based filtering (Rule #2)
-9. Multi-bank access limitation (Rule #11)
-10. Account type filter flexibility (Rule #12)
+**Why it exists**: To control which users can view accounts at one bank vs. across all banks (feature-level access control)
 
-### Performance Validation Rules
-11. Response time requirements (Rule #9)
-12. Pagination handling (Rule #10)
-13. Caching validation (Rule #16)
+**When it applies**: After authentication, before retrieving account data
 
-### Security Validation Rules
-14. Authentication token (Rule #17)
-15. Rate limiting (Rule #18)
-16. View permission hierarchy (Rule #19)
+**Who it affects**: Authenticated users without the required entitlements
 
-### Compliance Validation Rules
-17. User identity verification (Rule #5)
-18. Data privacy protection (Rule #6)
-19. Access control audit trail (Rule #7)
+**Entitlement Requirements**:
+- **getAccountsHeldByUserAtBank** (GET /users/{userId}/banks/{bankId}/accounts-held):
+  - Requires: `CanGetAccountsHeldAtOneBank` **OR** `CanGetAccountsHeldAtAnyBank`
+- **getAccountsHeldByUser** (GET /users/{userId}/accounts-held):
+  - Requires: `CanGetAccountsHeldAtAnyBank` only
 
-### System Integration Validation Rules
-20. Bank connector availability (Rule #15)
-21. External system response validation
+**What happens when it fails**:
+- HTTP Status: 403 Forbidden
+- Error Message: "UserHasMissingRoles CanGetAccountsHeldAtOneBank or CanGetAccountsHeldAtAnyBank" (for bank-specific endpoint)
+- Error Message: "UserHasMissingRoles CanGetAccountsHeldAtAnyBank" (for all-banks endpoint)
+
+**Where it is enforced**: Entitlement checking layer before data retrieval
+
+**Source Code Evidence**:
+- Definition: ApiRole.scala lines 68-71
+- ResourceDoc: APIMethods510.scala lines 813-814 (bank-specific) and line 860 (all-banks)
+- Test: AccountTest.scala lines 54-57 (bank-specific test)
+- Test: AccountTest.scala lines 73-76 (all-banks test)
+
+```scala
+// Entitlement definitions
+case class CanGetAccountsHeldAtOneBank(requiresBankId: Boolean = true) extends ApiRole
+case class CanGetAccountsHeldAtAnyBank(requiresBankId: Boolean = false) extends ApiRole
+
+// Test showing 403 for users without entitlements
+response.code should equal(403)
+val errorMessage = UserHasMissingRoles + s"${CanGetAccountsHeldAtOneBank} or $CanGetAccountsHeldAtAnyBank"
+response.body.extract[ErrorMessage].message contains errorMessage should be(true)
+```
+
+---
+
+### 3. User ID Validation
+
+**Implementation Location**: NewStyle.function.getUserByUserId() called in APIMethods510.scala lines 821 and 868
+
+**What it checks**: The provided User ID exists in the system database
+
+**Why it exists**: To prevent errors from non-existent or deleted users; ensures request references a valid user
+
+**When it applies**: Early in the request processing, after authentication and entitlement checks
+
+**Who it affects**: API consumers providing invalid or deleted user IDs
+
+**What happens when it fails**:
+- HTTP Status: 404 Not Found
+- Error Message: "UserNotFoundByUserId"
+
+**Where it is enforced**: User lookup service (Users.users.vend.getUserByUserId)
+
+**Source Code Evidence**:
+- Implementation: APIMethods510.scala lines 821, 868
+- User lookup: LiftUsers.scala lines 80-82
+- ResourceDoc: APIMethods510.scala lines 854-857
+
+```scala
+// getUserByUserId implementation
+def getUserByUserId(userId : String) : Box[User] = {
+  ResourceUser.find(By(ResourceUser.userId_, userId))
+}
+
+// Used in endpoint
+(u, callContext) <- NewStyle.function.getUserByUserId(userId, cc.callContext)
+```
+
+---
+
+### 4. Bank ID Validation (for getAccountsHeldByUserAtBank only)
+
+**Implementation Location**: Implicit in NewStyle.function.getAccountsHeld(bankId, u, callContext)
+
+**What it checks**: The provided Bank ID exists in the system
+
+**Why it exists**: For the bank-specific endpoint, ensures the bank being queried actually exists
+
+**When it applies**: Only for the bank-specific endpoint (GET /users/{userId}/banks/{bankId}/accounts-held)
+
+**Who it affects**: API consumers querying accounts at a non-existent bank
+
+**What happens when it fails**:
+- HTTP Status: 404 Not Found
+- Error Message: "BankNotFound"
+
+**Where it is enforced**: Bank validation within getAccountsHeld function
+
+**Source Code Evidence**:
+- Implementation: APIMethods510.scala line 822
+- ResourceDoc: APIMethods510.scala line 855
+
+```scala
+(availableAccounts, callContext) <- NewStyle.function.getAccountsHeld(bankId, u, callContext)
+```
+
+**Note**: This validation does NOT apply to getAccountsHeldByUser (all-banks endpoint) since no specific bank is specified.
+
+---
+
+### 5. Account Type Filter Validation
+
+**Implementation Location**: AccountsHelper.scala lines 39-57 (filterWithAccountType function)
+
+**What it checks**: 
+1. The `account_type_filter_operation` parameter (if provided) must be either "INCLUDE" or "EXCLUDE"
+2. Account types are filtered according to the operation and filter list
+
+**Why it exists**: 
+- To provide flexible filtering by account type (e.g., only savings accounts, exclude loan accounts)
+- To prevent invalid filter operation values
+
+**When it applies**: When optional query parameters `account_type_filter` and/or `account_type_filter_operation` are provided
+
+**Who it affects**: API consumers using account type filtering
+
+**Query Parameters**:
+- `account_type_filter`: Comma-separated list of account types (e.g., "CURRENT,SAVINGS")
+- `account_type_filter_operation`: Must be "INCLUDE" or "EXCLUDE" (default: "INCLUDE")
+
+**What happens when it fails**:
+- HTTP Status: 400 Bad Request
+- Error Message: "InvalidFilterParameterFormat request parameter account_type_filter_operation must be either INCLUDE or EXCLUDE, current it is: {value}"
+
+**Filter Logic**:
+- **INCLUDE**: Returns only accounts with types in the filter list
+- **EXCLUDE**: Returns accounts NOT in the filter list
+- **No filter**: Returns all accounts
+
+**Where it is enforced**: getFilteredCoreAccounts function in AccountsHelper.scala
+
+**Source Code Evidence**:
+- Implementation: AccountsHelper.scala lines 39-57
+- Usage: APIMethods510.scala lines 825, 872
+- Documentation: AccountsHelper.scala lines 21-30
+
+```scala
+private def filterWithAccountType(coreAccounts: List[CoreAccount], req: Req): List[CoreAccount] = {
+  val filters = req.params.get("account_type_filter").map(_.flatMap(_.split(","))).getOrElse(Nil)
+  val filtersOperation = req.params.get("account_type_filter_operation").flatMap(_.headOption).getOrElse("INCLUDE")
+  
+  val failMsg = s"""${InvalidFilterParameterFormat}request parameter account_type_filter_operation must be either INCLUDE or EXCLUDE, current it is: ${filtersOperation} """
+  
+  // validate account_type_filter_operation parameter
+  unboxFullOrFail(tryo {
+    assume(filtersOperation == "INCLUDE" || filtersOperation == "EXCLUDE")
+  }, None, failMsg)
+  
+  coreAccounts.filter({ account =>
+    (filters, filtersOperation) match {
+      case (f, "INCLUDE") if f.nonEmpty => filters.contains(account.accountType)
+      case (f, "EXCLUDE") if f.nonEmpty => !filters.contains(account.accountType)
+      case _ => true
+    }
+  })
+}
+```
+
+**Example URLs**:
+- Include only CURRENT and SAVINGS: `?account_type_filter=CURRENT,SAVINGS&account_type_filter_operation=INCLUDE`
+- Exclude LOAN accounts: `?account_type_filter=LOAN&account_type_filter_operation=EXCLUDE`
+
+---
+
+## Summary of All Validation Rules
+
+| # | Validation Rule | HTTP Status on Failure | Error Message | Applies To |
+|---|----------------|------------------------|---------------|------------|
+| 1 | User Authentication | 401 | UserNotLoggedIn | Both endpoints |
+| 2 | Entitlement (bank-specific) | 403 | UserHasMissingRoles CanGetAccountsHeldAtOneBank or CanGetAccountsHeldAtAnyBank | getAccountsHeldByUserAtBank |
+| 2 | Entitlement (all-banks) | 403 | UserHasMissingRoles CanGetAccountsHeldAtAnyBank | getAccountsHeldByUser |
+| 3 | User ID exists | 404 | UserNotFoundByUserId | Both endpoints |
+| 4 | Bank ID exists | 404 | BankNotFound | getAccountsHeldByUserAtBank only |
+| 5 | Account type filter operation | 400 | InvalidFilterParameterFormat | Both endpoints (when filter used) |
 
 ---
 
 ## Critical Validation Scenarios
 
-### Scenario 1: New User with No Accounts
-- **Validation Flow**: Authentication ✓ → User exists ✓ → No accounts found ✓
-- **Result**: Empty array returned (valid response)
-- **User Impact**: May need guidance on account creation
+### Scenario 1: Anonymous User Request
+**Flow**: No authentication token provided
+**Result**: 
+- HTTP 401 Unauthorized
+- Error: "UserNotLoggedIn"
+**User Impact**: Must authenticate before accessing any account information
 
-### Scenario 2: User with Revoked Permissions
-- **Validation Flow**: Authentication ✓ → User exists ✓ → No view permissions ✓
-- **Result**: Empty array or specific accounts excluded
-- **User Impact**: Previously visible accounts no longer appear
-
-### Scenario 3: Cross-Bank Request without Entitlement
-- **Validation Flow**: Authentication ✓ → canGetAccountsHeldAtAnyBank ✗
-- **Result**: Request denied or limited to single bank
-- **User Impact**: Feature not available for user's tier
-
-### Scenario 4: Invalid Account Type Filter
-- **Validation Flow**: Authentication ✓ → Account type = "invalid_type" ✗
-- **Result**: Error message with valid account type list
-- **User Impact**: Must correct filter value
-
-### Scenario 5: System Performance Degradation
-- **Validation Flow**: All validations pass but response time > 2 seconds
-- **Result**: Successful response but performance SLA violated
-- **User Impact**: Slow user experience, may trigger alerts
+**Test Evidence**: AccountTest.scala lines 42-48, 65-67
 
 ---
 
-## Validation Rule Dependencies
+### Scenario 2: Authenticated User Without Required Entitlement
+**Flow**: User authenticated ✓ → Entitlement check ✗
+**Result**:
+- HTTP 403 Forbidden
+- Error: "UserHasMissingRoles CanGetAccountsHeldAtOneBank or CanGetAccountsHeldAtAnyBank" (bank-specific)
+- Error: "UserHasMissingRoles CanGetAccountsHeldAtAnyBank" (all-banks)
+**User Impact**: Cannot access account listing; may need to request entitlement from administrator
 
-### Upstream Dependencies
-- **User Authentication Service**: Must validate credentials before proceeding
-- **Authorization Service**: Must check entitlements and permissions
-- **User Directory**: Must provide valid user information
-
-### Downstream Dependencies
-- **Account Detail Views**: Uses validated account IDs for detailed queries
-- **Transaction Retrieval**: Uses validated account access for transaction history
-- **Balance Inquiries**: Uses validated account permissions for balance checks
-
-### External System Dependencies
-- **Bank Connector**: Provides actual account data after validation passes
-- **View Management System**: Maintains permission mappings
-- **Audit Logging System**: Records validation outcomes
+**Test Evidence**: AccountTest.scala lines 50-58, 69-77
 
 ---
 
-## Error Messages and User Feedback
+### Scenario 3: Invalid User ID
+**Flow**: Authentication ✓ → Entitlement ✓ → User ID lookup ✗
+**Result**:
+- HTTP 404 Not Found
+- Error: "UserNotFoundByUserId"
+**User Impact**: Must provide valid User ID; may be trying to access deleted user's accounts
 
-| Validation Rule | Error Message | User Action |
-|----------------|---------------|-------------|
-| User authentication failed | "Authentication required. Please log in." | Provide valid credentials |
-| Invalid User ID | "User not found in system." | Contact support |
-| Invalid Bank ID | "Invalid Bank ID format or Bank does not exist." | Verify Bank ID |
-| Invalid account type | "Invalid account type. Valid types: CURRENT, SAVINGS, LOAN" | Use valid account type |
-| Insufficient entitlements | "You do not have permission to view accounts at multiple banks." | Upgrade account or limit scope |
-| No view permissions | "No accessible accounts found." | Request access from account owner |
-| Bank connector unavailable | "Service temporarily unavailable. Please try again." | Retry later |
-| Rate limit exceeded | "Too many requests. Please wait before trying again." | Wait and retry |
+**Code Evidence**: APIMethods510.scala lines 821, 868; ResourceDoc line 856
 
 ---
 
-## Performance Considerations
+### Scenario 4: Invalid Bank ID (Bank-Specific Endpoint Only)
+**Flow**: Authentication ✓ → Entitlement ✓ → User ID ✓ → Bank ID lookup ✗
+**Result**:
+- HTTP 404 Not Found
+- Error: "BankNotFound"
+**User Impact**: Must provide valid Bank ID for bank-specific queries
 
-### Optimization Requirements
-- **Caching Strategy**: Account lists should be cached with short TTL for frequently accessed data
-- **Pagination**: Essential for users with large account numbers (needs SME input for page size)
-- **Index Optimization**: Database queries must use proper indexes on user_id and view permissions
-
-### Performance Validation Thresholds
-- **Target Response Time**: < 2 seconds for typical requests
-- **Maximum Accounts per User**: Needs SME input
-- **Cache TTL**: Needs SME input (recommendation: 30-60 seconds)
+**Code Evidence**: ResourceDoc line 855
 
 ---
 
-## Compliance and Regulatory Notes
+### Scenario 5: Invalid Account Type Filter Operation
+**Flow**: Authentication ✓ → Entitlement ✓ → User ID ✓ → Filter validation ✗
+**Example**: `?account_type_filter_operation=INVALID`
+**Result**:
+- HTTP 400 Bad Request
+- Error: "InvalidFilterParameterFormat request parameter account_type_filter_operation must be either INCLUDE or EXCLUDE, current it is: INVALID"
+**User Impact**: Must use "INCLUDE" or "EXCLUDE" for account_type_filter_operation parameter
 
-### Data Protection
-- Only accounts with explicit view permissions are returned
-- Audit trail maintained for all access attempts
-- No sensitive data in error messages
-
-### Banking Regulations
-- User authentication enforced per banking security standards
-- View permissions respect account holder privacy
-- Cross-bank access controlled by entitlements
+**Code Evidence**: AccountsHelper.scala lines 43-48
 
 ---
 
-## Areas Requiring SME Input
-
-1. **Account Type Values**: Complete list of valid account types and their business definitions
-2. **Held vs Accessible Accounts**: Business rules for determining "held" versus "accessible"
-3. **Pagination Limits**: Default page size and maximum accounts per request
-4. **Cache TTL**: Acceptable staleness window for cached account lists
-5. **Rate Limiting**: Specific thresholds for request frequency
-6. **Entitlement Tiers**: Business rules for basic vs. premium account access features
-
----
-
-## Testing Recommendations
-
-### Happy Path Test Cases
-1. Authenticated user with multiple accounts and proper permissions
-2. User filtering by specific account type
-3. User with accounts across multiple banks (with appropriate entitlement)
-
-### Negative Test Cases
-1. Unauthenticated request
-2. Invalid User ID
-3. Invalid Bank ID
-4. Invalid account type filter
-5. User without canGetAccountsHeldAtAnyBank requesting all banks
-6. User with no accessible accounts
-7. Request exceeding rate limits
-
-### Edge Cases
-1. User with exactly one account
-2. User with hundreds of accounts (pagination stress test)
-3. User with permissions on some accounts but not others
-4. Cached data expiration during request processing
-5. Bank connector timeout or failure
-6. Concurrent requests from same user
+### Scenario 6: Successful Request With Filtering
+**Flow**: Authentication ✓ → Entitlement ✓ → User ID ✓ → Bank ID ✓ → Filter applied ✓
+**Example**: `?account_type_filter=CURRENT,SAVINGS&account_type_filter_operation=INCLUDE`
+**Result**:
+- HTTP 200 OK
+- Returns only CURRENT and SAVINGS accounts held by the user
+**User Impact**: Receives filtered list of accounts
 
 ---
 
-## Final Checklist Status
+### Scenario 7: User With No Accounts
+**Flow**: All validations pass ✓ → No accounts found
+**Result**:
+- HTTP 200 OK
+- Returns empty array `[]`
+**User Impact**: Valid response; user simply has no accounts yet (may need onboarding)
 
-✅ Identified all required fields: User ID (required), Bank ID (optional), account type filters (optional)  
-✅ Documented all numerical limits: Response time < 2 seconds  
-✅ Listed all permission and authorization checks: Authentication, view permissions, scope entitlements  
-✅ Captured all relationships: User → Accounts → Views → Permissions  
-✅ Noted time-based restrictions: Cache TTL, rate limiting  
-✅ Recorded all error messages: See Error Messages table above  
-✅ Explained business purpose: Secure, compliant account access control  
-✅ Organized rules logically: By stakeholder perspective and validation type  
-✅ Used plain language: All technical terms explained  
-✅ Provided real-world examples: See Critical Validation Scenarios  
+---
+
+## Important Notes
+
+### NO View Permission Checks
+
+**CRITICAL**: These Account Listing endpoints do **NOT** check view permissions. This is explicitly by design.
+
+**Evidence**: ResourceDoc in APIMethods510.scala states:
+> "Get Accounts held by the User if even the User has not been assigned the owner View yet.
+> 
+> Can be used to onboard the account to the API - since all other account and transaction endpoints require views to be assigned."
+
+**Why**: These endpoints are specifically designed for account onboarding workflows where views may not yet be assigned. The "held" accounts represent accounts the user owns or has a relationship with, regardless of view assignments.
+
+**Contrast**: Other OBP-API endpoints (like transaction history, balance inquiries) DO check view permissions, but Account Listing is intentionally exempt to support onboarding.
+
+---
+
+### Validation NOT Performed
+
+Based on source code review, the following validations are **NOT** performed within these specific endpoints (though they may exist at framework/infrastructure level):
+
+1. **Rate Limiting**: Not validated in endpoint code (may exist at API gateway level)
+2. **Response Time Monitoring**: Not validated in endpoint (performance requirement, not validation rule)
+3. **Caching TTL**: Not validated in endpoint (caching is transparent to validation logic)
+4. **Pagination**: Not implemented in these endpoints (returns all accounts)
+5. **View Permissions**: Explicitly NOT checked (by design for onboarding)
+6. **Account Access Rights**: Not checked beyond entitlements (no granular per-account permissions)
+
+---
+
+## Error Messages Reference
+
+| HTTP Status | Error Message | Meaning | User Action |
+|-------------|---------------|---------|-------------|
+| 401 | UserNotLoggedIn | No valid authentication token | Authenticate with valid credentials |
+| 403 | UserHasMissingRoles CanGetAccountsHeldAtOneBank or CanGetAccountsHeldAtAnyBank | Missing required entitlement for bank-specific listing | Request entitlement from administrator |
+| 403 | UserHasMissingRoles CanGetAccountsHeldAtAnyBank | Missing required entitlement for all-banks listing | Request entitlement from administrator |
+| 404 | UserNotFoundByUserId | Provided User ID does not exist | Verify User ID is correct |
+| 404 | BankNotFound | Provided Bank ID does not exist | Verify Bank ID is correct |
+| 400 | InvalidFilterParameterFormat... | Invalid account_type_filter_operation value | Use "INCLUDE" or "EXCLUDE" only |
+| 500 | UnknownError | Unexpected server error | Report to system administrator |
+
+---
+
+## Source Code Analysis References
+
+This validation rules extraction is based on detailed analysis of the actual Open Bank Project API source code from https://github.com/OpenBankProject/OBP-API.git (commit 3b761070e on develop branch).
+
+### Key Source Files Reviewed
+
+1. **APIMethods510.scala** (lines 816-880)
+   - Location: `obp-api/src/main/scala/code/api/v5_1_0/APIMethods510.scala`
+   - Contains: Account Listing endpoint implementations (getAccountsHeldByUserAtBank, getAccountsHeldByUser)
+   - Key findings: No view permission checks, entitlement requirements, user validation flow
+
+2. **AccountTest.scala** (lines 1-100)
+   - Location: `obp-api/src/test/scala/code/api/v5_1_0/AccountTest.scala`
+   - Contains: Test scenarios showing validation behavior
+   - Key findings: 401 for anonymous, 403 for missing entitlements, exact error messages
+
+3. **AccountsHelper.scala** (lines 39-71)
+   - Location: `obp-api/src/main/scala/code/api/v2_0_0/AccountsHelper.scala`
+   - Contains: Account type filtering logic (filterWithAccountType, getFilteredCoreAccounts)
+   - Key findings: INCLUDE/EXCLUDE validation, filter parameter handling
+
+4. **ApiRole.scala** (lines 68-71)
+   - Location: `obp-api/src/main/scala/code/api/util/ApiRole.scala`
+   - Contains: Entitlement definitions
+   - Key findings: CanGetAccountsHeldAtOneBank, CanGetAccountsHeldAtAnyBank definitions
+
+5. **LiftUsers.scala** (lines 80-82)
+   - Location: `obp-api/src/main/scala/code/users/LiftUsers.scala`
+   - Contains: getUserByUserId implementation
+   - Key findings: Simple database lookup by userId
+
+### Validation Flow in Source Code
+
+```
+Request received
+    ↓
+1. Authentication Check (framework level)
+   - If not authenticated → 401 UserNotLoggedIn
+    ↓
+2. Entitlement Check (ResourceDoc specification)
+   - If missing required entitlement → 403 UserHasMissingRoles
+    ↓
+3. User ID Validation (getUserByUserId)
+   - If user not found → 404 UserNotFoundByUserId
+    ↓
+4. Bank ID Validation (for bank-specific endpoint only)
+   - If bank not found → 404 BankNotFound
+    ↓
+5. Retrieve Accounts (getAccountsHeld or getAccountsHeldByUser)
+    ↓
+6. Filter by Account Type (if filters provided)
+   - If invalid operation → 400 InvalidFilterParameterFormat
+    ↓
+7. Return filtered account list (200 OK)
+```
 
 ---
 
 ## Conclusion
 
-The Account Listing functionality implements **19 distinct validation rules** organized across **6 categories** (Input, Authorization, Business Logic, Performance, Security, and Compliance). These rules ensure that:
+The Account Listing functionality in OBP-API implements **5 core validation rules**:
 
-1. Only authenticated and authorized users can access account information
-2. Data privacy and security regulations are enforced
-3. System performance meets business requirements
-4. User experience is optimized through proper error handling
-5. Integration with external systems is reliable
+1. **Authentication** - UserNotLoggedIn (401)
+2. **Entitlements** - UserHasMissingRoles (403)
+3. **User ID exists** - UserNotFoundByUserId (404)
+4. **Bank ID exists** (bank-specific only) - BankNotFound (404)
+5. **Account type filter operation** - InvalidFilterParameterFormat (400)
 
-The validation framework balances security, compliance, performance, and user experience while providing clear feedback when operations fail.
+**Critical Distinction**: These endpoints are designed for account onboarding and do **NOT** check view permissions, unlike most other OBP-API endpoints. This allows users to discover their accounts before views are assigned.
+
+All validation rules documented here are based on actual Scala source code analysis, not assumptions, ensuring accuracy and alignment with the real implementation.
