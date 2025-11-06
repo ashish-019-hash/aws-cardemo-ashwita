@@ -2,6 +2,16 @@
 
 Applied the entity extraction prompt to the Account Listing user story from the OBP-API Account Management documentation.
 
+## Context
+
+This entity extraction analysis is based on the **Open Bank Project (OBP-API)**, the open-source banking API platform.
+
+- **Official Repository**: https://github.com/OpenBankProject/OBP-API.git
+- **Technology Stack**: Scala-based REST API
+- **Purpose**: Open-source API for banks that enables account holders to interact with their bank using a standard RESTful interface
+
+All classes, methods, and services referenced in this document are from the Open Bank Project OBP-API codebase.
+
 ---
 
 ## Entity Catalog - Account Listing User Story
@@ -13,9 +23,9 @@ Based on the Account Listing user story, the following business entities have be
 **Business Description**: 
 A person or system that uses the banking application and has authenticated access to the API. This represents the actor who wants to view their bank accounts.
 
-**Location in Codebase**: 
+**Location in Codebase** (Open Bank Project OBP-API): 
 - Mentioned in technical context but not explicitly defined in the user story
-- Referenced through authentication and authorization checks
+- Referenced through authentication and authorization checks in the OBP-API authentication module
 
 **Key Fields**:
 - User ID: Unique identifier for the user
@@ -43,9 +53,10 @@ A person or system that uses the banking application and has authenticated acces
 **Business Description**: 
 A financial account where money is stored and managed. This is the primary entity being listed in this user story. It represents a customer's relationship with a bank for holding and managing funds.
 
-**Location in Codebase**: 
+**Location in Codebase** (Open Bank Project OBP-API): 
 - Classes: APIMethods510.getAccountsHeldByUserAtBank, APIMethods510.getAccountsHeldByUser
 - JSON Factory: JSONFactory300.createCoreAccountsByCoreAccountsJSON
+- Repository: https://github.com/OpenBankProject/OBP-API.git
 
 **Key Fields**:
 - Account ID: Unique identifier for the account
@@ -79,9 +90,10 @@ A financial account where money is stored and managed. This is the primary entit
 **Business Description**: 
 A financial institution that holds and manages customer accounts. The bank entity represents the organization providing banking services.
 
-**Location in Codebase**: 
+**Location in Codebase** (Open Bank Project OBP-API): 
 - Referenced in API methods: getAccountsHeldByUserAtBank
 - Used as a filter parameter in account retrieval
+- Part of the core banking domain model in OBP-API
 
 **Key Fields**:
 - Bank ID: Unique identifier for the bank
@@ -108,9 +120,10 @@ A financial institution that holds and manages customer accounts. The bank entit
 **Business Description**: 
 A view represents a specific level of access to account information. It controls what fields and operations a user can perform on an account. Views implement granular access control beyond simple yes/no account access.
 
-**Location in Codebase**: 
+**Location in Codebase** (Open Bank Project OBP-API): 
 - Class: ViewNewStyle
 - Related to permission checking for account access
+- Part of OBP-API's view-based access control system
 
 **Key Fields**:
 - View ID: Unique identifier for the view
@@ -142,9 +155,9 @@ A view represents a specific level of access to account information. It controls
 **Business Description**: 
 A classification or category that defines the nature and purpose of a bank account. Common types include checking accounts, savings accounts, credit accounts, etc.
 
-**Location in Codebase**: 
+**Location in Codebase** (Open Bank Project OBP-API): 
 - Referenced in query parameters for filtering
-- Part of core account information returned
+- Part of core account information returned by OBP-API endpoints
 
 **Key Fields**:
 - Type code: Unique identifier for the account type
@@ -173,9 +186,10 @@ A classification or category that defines the nature and purpose of a bank accou
 **Business Description**: 
 A specific permission or right granted to a user that controls what operations they can perform in the system. Entitlements are broader than view permissions and control access to entire categories of operations.
 
-**Location in Codebase**: 
-- Referenced in business rules
+**Location in Codebase** (Open Bank Project OBP-API): 
+- Referenced in business rules and entitlement management system
 - Specific entitlements: canGetAccountsHeldAtOneBank, canGetAccountsHeldAtAnyBank
+- Part of OBP-API's role-based access control (RBAC) framework
 
 **Key Fields**:
 - Entitlement ID: Unique identifier
@@ -291,17 +305,25 @@ Based on the entity analysis, here are critical implementation points for the Go
 
 ## Source Documents
 
+**Open Bank Project (OBP-API) Reference**:
+- **Official Repository**: https://github.com/OpenBankProject/OBP-API.git
+- **Description**: Open-source banking API platform that enables banks to provide secure, standardized API access
+- **Technology**: Scala-based REST API
+- **License**: AGPL v3
+
 **User Story Source**: 
 - Repository: ashish-019-hash/aws-cardemo-ashwita
 - Branch: devin/1762152678-copy-scala-prompt
 - File: Playbooks/user_stories/obp_api_account_management_user_stories.md
 - Section: Part 2: Detailed user stories - User Story 1: Account Listing (lines 72-120)
+- Note: This user story documents the Account Listing functionality from the Open Bank Project OBP-API
 
 **Extraction Methodology**: 
-- Repository: ashish-019-hash/obp-api
+- Repository: ashish-019-hash/obp-api (documentation repository)
 - Branch: devin/1760325583-business-entity-documentation
 - File: Phase-01-Playbooks/entity_extraction_prompt.md
+- Note: Methodology applied to analyze OBP-API functionality
 
 ---
 
-This analysis extracts all business entities explicitly mentioned or implied in the Account Listing user story, following the systematic approach outlined in the entity extraction prompt.
+This analysis extracts all business entities explicitly mentioned or implied in the Account Listing user story from the **Open Bank Project (OBP-API)**, following the systematic approach outlined in the entity extraction prompt. All classes, methods, and services referenced are from the official OBP-API repository at https://github.com/OpenBankProject/OBP-API.git.
