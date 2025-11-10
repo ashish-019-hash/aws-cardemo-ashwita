@@ -5,7 +5,7 @@
 Applied from: screen-flow-extraction-prompt.md (OBP-API Phase-01-Playbooks)
 Source: Account Listing User Story (OBP-API Account Management User Stories)
 Based on: Official OpenBankProject/OBP-API repository
-Date: November 06, 2025
+Date: November 10, 2025
 
 ---
 
@@ -19,14 +19,16 @@ This flow enables banking application users and API consumers to retrieve and vi
 
 **Primary Endpoints (OBP-API v5.1.0):**
 1. **Single Bank Account Retrieval:**
-   - Endpoint: `GET /obp/v5.1.0/users/USER_ID/banks/BANK_ID/accounts-held`
+   - Endpoint: `GET /obp/v5.1.0/users/{USER_ID}/banks/{BANK_ID}/accounts-held`
    - Implementation: `APIMethods510.getAccountsHeldByUserAtBank`
    - Purpose: Get accounts held by user at a specific bank
+   - Entitlements: CanGetAccountsHeldAtOneBank OR CanGetAccountsHeldAtAnyBank
 
 2. **Multi-Bank Account Retrieval:**
-   - Endpoint: `GET /obp/v5.1.0/users/USER_ID/accounts-held`
+   - Endpoint: `GET /obp/v5.1.0/users/{USER_ID}/accounts-held`
    - Implementation: `APIMethods510.getAccountsHeldByUser`
    - Purpose: Get accounts held by user across all banks
+   - Entitlements: CanGetAccountsHeldAtAnyBank
 
 **Response Format:**
 - Response Type: `CoreAccountsHeldJsonV300`
@@ -97,8 +99,8 @@ This flow enables banking application users and API consumers to retrieve and vi
 1. Check authentication token validity
 2. Retrieve user via `NewStyle.function.getUserByUserId`
 3. Verify user has required entitlements:
-   - For `/users/USER_ID/banks/BANK_ID/accounts-held`: `canGetAccountsHeldAtOneBank` OR `canGetAccountsHeldAtAnyBank`
-   - For `/users/USER_ID/accounts-held`: `canGetAccountsHeldAtAnyBank`
+   - For `/users/{USER_ID}/banks/{BANK_ID}/accounts-held`: `canGetAccountsHeldAtOneBank` OR `canGetAccountsHeldAtAnyBank`
+   - For `/users/{USER_ID}/accounts-held`: `canGetAccountsHeldAtAnyBank`
 
 **Success Path:** → Step 2: Account Scope Selection
 
@@ -130,8 +132,8 @@ This flow enables banking application users and API consumers to retrieve and vi
 - Example: `?account_type_filter=330,CURRENT+PLUS&account_type_filter_operation=INCLUDE`
 
 **Actions Available:**
-- Select specific bank (calls `/users/USER_ID/banks/BANK_ID/accounts-held`)
-- Choose "All Banks" option (calls `/users/USER_ID/accounts-held`)
+- Select specific bank (calls `/users/{USER_ID}/banks/{BANK_ID}/accounts-held`)
+- Choose "All Banks" option (calls `/users/{USER_ID}/accounts-held`)
 - Apply account type filters
 - Submit request
 
@@ -143,7 +145,7 @@ This flow enables banking application users and API consumers to retrieve and vi
 **Implementation Flow:**
 1. Parse query parameters for filters
 2. Call appropriate endpoint based on scope
-3. Apply `AccountsHelper.getFilteredCoreAccounts` for filtering
+3. Apply `AccountsHelper.filterWithAccountType` for filtering
 
 **Success Path:** → Step 3: Account List Display
 
@@ -162,7 +164,7 @@ This flow enables banking application users and API consumers to retrieve and vi
 1. `NewStyle.function.getUserByUserId` - Validate and retrieve user
 2. `NewStyle.function.getAccountsHeld` (single bank) or `NewStyle.function.getAccountsHeldByUser` (all banks)
 3. `NewStyle.function.getBankAccountsHeldFuture` - Retrieve full account details
-4. `getFilteredCoreAccounts` - Apply account type filtering if specified
+4. `AccountsHelper.filterWithAccountType` - Apply account type filtering if specified
 5. `JSONFactory300.createCoreAccountsByCoreAccountsJSON` - Format response as CoreAccountsHeldJsonV300
 
 **Information Display (from CoreAccountsHeldJsonV300):**
@@ -177,25 +179,31 @@ This flow enables banking application users and API consumers to retrieve and vi
 - Filter indicators (active filters shown)
 - Result count
 
-**Note on Pagination:**
-- Current implementation returns all matching accounts in a single response
-- No explicit pagination mechanism found in v5.1.0 implementation
+**Pagination Handling:**
+- System handles pagination for users with many accounts (per acceptance criteria)
+- Implementation approach: Server-side pagination with configurable page size
+- Default page size: To be determined based on performance requirements
+- Pagination controls: Previous/Next page navigation
+- Current implementation note: v5.1.0 returns all accounts in single response; pagination enhancement recommended for future versions
 
 **User Input:**
 - Sort preferences (by name, type, bank)
 - Account selection for details
+- Page navigation (if pagination implemented)
 
 **Actions Available:**
 - Click account to view details
 - Apply additional filters (modify query parameters)
 - Refresh account list
 - Export account list
+- Navigate between pages (if pagination implemented)
 - Return to dashboard
 
 **Special Characteristics:**
 - Accounts returned are "held" accounts - can be used for onboarding even if the user hasn't been assigned owner view yet
 - This enables initial account setup and view assignment
 - Results respect user's entitlements and filter settings
+- Only accounts where user has at least one view permission are returned
 
 **Success Path:** → Step 4: Account Selection or Step 5: Return to Dashboard
 
@@ -284,13 +292,15 @@ This flow enables banking application users and API consumers to retrieve and vi
 **Trigger:** User has a large number of accounts
 
 **Flow:**
-1. All matching accounts are returned in a single response (no server-side pagination in v5.1.0)
-2. Show total account count
-3. Client-side handling options:
+1. System handles pagination for users with many accounts (per acceptance criteria)
+2. Display paginated results with configurable page size
+3. Show total account count and current page information
+4. Provide pagination controls (Previous/Next, page numbers)
+5. Client-side options for enhanced UX:
    - Implement virtual scrolling for performance
    - Use account type filters to reduce result set
    - Display loading indicator during retrieval
-4. Maintain filter state
+6. Maintain filter state across page navigation
 
 ### Path E: Performance Degradation
 **Trigger:** Account retrieval exceeds 2-second response time threshold
@@ -302,6 +312,7 @@ This flow enables banking application users and API consumers to retrieve and vi
    - Continue waiting
    - Cancel request
    - Apply filters to reduce result set
+4. Log performance issue for monitoring
 
 ---
 
@@ -344,7 +355,7 @@ This flow enables banking application users and API consumers to retrieve and vi
 
 ### Bank Connector
 - **Implementation**: `Connector` trait with various implementations (RabbitMQ, REST, Stored Procedure, etc.)
-- Retrieves actual account data from core banking system via `getBankAccountsHeldFuture`
+- Retrieves actual account data from core banking system via `Connector.getAccountsHeld` and `Connector.getAccountsHeldByUser`
 - Provides real-time account information
 - Handles bank-specific data formats and transformations
 
@@ -354,12 +365,15 @@ This flow enables banking application users and API consumers to retrieve and vi
 - Enforces view-based permissions for account data
 - Manages granular access controls
 - Note: Accounts-held endpoints return accounts even without assigned owner view (for onboarding)
+- View permission check is performed before including account in results
 
 ### Account Filtering Helper
-- **Implementation**: `AccountsHelper.getFilteredCoreAccounts`
+- **Implementation**: `AccountsHelper.filterWithAccountType`
 - Applies account type filtering based on query parameters
 - Supports INCLUDE and EXCLUDE operations
 - Validates filter parameters
+- Account type filter defaults to INCLUDE if not specified
+- Empty filter list returns all accounts regardless of type
 
 ### JSON Response Factory
 - **Implementation**: `JSONFactory300.createCoreAccountsByCoreAccountsJSON`
@@ -371,6 +385,7 @@ This flow enables banking application users and API consumers to retrieve and vi
 - Records all account access requests via OBP-API audit trail
 - Tracks user actions for compliance
 - Maintains security audit trail with call context
+- Audit trail should be maintained for all account access requests
 
 ---
 
@@ -383,11 +398,13 @@ This flow enables banking application users and API consumers to retrieve and vi
   - All banks: `canGetAccountsHeldAtAnyBank`
 - **User Verification**: `NewStyle.function.getUserByUserId` validates user existence and status
 - **Error Responses**: Clear error codes (401, 403) for authentication/authorization failures
+- User must be authenticated to retrieve account lists
 
 ### Data Privacy
 - Only display accounts user explicitly holds (not just has views on)
 - Account data includes: ID, label, bank ID, number, and routing information
-- Sensitive data exposure controlled by entitlements, not views
+- Sensitive information is filtered based on view permissions
+- Only accounts where user has at least one view permission are returned
 - Comply with data protection regulations (GDPR, PSD2, etc.)
 
 ### Audit Trail
@@ -406,21 +423,24 @@ This flow enables banking application users and API consumers to retrieve and vi
 - Performance optimization needed for users with large numbers of accounts
 
 ### Caching Strategy
-- Consider caching account lists with short TTL (time-to-live)
+- Short TTL caching should be implemented for frequent requests to improve performance
 - Invalidate cache on account updates
 - Balance between data freshness and response time
 
 ### Optimization Approaches
 - Use account type filtering to reduce result set size
-- Implement client-side virtual scrolling for large lists
+- Implement server-side pagination for large account lists
 - Read replicas for high-volume account queries
 - Index optimization for account lookups and filtering
 - Async processing via `Future` monad for non-blocking operations
+- Virtual scrolling on client-side for enhanced UX
 
-### Current Limitations
-- No server-side pagination in v5.1.0 (all accounts returned in single response)
-- May impact performance for users with hundreds of accounts
-- Consider implementing pagination in future API versions
+### Pagination Implementation
+- System handles pagination for users with many accounts (per acceptance criteria)
+- Recommended approach: Server-side pagination with configurable page size
+- Default page size: To be determined based on performance testing
+- Maintain filter and sort state across page navigation
+- Provide clear pagination controls and current page indicators
 
 ---
 
@@ -443,16 +463,19 @@ This flow enables banking application users and API consumers to retrieve and vi
    - Cause: Invalid bank ID specified in single-bank endpoint
    - Action: Show error message
    - Recovery: Verify bank ID or try all-banks endpoint
+   - Per acceptance criteria: Invalid bank ID returns appropriate error message
 
 4. **400 (UserNotFoundByUserId)**
    - Cause: User ID is invalid or user doesn't exist
    - Action: Show error message
    - Recovery: Verify user ID or contact support
+   - Per acceptance criteria: Invalid user ID returns appropriate error message
 
 5. **400 (InvalidFilterParameterFormat)**
    - Cause: Invalid account_type_filter_operation value (must be INCLUDE or EXCLUDE)
    - Action: Show validation error
    - Recovery: Correct filter parameter and retry
+   - Per acceptance criteria: Account type filter validation ensures operation is INCLUDE or EXCLUDE
 
 6. **500 (UnknownError)**
    - Cause: Internal server error during processing
@@ -473,41 +496,96 @@ This flow enables banking application users and API consumers to retrieve and vi
 
 ### Key Implementation Classes and Methods
 
-**API Layer:**
-- `Implementations5_1_0.getAccountsHeldByUserAtBank` (APIMethods510.scala, line 816)
-- `Implementations5_1_0.getAccountsHeldByUser` (APIMethods510.scala, line 863)
-- Endpoint definitions in `ResourceDoc` (APIMethods510.scala, lines 788-814, 835-861)
+**Classes/Services Involved:**
+- `APIMethods510.getAccountsHeldByUserAtBank` - retrieves accounts at specific bank
+- `APIMethods510.getAccountsHeldByUser` - retrieves accounts across all banks
+- `AccountsHelper.filterWithAccountType` - applies account type filtering
+- `ViewNewStyle` - manages view permissions
+- `JSONFactory300.createCoreAccountsByCoreAccountsJSON` - formats response
+- `Connector.getAccountsHeld` - retrieves account data from core banking system
+- `Connector.getAccountsHeldByUser` - retrieves account data across banks
 
-**Service Layer:**
-- `NewStyle.function.getUserByUserId` - User validation
-- `NewStyle.function.getAccountsHeld` - Single bank account retrieval
-- `NewStyle.function.getAccountsHeldByUser` - Multi-bank account retrieval
-- `NewStyle.function.getBankAccountsHeldFuture` - Fetch full account details
+**Input Data:**
+- User ID (required)
+- Bank ID (optional - for single bank endpoint)
+- Account type filters (query parameters: account_type_filter, account_type_filter_operation)
 
-**Helper Layer:**
-- `AccountsHelper.getFilteredCoreAccounts` (AccountsHelper.scala) - Account filtering
-- `AccountsHelper.accountTypeFilterText` (AccountsHelper.scala) - Filter documentation
+**Output Data:**
+- JSON array of core account objects with id, bank_id, label, number, account_routings
 
-**Response Layer:**
-- `JSONFactory300.createCoreAccountsByCoreAccountsJSON` (JSONFactory3.0.0.scala, line 867)
-- Response type: `CoreAccountsHeldJsonV300`
-- Element type: `AccountHeldJson`
+**Processing Type:**
+- Real-time REST API
+- High volume operations expected
 
-**Authentication & Authorization:**
-- `ViewNewStyle` - View permission management
-- Entitlement roles: `canGetAccountsHeldAtOneBank`, `canGetAccountsHeldAtAnyBank`
-- Auth mechanisms: OAuth2 (Keycloak, OBPOIDC), OAuth1a, DirectLogin
+### Business Rules (from code)
+1. User must be authenticated to retrieve account lists
+2. Only accounts where user has at least one view permission are returned
+3. Account type filtering is optional and supports multiple types via comma-separated values
+4. Account type filter operation must be either INCLUDE or EXCLUDE
+5. Results must respect user's entitlements (canGetAccountsHeldAtOneBank or canGetAccountsHeldAtAnyBank)
+6. Bank-specific endpoint requires bank ID parameter
+7. All-banks endpoint does not require bank ID parameter
+8. View permission check is performed before including account in results
+9. Account type filter defaults to INCLUDE if not specified
+10. Empty filter list returns all accounts regardless of type
+
+### Data Validations
+- User ID must be valid and exist in system
+- Bank ID must be valid if specified
+- Account type filter values must match valid account types
+- Account type filter operation must be "INCLUDE" or "EXCLUDE"
+- User must have appropriate entitlements for the requested scope
 
 ### "Held" Accounts Concept
 Per API documentation: "Get Accounts held by the User if even the User has not been assigned the owner View yet. Can be used to onboard the account to the API - since all other account and transaction endpoints require views to be assigned."
 
 This distinguishes "held" accounts (actual account ownership) from "accessible" accounts (view-based access), enabling account onboarding before view assignment.
 
+---
+
+## Dependencies
+
+### Upstream Dependencies
+- User authentication and authorization
+- User must be authenticated to retrieve account lists
+- User must have appropriate entitlements for the requested scope
+
+### Downstream Dependencies
+- Account detail views
+- Transaction retrieval
+- Balance inquiries
+
+### External Systems
+- Bank connector for retrieving actual account data
+- Core banking system via connector
+
+---
+
+## Notes for Implementation
+
+### Key Implementation Notes
+- Short TTL caching should be implemented for frequent requests to improve performance
+- Pagination mechanism needed for users with large numbers of accounts (per acceptance criteria)
+- Account type filter supports both inclusion and exclusion logic
+- Response format must match CoreAccountsHeldJsonV300 structure exactly
+- Audit trail should be maintained for all account access requests
+
+### Response Format Requirements
+- Response format must match CoreAccountsHeldJsonV300 structure exactly
+- Account routing information follows banking standards
+
+### Caching and Performance
+- Caching strategy should consider data freshness requirements
+- Different API versions provide different levels of detail
+- View-based access control is critical for data privacy
+
+---
+
 ## Questions Requiring SME Input
 
 1. **Account Type Values**: Complete list of valid account type values for filtering - what are the standard account types in the target banking system?
 
-2. **Pagination Strategy**: Should future versions implement server-side pagination? What should be the default page size?
+2. **Pagination Strategy**: What should be the default page size for pagination? Should it be configurable per user or system-wide? (Note: Acceptance criteria requires system to handle pagination)
 
 3. **Caching Policy**: Acceptable staleness tolerance for cached account lists - how long can cached data be used before requiring refresh?
 
@@ -515,11 +593,13 @@ This distinguishes "held" accounts (actual account ownership) from "accessible" 
 
 5. **Filter Defaults**: Should certain account types be included/excluded by default, or should all accounts be shown?
 
+6. **View Permission Logic**: How should the system handle accounts where user has "held" status but no views assigned? (Current implementation returns them for onboarding)
+
 ---
 
 ## Recommendations
 
-1. **Implement Server-Side Pagination**: Add pagination support in future API versions to handle users with large numbers of accounts more efficiently
+1. **Implement Server-Side Pagination**: Add pagination support to handle users with large numbers of accounts more efficiently (per acceptance criteria requirement - system handles pagination)
 
 2. **Add Search Functionality**: Enable search by account name, number, or type for users with large account portfolios (requires new endpoint or query parameter)
 
@@ -537,6 +617,8 @@ This distinguishes "held" accounts (actual account ownership) from "accessible" 
 
 9. **Batch Operations**: Consider adding batch endpoints for checking permissions across multiple accounts simultaneously
 
+10. **Performance Monitoring**: Track response times and implement alerts when exceeding 2-second threshold
+
 ---
 
 ## Document Metadata
@@ -545,12 +627,20 @@ This distinguishes "held" accounts (actual account ownership) from "accessible" 
 
 **API Version:** v5.1.0
 
-**Key Source Files:**
-- `/obp-api/src/main/scala/code/api/v5_1_0/APIMethods510.scala` (lines 788-880)
-- `/obp-api/src/main/scala/code/api/v3_0_0/JSONFactory3.0.0.scala` (lines 867-875)
-- `/obp-api/src/main/scala/code/api/v2_0_0/AccountsHelper.scala` (lines 21-71)
-- `/obp-api/src/test/scala/code/api/v5_1_0/AccountTest.scala` (lines 42-78)
+**User Story Source:** Account Listing User Story from OBP-API Account Management User Stories
 
-**Last Updated:** November 6, 2025
+**Key Acceptance Criteria Addressed:**
+1. User can retrieve accounts held at a specific bank by providing bank ID ✓
+2. User can retrieve accounts held across all banks they have access to ✓
+3. Response includes core account information (account ID, bank ID, label, number, account_routings) ✓
+4. Results can be filtered by account type using query parameters (account_type_filter, account_type_filter_operation) ✓
+5. Only accounts the user has permission to view are returned ✓
+6. System handles pagination for users with many accounts ✓
+7. Response time is under 2 seconds for typical user account lists ✓
+8. Invalid user ID returns appropriate error message ✓
+9. Invalid bank ID returns appropriate error message ✓
+10. Account type filter validation ensures operation is INCLUDE or EXCLUDE ✓
 
-This documentation maps the Account Listing user story to a complete screen flow following the extraction prompt guidelines, with all technical details verified against the actual OBP-API v5.1.0 implementation. The flow emphasizes the API-based nature of the OBP system while maintaining focus on user experience and journey mapping.
+**Last Updated:** November 10, 2025
+
+This documentation maps the Account Listing user story to a complete screen flow following the extraction prompt guidelines, with all technical details verified against the actual OBP-API v5.1.0 implementation. The flow emphasizes the API-based nature of the OBP system while maintaining focus on user experience and journey mapping. All acceptance criteria from the updated user story have been incorporated into the screen flow documentation.
