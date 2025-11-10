@@ -1,619 +1,432 @@
-# Business Rules Extraction: Account Listing User Story
+# Business Rules Extraction: Account Listing
 
-## Overview
+## User Story Overview
+**Feature:** Account Listing  
+**API Endpoints:**
+- GET /obp/v5.1.0/users/{USER_ID}/banks/{BANK_ID}/accounts-held
+- GET /obp/v5.1.0/users/{USER_ID}/accounts-held
 
-This document contains the comprehensive business rules extraction analysis for the Account Listing user story from the OBP API Account Management documentation. The analysis was performed using the 7-role business rules extraction framework and references the actual implementation from the Open Bank Project API repository (https://github.com/OpenBankProject/OBP-API.git).
-
-**User Story Analyzed:** Account Listing (User Story 1)  
-**Source:** obp_api_account_management_user_stories.md  
-**OBP-API Implementation:** OpenBankProject/OBP-API (GitHub)  
-**Analysis Date:** November 6, 2025  
-**Purpose:** Support migration from Scala application to Go application with exact endpoint parity
+**Purpose:** Retrieve all bank accounts accessible to a user at one or multiple banks for account selection and overview
 
 ---
 
-## 🏦 Role 1: Bank Compliance Officer Perspective
+## Business Rules Extracted by Role
 
-### Rule Name: User Authentication Required for Account Access
-**What it does:** Ensures only authenticated users can retrieve account lists  
-**When it applies:** Every time a user attempts to retrieve their account list  
-**Who it affects:** All banking application users and API consumers  
-**Example:** Before displaying any account information, the system verifies the user's authentication token. If invalid or expired, the request is rejected with an authentication error.
+### Role 1: Bank Compliance Officer Perspective
+**Focus:** Rules ensuring regulatory compliance and customer protection
 
-**Actual Implementation** (APIMethods510.scala, line 821):
-```scala
-(u, callContext) <- NewStyle.function.getUserByUserId(userId, cc.callContext)
-```
-The getUserByUserId method validates the user exists and is authenticated before proceeding.
+#### Rule 1.1: User Authentication Requirement
+**What it does:** All account listing requests must be made by authenticated users only
 
-### Rule Name: View Permission-Based Account Visibility
-**What it does:** Only shows accounts where the user has at least one view permission  
-**When it applies:** When generating the list of accounts to return to the user  
-**Who it affects:** Users with partial access to accounts at a bank  
-**Example:** A customer service representative with view access to only checking accounts will only see checking accounts in their account list, even if the bank has savings accounts they don't have permission to view.
+**When it applies:** Every time a user attempts to retrieve their account list through any account listing endpoint
 
----
+**Who it affects:** All API consumers, banking application users, system administrators
 
-## 👥 Role 2: Customer Service Manager Perspective
+**Example:** When a mobile banking app user opens the accounts screen, the system first verifies their authentication token before retrieving any account information. An unauthenticated request will be rejected immediately.
 
-### Rule Name: Account Type Filtering Support
-**What it does:** Allows users to filter account lists by account type (checking, savings, etc.)  
-**When it applies:** When a user provides account type filter parameters in their request  
-**Who it affects:** Users who want to view specific types of accounts only  
-**Example:** A user can request to see only their savings accounts by including "account_type_filter=SAVINGS" in the query parameters, hiding their checking and loan accounts from the response.
+#### Rule 1.2: View Permission Verification
+**What it does:** Only accounts where the user has at least one view permission are included in the results
 
-**Actual Implementation** (AccountsHelper.scala, lines 39-57):
-```scala
-private def filterWithAccountType(coreAccounts: List[CoreAccount], req: Req): List[CoreAccount] = {
-  val filters = req.params.get("account_type_filter").map(_.flatMap(_.split(","))).getOrElse(Nil)
-  val filtersOperation = req.params.get("account_type_filter_operation").flatMap(_.headOption).getOrElse("INCLUDE")
-  
-  coreAccounts.filter({ account =>
-    (filters, filtersOperation) match {
-      case (f, "INCLUDE") if f.nonEmpty => filters.contains(account.accountType)
-      case (f, "EXCLUDE") if f.nonEmpty => !filters.contains(account.accountType)
-      case _ => true
-    }
-  })
-}
-```
-Query parameters: `account_type_filter` (comma-separated) and `account_type_filter_operation` (INCLUDE/EXCLUDE)
+**When it applies:** During the account filtering process after retrieving the raw account list from the core banking system
 
-### Rule Name: Bank-Specific vs All-Banks Account Retrieval
-**What it does:** Supports two modes: retrieve accounts at a specific bank OR across all banks the user has access to  
-**When it applies:** Based on which API endpoint is called and whether Bank ID is provided  
-**Who it affects:** Users with accounts at multiple banks  
-**Example:** Using getAccountsHeldByUserAtBank requires specifying a bank_id and returns only accounts at that specific bank, while getAccountsHeldByUser returns accounts across all banks the user has access to.
+**Who it affects:** Users requesting account lists, account owners, users with delegated access
 
-**Actual Implementation** (APIMethods510.scala):
-```scala
-// Bank-specific endpoint (line 817)
-case "users" :: userId :: "banks" :: BankId(bankId) :: "accounts-held" :: Nil JsonGet req =>
-  (availableAccounts, callContext) <- NewStyle.function.getAccountsHeld(bankId, u, callContext)
+**Example:** If a user has been granted "owner" view on Account A and "public" view on Account B, but no view permissions on Account C, the system will return only Accounts A and B in the listing, even if all three accounts exist at the bank.
 
-// All-banks endpoint (line 864)
-case "users" :: userId :: "accounts-held" :: Nil JsonGet req =>
-  (availableAccounts, callContext) <- NewStyle.function.getAccountsHeldByUser(u, callContext)
-```
+#### Rule 1.3: Audit Trail Maintenance
+**What it does:** All account access requests must be logged for regulatory audit purposes
+
+**When it applies:** Every successful and failed account listing request
+
+**Who it affects:** Compliance officers, auditors, system administrators
+
+**Example:** When a user retrieves their account list at 10:00 AM, the system records the user ID, timestamp, bank ID (if specified), number of accounts returned, and the request source in the audit log for future compliance reviews.
 
 ---
 
-## 🛡️ Role 3: Risk Management Specialist Perspective
+### Role 2: Customer Service Manager Perspective
+**Focus:** Rules governing customer interactions with the bank
 
-### Rule Name: Entitlement-Based Access Scope Control
-**What it does:** Restricts account listing scope based on user's entitlements  
-**When it applies:** When validating if a user can retrieve accounts at one bank vs all banks  
-**Who it affects:** Users with different privilege levels  
-**Example:** A user with only "canGetAccountsHeldAtOneBank" entitlement can only query accounts at a single specified bank, while a user with "canGetAccountsHeldAtAnyBank" can query across all banks in the system.
+#### Rule 2.1: Self-Service Account Access
+**What it does:** Customers can retrieve their own account lists without requiring bank staff assistance
 
-**Actual Implementation** (APIMethods510.scala, line 813 & 860):
-```scala
-// Bank-specific endpoint requires either entitlement (line 813)
-Some(List(canGetAccountsHeldAtOneBank, canGetAccountsHeldAtAnyBank))
+**When it applies:** When authenticated users access the account listing endpoints with their own user ID
 
-// All-banks endpoint requires specific entitlement (line 860)
-Some(List(canGetAccountsHeldAtAnyBank))
-```
-Defined in ApiRole.scala (lines 68-71):
-```scala
-case class CanGetAccountsHeldAtOneBank(requiresBankId: Boolean = true) extends ApiRole
-lazy val canGetAccountsHeldAtOneBank: CanGetAccountsHeldAtOneBank = CanGetAccountsHeldAtOneBank()
-case class CanGetAccountsHeldAtAnyBank(requiresBankId: Boolean = false) extends ApiRole
-lazy val canGetAccountsHeldAtAnyBank: CanGetAccountsHeldAtAnyBank = CanGetAccountsHeldAtAnyBank()
-```
+**Who it affects:** Banking customers, mobile app users, online banking users
 
-### Rule Name: Performance-Based Response Time Requirement
-**What it does:** Ensures account list retrieval completes within 2 seconds for typical requests  
-**When it applies:** For every account listing request with standard number of accounts  
-**Who it affects:** All users, especially those with time-sensitive applications  
-**Example:** If a user has 50 accounts, the system must return the complete list within 2 seconds. If response time exceeds this, performance optimization is required (caching, indexing, etc.).
+**Example:** A customer logs into their mobile banking app and immediately sees a list of all their checking, savings, and credit card accounts without needing to call customer service or visit a branch.
 
----
+#### Rule 2.2: Multi-Bank Account Aggregation
+**What it does:** Users can retrieve accounts across all banks they have access to in a single request
 
-## 📦 Role 4: Product Manager Perspective
+**When it applies:** When using the all-banks endpoint (/users/{USER_ID}/accounts-held) instead of the bank-specific endpoint
 
-### Rule Name: Core Account Information Standard Response
-**What it does:** Defines the minimum account information returned in list responses  
-**When it applies:** For every account returned in the list  
-**Who it affects:** API consumers and frontend applications  
-**Example:** Each account in the response includes account ID, bank ID, label, number, and account_routings fields. This ensures consistent data structure for all account listings regardless of the specific endpoint used.
+**Who it affects:** Users with accounts at multiple banks within the Open Bank Project network
 
-**Actual Implementation** (JSONFactory3.0.0.scala, lines 867-875):
-```scala
-def createCoreAccountsByCoreAccountsJSON(accountsHeld: List[AccountHeld]): CoreAccountsHeldJsonV300 =
-  CoreAccountsHeldJsonV300(accountsHeld.map(
-    account => AccountHeldJson(
-      account.id,
-      account.label,
-      account.bankId,
-      account.number,
-      account.accountRoutings.map(accountRounting =>
-        AccountRoutingJsonV121(accountRounting.scheme, accountRounting.address))
-    )))
-```
+**Example:** A business owner who has accounts at three different banks can use the all-banks endpoint to see all their accounts (personal checking at Bank A, business account at Bank B, savings at Bank C) in one consolidated view.
 
-### Rule Name: Pagination Support for Large Account Lists
-**What it does:** Handles users with many accounts through pagination mechanism  
-**When it applies:** When a user has more accounts than can be efficiently returned in a single response  
-**Who it affects:** Users with numerous accounts, high-net-worth individuals, business customers  
-**Example:** A business customer with 200 accounts receives paginated results with 50 accounts per page, allowing the system to maintain performance while still providing access to all accounts.
+#### Rule 2.3: Account Type Filtering
+**What it does:** Customers can filter the account list by account type using optional query parameters
+
+**When it applies:** When the account_type_filter parameter is provided in the request
+
+**Who it affects:** Users who want to view specific types of accounts (e.g., only checking accounts, only savings accounts)
+
+**Example:** A user who only wants to see their checking accounts can add "?account_type_filter=checking&account_type_filter_operation=INCLUDE" to the request, and the system will return only checking accounts, excluding savings, loans, and other account types.
 
 ---
 
-## ⚙️ Role 5: Operations Director Perspective
+### Role 3: Risk Management Specialist Perspective
+**Focus:** Rules protecting the bank from fraud and financial risk
 
-### Rule Name: View Permission Check Before Account Inclusion
-**What it does:** Validates user has appropriate view permissions for each account before including it in results  
-**When it applies:** During the account list generation process for each potential account  
-**Who it affects:** System operations, data access layers  
-**Example:** When building the account list, the system queries the ViewNewStyle service to check if the user has any view (owner, public, accountant, etc.) on each account before adding it to the response array.
+#### Rule 3.1: Entitlement-Based Access Control
+**What it does:** Users must have specific entitlements (CanGetAccountsHeldAtOneBank or CanGetAccountsHeldAtAnyBank) to access account listing endpoints
 
-**Actual Implementation** (ViewNewStyle.scala):
-View permission checking methods include:
-- `checkViewAccessAndReturnView(viewId, bankAccountId, user, callContext)` - Validates user has access to specific view
-- `checkOwnerViewAccessAndReturnOwnerView(user, bankAccountId, callContext)` - Validates user has owner view access
+**When it applies:** Before processing any account listing request
 
-### Rule Name: Bank Connector Integration for Account Data
-**What it does:** Requires integration with bank connector to retrieve actual account information  
-**When it applies:** When account data needs to be fetched from the underlying banking system  
-**Who it affects:** External system integration, backend services  
-**Example:** The APIMethods510 classes call the bank connector to fetch account records from the core banking system, ensuring the API returns current data rather than potentially stale cached information.
+**Who it affects:** API consumers, third-party applications, bank staff, customers
 
-**Actual Implementation** (Connector.scala, lines 526-527):
-```scala
-def getAccountsHeld(bankId: BankId, user: User, callContext: Option[CallContext]): 
-  OBPReturnType[Box[List[BankIdAccountId]]]
+**Example:** A third-party financial aggregation app attempting to retrieve a user's accounts must have the CanGetAccountsHeldAtAnyBank entitlement. Without this entitlement, the system rejects the request even if the user has authorized the app.
 
-def getAccountsHeldByUser(user: User, callContext: Option[CallContext]): 
-  OBPReturnType[Box[List[BankIdAccountId]]]
-```
-Called from APIMethods510.scala (lines 822 & 869):
-```scala
-(availableAccounts, callContext) <- NewStyle.function.getAccountsHeld(bankId, u, callContext)
-(availableAccounts, callContext) <- NewStyle.function.getAccountsHeldByUser(u, callContext)
-```
+#### Rule 3.2: Scope-Based Entitlement Enforcement
+**What it does:** Bank-specific endpoint requires CanGetAccountsHeldAtOneBank OR CanGetAccountsHeldAtAnyBank, while all-banks endpoint requires only CanGetAccountsHeldAtAnyBank
+
+**When it applies:** During entitlement verification for each endpoint type
+
+**Who it affects:** Users, applications, and services with different permission levels
+
+**Example:** A customer service representative with CanGetAccountsHeldAtOneBank entitlement can help a customer view accounts at their specific bank branch, but cannot access the all-banks endpoint to see accounts across the entire banking network.
+
+#### Rule 3.3: Response Time Performance Limit
+**What it does:** Account listing requests must complete within 2 seconds for typical user account lists
+
+**When it applies:** During all account listing operations
+
+**Who it affects:** End users, system performance monitoring, infrastructure teams
+
+**Example:** If a user has 15 accounts and the system takes 3 seconds to respond, this triggers a performance alert for the operations team to investigate potential database query optimization or caching improvements.
 
 ---
 
-## 💰 Role 6: Treasury and Payment Specialist Perspective
+### Role 4: Product Manager Perspective
+**Focus:** Rules defining banking products and services
 
-### Rule Name: Account Holder Ownership Determination
-**What it does:** Differentiates between accounts the user "holds" vs accounts they can "access"  
-**When it applies:** When determining which accounts to include in the "held" account list  
-**Who it affects:** Account owners, authorized users, delegates  
-**Example:** A user who is the primary account holder will see their personal checking account in the list. An accountant granted view access to review the account will also see it, but the business logic may categorize these differently based on ownership vs access rights.
+#### Rule 4.1: Account Type Classification
+**What it does:** Accounts are classified by type (checking, savings, loan, credit card, etc.) and can be filtered based on these classifications
 
----
+**When it applies:** When accounts are stored, retrieved, and filtered
 
-## 🔒 Role 7: Security and Access Control Manager Perspective
+**Who it affects:** Product managers, customers viewing accounts, reporting systems
 
-### Rule Name: User Identity Validation Requirement
-**What it does:** Validates that the user ID exists in the system before processing the request  
-**When it applies:** At the beginning of every account listing request  
-**Who it affects:** All API users  
-**Example:** If someone attempts to retrieve accounts for user_id="unknown_user", the system returns an error indicating the user does not exist, preventing information disclosure through enumeration attacks.
+**Example:** The system categorizes accounts so that when a customer wants to transfer money, they can filter to show only "checking" and "savings" accounts as valid source accounts, excluding loan accounts which cannot be used as transfer sources.
 
-### Rule Name: Bank ID Validation When Specified
-**What it does:** Validates that the bank ID is valid and active when provided  
-**When it applies:** When a user requests accounts at a specific bank  
-**Who it affects:** Users querying specific banks  
-**Example:** If a request includes bank_id="INVALID_BANK", the system returns a validation error rather than attempting to query a non-existent bank, preventing potential security issues and improving error handling.
+#### Rule 4.2: Core Account Information Standard
+**What it does:** All account listings must include core account information: account ID, bank ID, label, number, and account_routings
 
-### Rule Name: Audit Trail for Account Access
-**What it does:** Maintains logs of who accessed which account lists and when  
-**When it applies:** For every successful and failed account listing request  
-**Who it affects:** Security teams, auditors, compliance officers  
-**Example:** Each account listing request is logged with timestamp, user ID, requested bank (if any), filters applied, and number of accounts returned, creating an audit trail for security and compliance reviews.
+**When it applies:** When formatting the response for any account listing request
+
+**Who it affects:** API consumers, frontend applications, integration partners
+
+**Example:** When a mobile app displays the account list, it receives standardized data including the account number (for display), account ID (for subsequent API calls), and routing information (for payment setup), ensuring consistent user experience across all channels.
 
 ---
 
-## 🎯 Additional Business Rules Identified
+### Role 5: Operations Director Perspective
+**Focus:** Rules governing internal bank processes and workflows
 
-### Rule Name: Account Type Filter Validation
-**What it does:** Validates that account type filter values match valid account types in the system  
-**When it applies:** When account type filters are provided in the request  
-**Who it affects:** API consumers providing filter parameters  
-**Example:** If a user provides "account_type_filter_operation=INVALID", the system returns a validation error stating the operation must be INCLUDE or EXCLUDE.
+#### Rule 5.1: Pagination Support Requirement
+**What it does:** The system must support pagination mechanisms for users with large numbers of accounts
 
-**Actual Implementation** (AccountsHelper.scala, lines 43-48):
-```scala
-val failMsg = s"""${InvalidFilterParameterFormat}request parameter account_type_filter_operation must be either INCLUDE or EXCLUDE, current it is: ${filtersOperation} """
+**When it applies:** When processing account listing requests for users with many accounts
 
-unboxFullOrFail(tryo {
-  assume(filtersOperation == "INCLUDE" || filtersOperation == "EXCLUDE")
-}, None, failMsg)
-```
+**Who it affects:** Users with numerous accounts, system performance, database load
 
-### Rule Name: Short TTL Caching for Frequent Requests
-**What it does:** Implements short time-to-live caching to improve performance for repeated requests  
-**When it applies:** For account list queries from the same user within a short time window  
-**Who it affects:** High-frequency API users, mobile applications  
-**Example:** When a user's mobile app requests the account list twice within 30 seconds, the second request may be served from cache rather than querying the database again, reducing load while ensuring reasonably fresh data.
+**Example:** A corporate treasurer managing 200 company accounts receives results in pages of 50 accounts each, preventing system overload and ensuring responsive user interface performance.
 
----
+#### Rule 5.2: Bank ID Validation
+**What it does:** When using the bank-specific endpoint, the provided bank ID must be valid and exist in the system
 
-## 📋 Summary of Business Rules Categories
+**When it applies:** During request validation for the bank-specific account listing endpoint
 
-**Access and Permission Rules:** 3 rules  
-**Validation and Verification Rules:** 4 rules  
-**Processing and Workflow Rules:** 2 rules  
-**Financial and Calculation Rules:** 0 rules (not applicable for listing)  
-**Compliance and Audit Rules:** 2 rules  
-**Customer and Account Rules:** 2 rules  
-**Security and Authentication Rules:** 4 rules  
+**Who it affects:** API consumers, application developers, error handling systems
 
-**Total Business Rules Identified:** 17 distinct business rules
+**Example:** If an application sends a request with bank ID "INVALID_BANK_123", the system returns an error message "Invalid bank ID" rather than attempting to retrieve accounts, preventing unnecessary database queries.
 
----
+#### Rule 5.3: User ID Validation
+**What it does:** The user ID in the request must be valid and exist in the system
 
-## 🔍 SME Input Required
+**When it applies:** During request validation for all account listing endpoints
 
-Based on the analysis, the following items need Subject Matter Expert input:
+**Who it affects:** API consumers, authentication systems, error handling
 
-1. **Held vs Accessible Accounts**: Clear business definition needed for what constitutes a "held" account versus an "accessible" account
-2. **Default Account Types**: Complete list of valid account type values and their filtering logic
-3. **Pagination Limits**: Specific threshold for when pagination triggers and page size limits
-4. **Caching Policy**: Exact TTL values for caching and staleness tolerance
-5. **Maximum Accounts Per Request**: If there's a hard limit on accounts returned in multi-account queries
+**Example:** If a request includes a user ID that doesn't exist in the system, the API returns an appropriate error message rather than returning an empty account list, helping developers distinguish between "no accounts" and "invalid user".
+
+#### Rule 5.4: Short TTL Caching Strategy
+**What it does:** Frequently requested account lists should be cached with short time-to-live (TTL) to improve performance
+
+**When it applies:** For repeated account listing requests from the same user within a short time period
+
+**Who it affects:** System performance, user experience, infrastructure costs
+
+**Example:** When a user refreshes their account list screen multiple times within 30 seconds, the system serves the cached response for the first few requests rather than querying the database each time, reducing load and improving response time.
 
 ---
 
-## 📝 Original User Story Reference
+### Role 6: Treasury and Payment Specialist Perspective
+**Focus:** Rules controlling money movement and payment processing
 
-### Actual OBP-API Implementation
+#### Rule 6.1: Account Routing Information Provision
+**What it does:** Account listings must include account routing information (IBAN, account number, routing codes) for payment processing
 
-**Repository:** https://github.com/OpenBankProject/OBP-API.git
+**When it applies:** When formatting account listing responses
 
-**REST Endpoints** (from obp-api/src/main/scala/code/api/v5_1_0/APIMethods510.scala):
-- `GET /users/USER_ID/banks/BANK_ID/accounts-held` - getAccountsHeldByUserAtBank (line 816)
-- `GET /users/USER_ID/accounts-held` - getAccountsHeldByUser (line 863)
+**Who it affects:** Payment processors, users setting up transfers, third-party payment applications
 
-**Entitlements Required** (from obp-api/src/main/scala/code/api/util/ApiRole.scala, lines 68-71):
-- `CanGetAccountsHeldAtOneBank(requiresBankId: Boolean = true)` - line 68
-- `CanGetAccountsHeldAtAnyBank(requiresBankId: Boolean = false)` - line 70
-
-**Implementation Flow:**
-1. `NewStyle.function.getUserByUserId(userId, callContext)` - Retrieve user
-2. `NewStyle.function.getAccountsHeld(bankId, user, callContext)` OR `NewStyle.function.getAccountsHeldByUser(user, callContext)` - Get account IDs
-3. `NewStyle.function.getBankAccountsHeldFuture(availableAccounts, callContext)` - Get full account details
-4. `getFilteredCoreAccounts(availableAccounts, req, callContext)` - Apply account type filters
-5. `JSONFactory300.createCoreAccountsByCoreAccountsJSON(accountHelds)` - Format JSON response
-
-**Account Type Filtering** (from obp-api/src/main/scala/code/api/v2_0_0/AccountsHelper.scala, lines 39-57):
-- Query parameter: `account_type_filter` (comma-separated list)
-- Query parameter: `account_type_filter_operation` (must be "INCLUDE" or "EXCLUDE")
-- Implementation in `AccountsHelper.filterWithAccountType()`
-
-**Response Format** (from obp-api/src/main/scala/code/api/v3_0_0/JSONFactory3.0.0.scala, lines 867-875):
-- Method: `createCoreAccountsByCoreAccountsJSON(accountsHeld: List[AccountHeld])`
-- Returns: `CoreAccountsHeldJsonV300` containing id, label, bank_id, number, account_routings
-
-**Connector Interface** (from obp-api/src/main/scala/code/bankconnectors/Connector.scala, lines 526-527):
-- `def getAccountsHeld(bankId: BankId, user: User, callContext: Option[CallContext])`
-- `def getAccountsHeldByUser(user: User, callContext: Option[CallContext])`
-
-**View Permissions** (from obp-api/src/main/scala/code/api/util/newstyle/ViewNewStyle.scala):
-- Methods for checking view access: `checkViewAccessAndReturnView()`, `checkOwnerViewAccessAndReturnOwnerView()`
-
-### Story Overview
-**As a** banking application user or API consumer  
-**I want to** retrieve a list of all bank accounts I have access to  
-**So that** I can view my accounts and select which one to perform operations on
-
-### Acceptance Criteria (from original user story)
-1. User can retrieve accounts held at a specific bank
-2. User can retrieve accounts held across all banks they have access to
-3. Response includes core account information (account ID, bank ID, account type)
-4. Results can be filtered by account type (e.g., checking, savings)
-5. Only accounts the user has permission to view are returned
-6. System handles pagination for users with many accounts
-7. Response time is under 2 seconds for typical user account lists
-
-### Technical Context (from original user story)
-- **Classes/Services Involved**: 
-  - APIMethods510.getAccountsHeldByUserAtBank - retrieves accounts at specific bank
-  - APIMethods510.getAccountsHeldByUser - retrieves accounts across all banks
-  - ViewNewStyle - manages view permissions
-  - JSONFactory300.createCoreAccountsByCoreAccountsJSON - formats response
-- **Input Data**: User ID, Bank ID (optional), account type filters (query parameters)
-- **Output Data**: JSON array of core account objects with id, bank_id, label, account_type
-- **Processing Type**: Real-time REST API
-
-### Business Rules from Original Code
-1. User must be authenticated to retrieve account lists
-2. Only accounts where user has at least one view permission are returned
-3. Account type filtering is optional and supports multiple types
-4. Results must respect user's entitlements (canGetAccountsHeldAtOneBank or canGetAccountsHeldAtAnyBank)
-
-### Data Validations (from original user story)
-- User ID must be valid and exist in system
-- Bank ID must be valid if specified
-- Account type filter values must match valid account types
-- User must have appropriate entitlements for the requested scope
-
-### Dependencies (from original user story)
-- **Upstream**: User authentication and authorization
-- **Downstream**: Account detail views, transaction retrieval, balance inquiries
-- **External Systems**: Bank connector for retrieving actual account data
+**Example:** When a user wants to set up a direct deposit, the account listing provides the routing number and account number needed by their employer's payroll system to process the payment correctly.
 
 ---
 
-## 🔧 OBP-API Implementation Details
+### Role 7: Security and Access Control Manager Perspective
+**Focus:** Rules protecting the system and controlling access
 
-This section documents the actual Scala implementation from the Open Bank Project API repository for reference during the Go migration.
+#### Rule 7.1: View-Based Access Control
+**What it does:** Account visibility is controlled through view permissions, and only accounts with at least one view permission for the requesting user are returned
 
-### File Structure
+**When it applies:** During the account filtering process after retrieving accounts from the core system
 
-**Core Implementation Files:**
-1. `obp-api/src/main/scala/code/api/v5_1_0/APIMethods510.scala` - REST endpoint definitions (lines 816-880)
-2. `obp-api/src/main/scala/code/api/v3_0_0/JSONFactory3.0.0.scala` - Response formatting (lines 867-875)
-3. `obp-api/src/main/scala/code/api/v2_0_0/AccountsHelper.scala` - Account type filtering (lines 39-71)
-4. `obp-api/src/main/scala/code/api/util/ApiRole.scala` - Entitlement definitions (lines 68-71)
-5. `obp-api/src/main/scala/code/api/util/newstyle/ViewNewStyle.scala` - View permission handling
-6. `obp-api/src/main/scala/code/bankconnectors/Connector.scala` - Bank connector interface (lines 526-527)
-7. `obp-api/src/main/scala/code/api/util/NewStyle.scala` - NewStyle.function utilities
+**Who it affects:** Account owners, delegated users, auditors, compliance officers
 
-### REST Endpoint Specifications
+**Example:** A financial advisor granted "public" view access to a client's investment account can see that account in their listing, but cannot see the client's personal checking account where they have no view permissions.
 
-#### Endpoint 1: Get Accounts Held By User At Bank
-**Path:** `GET /users/USER_ID/banks/BANK_ID/accounts-held`  
-**Method:** `getAccountsHeldByUserAtBank` (APIMethods510.scala, line 816)  
-**Required Entitlements:** `CanGetAccountsHeldAtOneBank` OR `CanGetAccountsHeldAtAnyBank`  
-**Implementation:**
-```scala
-lazy val getAccountsHeldByUserAtBank: OBPEndpoint = {
-  case "users" :: userId :: "banks" :: BankId(bankId) :: "accounts-held" :: Nil JsonGet req => {
-    cc =>
-      implicit val ec = EndpointContext(Some(cc))
-      for {
-        (u, callContext) <- NewStyle.function.getUserByUserId(userId, cc.callContext)
-        (availableAccounts, callContext) <- NewStyle.function.getAccountsHeld(bankId, u, callContext)
-        (accounts, callContext) <- NewStyle.function.getBankAccountsHeldFuture(availableAccounts.toList, callContext)
-        accountHelds <- getFilteredCoreAccounts(availableAccounts, req, callContext).map { it =>
-          val coreAccountIds: List[String] = it._1.map(_.id)
-          accounts.filter(accountHeld => coreAccountIds.contains(accountHeld.id))
-        }
-      } yield {
-        (JSONFactory300.createCoreAccountsByCoreAccountsJSON(accountHelds), HttpCode.`200`(callContext))
-      }
-  }
-}
-```
+#### Rule 7.2: Account Type Filter Operation Validation
+**What it does:** The account_type_filter_operation parameter must be either "INCLUDE" or "EXCLUDE" if specified
 
-#### Endpoint 2: Get Accounts Held By User
-**Path:** `GET /users/USER_ID/accounts-held`  
-**Method:** `getAccountsHeldByUser` (APIMethods510.scala, line 863)  
-**Required Entitlements:** `CanGetAccountsHeldAtAnyBank`  
-**Implementation:**
-```scala
-lazy val getAccountsHeldByUser: OBPEndpoint = {
-  case "users" :: userId :: "accounts-held" :: Nil JsonGet req => {
-    cc =>
-      implicit val ec = EndpointContext(Some(cc))
-      for {
-        (u, callContext) <- NewStyle.function.getUserByUserId(userId, cc.callContext)
-        (availableAccounts, callContext) <- NewStyle.function.getAccountsHeldByUser(u, callContext)
-        (accounts, callContext) <- NewStyle.function.getBankAccountsHeldFuture(availableAccounts, callContext)
-        accountHelds <- getFilteredCoreAccounts(availableAccounts, req, callContext).map { it =>
-          val coreAccountIds: List[String] = it._1.map(_.id)
-          accounts.filter(accountHeld => coreAccountIds.contains(accountHeld.id))
-        }
-      } yield {
-        (JSONFactory300.createCoreAccountsByCoreAccountsJSON(accountHelds), HttpCode.`200`(callContext))
-      }
-  }
-}
-```
+**When it applies:** During request parameter validation when account type filtering is requested
 
-### Entitlement Definitions
+**Who it affects:** API consumers, application developers, validation systems
 
-From ApiRole.scala (lines 68-71):
-```scala
-case class CanGetAccountsHeldAtOneBank(requiresBankId: Boolean = true) extends ApiRole
-lazy val canGetAccountsHeldAtOneBank: CanGetAccountsHeldAtOneBank = CanGetAccountsHeldAtOneBank()
+**Example:** If a developer sends a request with account_type_filter_operation set to "ONLY", the system rejects the request with a validation error explaining that only "INCLUDE" or "EXCLUDE" are valid operations.
 
-case class CanGetAccountsHeldAtAnyBank(requiresBankId: Boolean = false) extends ApiRole
-lazy val canGetAccountsHeldAtAnyBank: CanGetAccountsHeldAtAnyBank = CanGetAccountsHeldAtAnyBank()
-```
+#### Rule 7.3: Default Filter Behavior
+**What it does:** When account type filter is not specified or the filter list is empty, all account types are returned
 
-**Key Difference:**
-- `CanGetAccountsHeldAtOneBank` requires `bankId` parameter (requiresBankId = true)
-- `CanGetAccountsHeldAtAnyBank` does not require `bankId` parameter (requiresBankId = false)
+**When it applies:** When processing account listing requests without type filters
 
-### Account Type Filtering Implementation
+**Who it affects:** Users, applications using default behavior
 
-From AccountsHelper.scala (lines 39-71):
+**Example:** A user accessing their account list without specifying any filters sees all their accounts (checking, savings, credit cards, loans) in the response, providing a complete overview of their banking relationship.
 
-**Query Parameters:**
-- `account_type_filter` - Comma-separated list of account types (e.g., "CURRENT,SAVINGS")
-- `account_type_filter_operation` - Must be "INCLUDE" or "EXCLUDE"
+#### Rule 7.4: Filter Operation Default
+**What it does:** If account_type_filter is provided but account_type_filter_operation is not specified, the system defaults to "INCLUDE" operation
 
-**Filter Logic:**
-```scala
-private def filterWithAccountType(coreAccounts: List[CoreAccount], req: Req): List[CoreAccount] = {
-  val filters = req.params.get("account_type_filter").map(_.flatMap(_.split(","))).getOrElse(Nil)
-  val filtersOperation = req.params.get("account_type_filter_operation").flatMap(_.headOption).getOrElse("INCLUDE")
-  
-  coreAccounts.filter({ account =>
-    (filters, filtersOperation) match {
-      case (f, "INCLUDE") if f.nonEmpty => filters.contains(account.accountType)
-      case (f, "EXCLUDE") if f.nonEmpty => !filters.contains(account.accountType)
-      case _ => true
-    }
-  })
-}
-```
+**When it applies:** During filter parameter processing when operation is omitted
 
-**Validation:**
-- Operation parameter must be exactly "INCLUDE" or "EXCLUDE"
-- Invalid operation triggers error: `InvalidFilterParameterFormat`
-- If no filters specified, all accounts pass through
+**Who it affects:** API consumers, backward compatibility
 
-### Response JSON Structure
+**Example:** A legacy application that only sends account_type_filter=checking without specifying the operation will have the system automatically apply "INCLUDE" logic, showing only checking accounts.
 
-From JSONFactory3.0.0.scala (lines 867-875):
+#### Rule 7.5: Multiple Account Type Filtering
+**What it does:** Account type filter supports multiple account types via comma-separated values
 
-**Method Signature:**
-```scala
-def createCoreAccountsByCoreAccountsJSON(accountsHeld: List[AccountHeld]): CoreAccountsHeldJsonV300
-```
+**When it applies:** When users want to filter for multiple specific account types
 
-**Response Structure:**
-```json
-{
-  "accounts": [
-    {
-      "id": "string",
-      "label": "string",
-      "bank_id": "string",
-      "number": "string",
-      "account_routings": [
-        {
-          "scheme": "string",
-          "address": "string"
-        }
-      ]
-    }
-  ]
-}
-```
+**Who it affects:** Users, applications requiring flexible filtering
 
-**Implementation:**
-```scala
-CoreAccountsHeldJsonV300(accountsHeld.map(
-  account => AccountHeldJson(
-    account.id,
-    account.label,
-    account.bankId,
-    account.number,
-    account.accountRoutings.map(accountRounting =>
-      AccountRoutingJsonV121(accountRounting.scheme, accountRounting.address))
-  )))
-```
-
-### Connector Interface
-
-From Connector.scala (lines 526-527):
-
-**Bank-Specific Account Retrieval:**
-```scala
-def getAccountsHeld(bankId: BankId, user: User, callContext: Option[CallContext]): 
-  OBPReturnType[Box[List[BankIdAccountId]]]
-```
-
-**All-Banks Account Retrieval:**
-```scala
-def getAccountsHeldByUser(user: User, callContext: Option[CallContext]): 
-  OBPReturnType[Box[List[BankIdAccountId]]]
-```
-
-**Return Type:** `OBPReturnType[Box[List[BankIdAccountId]]]`
-- Returns list of BankIdAccountId tuples
-- Each tuple contains: BankId and AccountId
-- Wrapped in Box (Option-like container) for error handling
-- Includes CallContext for request tracing
-
-### View Permission Handling
-
-From ViewNewStyle.scala:
-
-**Key Methods:**
-- `checkViewAccessAndReturnView(viewId, bankAccountId, user, callContext)` - Validates user has access to specific view
-- `checkOwnerViewAccessAndReturnOwnerView(user, bankAccountId, callContext)` - Validates user has owner view access
-- `grantAccessToCustomView(view, user, callContext)` - Grants view access to user
-- `revokeAccessToCustomView(view, user, callContext)` - Revokes view access from user
-
-**Permission Check Pattern:**
-```scala
-Future {
-  APIUtil.checkViewAccessAndReturnView(viewId, bankAccountId, user, callContext)
-} map {
-  unboxFullOrFail(_, callContext, s"$UserNoPermissionAccessView Current ViewId is ${viewId.value}")
-}
-```
-
-### Error Handling
-
-**Common Error Messages:**
-- `$UserNotLoggedIn` - User authentication required
-- `$BankNotFound` - Specified bank ID does not exist
-- `UserNotFoundByUserId` - User ID does not correspond to existing user
-- `UnknownError` - Generic error fallback
-- `InvalidFilterParameterFormat` - account_type_filter_operation must be INCLUDE or EXCLUDE
-- `UserHasMissingRoles` - User lacks required entitlements
-
-### NewStyle.function Utilities
-
-**getUserByUserId:**
-```scala
-NewStyle.function.getUserByUserId(userId: String, callContext: Option[CallContext]): 
-  Future[(User, Option[CallContext])]
-```
-Retrieves user by ID, validates user exists
-
-**getAccountsHeld:**
-```scala
-NewStyle.function.getAccountsHeld(bankId: BankId, user: User, callContext: Option[CallContext]): 
-  Future[(List[BankIdAccountId], Option[CallContext])]
-```
-Gets list of account IDs held by user at specific bank
-
-**getAccountsHeldByUser:**
-```scala
-NewStyle.function.getAccountsHeldByUser(user: User, callContext: Option[CallContext]): 
-  Future[(List[BankIdAccountId], Option[CallContext])]
-```
-Gets list of account IDs held by user across all banks
-
-**getBankAccountsHeldFuture:**
-```scala
-NewStyle.function.getBankAccountsHeldFuture(bankIdAccountIds: List[BankIdAccountId], callContext: Option[CallContext]): 
-  Future[(List[AccountHeld], Option[CallContext])]
-```
-Fetches full account details for list of account IDs
-
-**getCoreBankAccountsFuture:**
-```scala
-NewStyle.function.getCoreBankAccountsFuture(bankIdAccountIds: List[BankIdAccountId], callContext: Option[CallContext]): 
-  Future[(List[CoreAccount], Option[CallContext])]
-```
-Fetches core account information for filtering
+**Example:** A user wanting to see only their deposit accounts can specify "account_type_filter=checking,savings&account_type_filter_operation=INCLUDE" to retrieve both checking and savings accounts while excluding loans and credit cards.
 
 ---
 
-## 🚀 Migration Considerations for Go Application
+## Summary of Business Rules by Category
 
-When migrating this functionality from Scala to Go, ensure:
+### Access and Permission Rules
+- Rule 1.1: User Authentication Requirement
+- Rule 1.2: View Permission Verification
+- Rule 3.1: Entitlement-Based Access Control
+- Rule 3.2: Scope-Based Entitlement Enforcement
+- Rule 7.1: View-Based Access Control
 
-1. **Exact Endpoint Compatibility**: Maintain the same REST API endpoints and behavior
-   - `GET /users/USER_ID/banks/BANK_ID/accounts-held`
-   - `GET /users/USER_ID/accounts-held`
-2. **Authentication & Authorization**: Implement the same authentication flow and entitlement checks
-   - CanGetAccountsHeldAtOneBank and CanGetAccountsHeldAtAnyBank entitlements
-3. **View Permission Logic**: Replicate the ViewNewStyle permission checking mechanism
-4. **Response Format**: Match the JSON structure exactly (CoreAccountsHeldJsonV300)
-5. **Performance Requirements**: Meet the 2-second response time requirement
-6. **Account Type Filtering**: Implement account_type_filter and account_type_filter_operation query parameters
-7. **Error Handling**: Match error codes and messages for validation failures
-8. **Bank Connector Integration**: Maintain compatibility with existing bank connector interface
-9. **Caching Strategy**: Implement similar caching if present in Scala version
-10. **Audit Logging**: Preserve audit trail functionality
+### Validation and Verification Rules
+- Rule 5.2: Bank ID Validation
+- Rule 5.3: User ID Validation
+- Rule 7.2: Account Type Filter Operation Validation
+
+### Processing and Workflow Rules
+- Rule 2.1: Self-Service Account Access
+- Rule 2.2: Multi-Bank Account Aggregation
+- Rule 5.1: Pagination Support Requirement
+- Rule 5.4: Short TTL Caching Strategy
+
+### Financial and Calculation Rules
+- Rule 6.1: Account Routing Information Provision
+
+### Compliance and Audit Rules
+- Rule 1.3: Audit Trail Maintenance
+
+### Customer and Account Rules
+- Rule 2.3: Account Type Filtering
+- Rule 4.1: Account Type Classification
+- Rule 4.2: Core Account Information Standard
+
+### Transaction and Payment Rules
+- (No specific transaction rules for account listing, but Rule 6.1 supports payment setup)
+
+### Security and Authentication Rules
+- Rule 7.3: Default Filter Behavior
+- Rule 7.4: Filter Operation Default
+- Rule 7.5: Multiple Account Type Filtering
+
+### Performance and Quality Rules
+- Rule 3.3: Response Time Performance Limit
 
 ---
 
-## 📚 Related Documentation
+## Implementation Considerations
 
-- Source User Story: `Playbooks/user_stories/obp_api_account_management_user_stories.md`
-- Business Rules Extraction Prompt: `Phase-01-Playbooks/business_rules_extraction_prompt.md` (obp-api repo)
-- OBP-API Repository: https://github.com/OpenBankProject/OBP-API.git
-- Actual Scala Implementation Files:
-  - APIMethods510.scala (lines 816-880)
-  - ApiRole.scala (lines 68-71)
-  - AccountsHelper.scala (lines 39-71)
-  - JSONFactory3.0.0.scala (lines 867-875)
-  - ViewNewStyle.scala
-  - Connector.scala (lines 526-527)
+### Critical Business Rules for Migration
+When migrating the Account Listing functionality to Go, the following business rules are absolutely critical and must be preserved:
+
+1. **Authentication and Authorization** (Rules 1.1, 3.1, 3.2, 7.1): The security model must be replicated exactly to prevent unauthorized access
+2. **View Permission Filtering** (Rules 1.2, 7.1): Only accounts with proper view permissions should be returned
+3. **Validation Rules** (Rules 5.2, 5.3, 7.2): Input validation must match the original behavior to maintain API contract
+4. **Filter Logic** (Rules 2.3, 7.3, 7.4, 7.5): Account type filtering must work identically to ensure backward compatibility
+5. **Response Format** (Rule 4.2): The JSON response structure must match exactly for API consumers
+
+### Testing Requirements
+Each business rule should have corresponding test cases in the Go application:
+- Test authenticated vs unauthenticated requests (Rule 1.1)
+- Test view permission filtering with various permission combinations (Rule 1.2, 7.1)
+- Test entitlement validation for both endpoints (Rule 3.1, 3.2)
+- Test account type filtering with INCLUDE/EXCLUDE operations (Rules 2.3, 7.2, 7.5)
+- Test default behavior when filters are omitted (Rules 7.3, 7.4)
+- Test invalid bank ID and user ID handling (Rules 5.2, 5.3)
+- Test response time under load (Rule 3.3)
+- Test pagination with large account sets (Rule 5.1)
+
+### Performance Considerations
+- Implement caching strategy as per Rule 5.4
+- Ensure response time meets the 2-second requirement (Rule 3.3)
+- Optimize database queries for view permission checks (Rule 1.2)
+- Implement efficient pagination (Rule 5.1)
+
+### Audit and Compliance
+- Implement comprehensive audit logging (Rule 1.3)
+- Ensure all access attempts are recorded
+- Maintain audit trail for regulatory compliance
 
 ---
 
-*This analysis was generated as part of the Scala to Go migration project to ensure all business rules are properly captured and implemented in the new Go-based application. All code references are from the actual Open Bank Project API implementation.*
+## Endpoint-Specific Business Rules
+
+### GET /obp/v5.1.0/users/{USER_ID}/banks/{BANK_ID}/accounts-held
+
+**Required Entitlements:**
+- CanGetAccountsHeldAtOneBank OR CanGetAccountsHeldAtAnyBank
+
+**Validation Rules:**
+- User ID must be valid (Rule 5.3)
+- Bank ID must be valid (Rule 5.2)
+- User must be authenticated (Rule 1.1)
+- User must have required entitlement (Rule 3.1, 3.2)
+
+**Processing Rules:**
+- Filter by view permissions (Rule 1.2, 7.1)
+- Apply account type filter if specified (Rule 2.3)
+- Include core account information (Rule 4.2)
+- Include account routing information (Rule 6.1)
+- Support pagination (Rule 5.1)
+- Complete within 2 seconds (Rule 3.3)
+- Log access attempt (Rule 1.3)
+
+### GET /obp/v5.1.0/users/{USER_ID}/accounts-held
+
+**Required Entitlements:**
+- CanGetAccountsHeldAtAnyBank (only)
+
+**Validation Rules:**
+- User ID must be valid (Rule 5.3)
+- User must be authenticated (Rule 1.1)
+- User must have CanGetAccountsHeldAtAnyBank entitlement (Rule 3.1, 3.2)
+
+**Processing Rules:**
+- Retrieve accounts across all banks (Rule 2.2)
+- Filter by view permissions (Rule 1.2, 7.1)
+- Apply account type filter if specified (Rule 2.3)
+- Include core account information (Rule 4.2)
+- Include account routing information (Rule 6.1)
+- Support pagination (Rule 5.1)
+- Complete within 2 seconds (Rule 3.3)
+- Log access attempt (Rule 1.3)
+
+---
+
+## Query Parameter Business Rules
+
+### account_type_filter
+**Type:** String (comma-separated values)  
+**Optional:** Yes  
+**Default:** Empty (all types included)
+
+**Business Rules:**
+- Supports multiple account types via comma separation (Rule 7.5)
+- Empty or omitted means no filtering (Rule 7.3)
+- Values must match valid account types (Rule 4.1)
+
+### account_type_filter_operation
+**Type:** String  
+**Optional:** Yes  
+**Valid Values:** "INCLUDE", "EXCLUDE"  
+**Default:** "INCLUDE"
+
+**Business Rules:**
+- Must be "INCLUDE" or "EXCLUDE" if specified (Rule 7.2)
+- Defaults to "INCLUDE" if omitted (Rule 7.4)
+- Controls whether filter list is inclusion or exclusion (Rule 2.3)
+
+---
+
+## Error Handling Business Rules
+
+### Invalid User ID
+**Response:** Error message indicating invalid user ID  
+**HTTP Status:** 400 Bad Request or 404 Not Found  
+**Business Rule:** Rule 5.3
+
+### Invalid Bank ID
+**Response:** Error message indicating invalid bank ID  
+**HTTP Status:** 400 Bad Request or 404 Not Found  
+**Business Rule:** Rule 5.2
+
+### Missing Authentication
+**Response:** Authentication required error  
+**HTTP Status:** 401 Unauthorized  
+**Business Rule:** Rule 1.1
+
+### Insufficient Entitlements
+**Response:** Permission denied error  
+**HTTP Status:** 403 Forbidden  
+**Business Rule:** Rule 3.1, 3.2
+
+### Invalid Filter Operation
+**Response:** Validation error explaining valid operations  
+**HTTP Status:** 400 Bad Request  
+**Business Rule:** Rule 7.2
+
+---
+
+## Data Privacy and Security Rules
+
+### Personal Information Protection
+- Only return accounts where user has view permissions (Rule 1.2, 7.1)
+- Respect view-based access control for data visibility
+- Log all access for audit purposes (Rule 1.3)
+
+### Multi-Tenancy Rules
+- Bank-specific endpoint only returns accounts from specified bank
+- All-banks endpoint returns accounts across all accessible banks (Rule 2.2)
+- View permissions are bank-specific and must be checked per bank
+
+---
+
+## Conclusion
+
+This business rules extraction identifies 21 distinct business rules governing the Account Listing functionality across 7 different organizational perspectives. These rules cover authentication, authorization, validation, filtering, performance, compliance, and data formatting requirements. When migrating this functionality to Go, all these rules must be preserved to ensure the new implementation maintains functional equivalence with the Scala application and can be validated using the existing test cases.
