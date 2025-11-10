@@ -1,73 +1,75 @@
-# User Stories for OBP-API Account Management
+# User Stories for OBP API - Account Management
 
 ## Part 1: Capability Inventory
 
 ### Account Management
 1. **Account Listing**
-   - Classes/Services: APIMethods510.getAccountsHeldByUserAtBank, APIMethods510.getAccountsHeldByUser, various APIMethods versions
+   - Classes/Services: APIMethods510.getAccountsHeldByUserAtBank, APIMethods510.getAccountsHeldByUser
    - Type: REST API
-   - Purpose: Enable users to retrieve all bank accounts they have access to
-   - Frequency: Real-time, on-demand
+   - Purpose: Retrieve all accounts accessible to a user at one or multiple banks for account selection and overview
+   - Frequency: Real-time, High volume
 
 2. **Account Detail Retrieval**
-   - Classes/Services: APIMethods510.getCoreAccountByIdThroughView, multiple API versions
+   - Classes/Services: APIMethods510.getCoreAccountByIdThroughView, APIMethods400.getCoreAccountById, APIMethods400.getPrivateAccountByIdFull
    - Type: REST API
-   - Purpose: Provide comprehensive account information including balance, limits, and attributes
-   - Frequency: Real-time, on-demand
+   - Purpose: View comprehensive account information including balances, limits, and account details
+   - Frequency: Real-time, High volume
 
 3. **Account Creation**
-   - Classes/Services: APIMethods400.addAccount, createAccount endpoints across versions
+   - Classes/Services: APIMethods400.addAccount, APIMethods200.createAccount, APIMethods310.createAccount, APIMethods500.createAccount
    - Type: REST API
-   - Purpose: Create new bank accounts with specified attributes and configurations
-   - Frequency: On-demand
+   - Purpose: Create new bank accounts with specified parameters and ownership
+   - Frequency: On-demand, Medium volume
 
 4. **Account Update**
-   - Classes/Services: APIMethods400.updateAccountLabel, account update endpoints
+   - Classes/Services: APIMethods400.updateAccountLabel, APIMethods121.updateAccountLabel, APIMethods310.updateAccount
    - Type: REST API
-   - Purpose: Modify account properties such as labels, descriptions, and settings
-   - Frequency: On-demand
+   - Purpose: Modify account attributes such as labels and descriptions
+   - Frequency: On-demand, Medium volume
 
 5. **Balance Inquiry**
-   - Classes/Services: APIMethods510.getBankAccountBalances, BalanceNewStyle
+   - Classes/Services: APIMethods510.getBankAccountBalances, APIMethods510.getBankAccountBalanceById, APIMethods510.getAllBankAccountBalances
    - Type: REST API
    - Purpose: Check current account balance and available funds
-   - Frequency: Real-time, high volume
+   - Frequency: Real-time, High volume
 
 6. **Multi-Account Balance Check**
-   - Classes/Services: APIMethods510.getBankAccountsBalances, APIMethods510.getBankAccountsBalancesThroughView
+   - Classes/Services: APIMethods510.getBankAccountsBalances, APIMethods510.getBankAccountsBalancesThroughView, APIMethods400.getBankAccountsBalancesForCurrentUser
    - Type: REST API
-   - Purpose: Retrieve balances for multiple accounts in a single request
-   - Frequency: Real-time, medium volume
+   - Purpose: Retrieve balances for multiple accounts in single request for portfolio overview
+   - Frequency: Real-time, Medium volume
 
 7. **Account Access Management**
-   - Classes/Services: APIMethods510.grantUserAccessToViewById, APIMethods510.revokeUserAccessToViewById, ViewNewStyle
+   - Classes/Services: APIMethods510.createUserWithAccountAccessById, APIMethods510.grantUserAccessToViewById, APIMethods510.revokeUserAccessToViewById, APIMethods510.getAccountAccessByUserId
    - Type: REST API
-   - Purpose: Grant or revoke user permissions to access specific account views
-   - Frequency: On-demand
+   - Purpose: Grant and revoke user access to specific account views for permission management
+   - Frequency: On-demand, Medium volume
 
 8. **Account Search by Routing**
    - Classes/Services: APIMethods400.getAccountByAccountRouting, APIMethods400.getAccountsByAccountRoutingRegex
    - Type: REST API
-   - Purpose: Locate accounts using routing numbers (ABA, IBAN, etc.)
-   - Frequency: Real-time, low-medium volume
+   - Purpose: Locate accounts using routing numbers or IBAN for payment processing
+   - Frequency: Real-time, Medium volume
 
 9. **Settlement Account Management**
    - Classes/Services: APIMethods400.createSettlementAccount, APIMethods400.getSettlementAccounts
    - Type: REST API
-   - Purpose: Manage special settlement accounts used for transaction processing
-   - Frequency: On-demand, administrative
+   - Purpose: Manage special settlement accounts for payment clearing operations
+   - Frequency: On-demand, Low volume
 
 10. **Account Attribute Management**
-    - Classes/Services: AccountAttributeX, APIMethods600.getAccountAttributesByAccount
-    - Type: REST API
-    - Purpose: Add, update, and remove custom attributes on accounts
-    - Frequency: On-demand
+   - Classes/Services: APIMethods400.createOrUpdateAccountAttributeDefinition, APIMethods400.deleteAccountAttributeDefinition, APIMethods400.getAccountAttributeDefinition, APIMethods310.createAccountAttribute, APIMethods310.updateAccountAttribute
+   - Type: REST API
+   - Purpose: Add, update, and remove custom attributes on accounts for flexible metadata management
+   - Frequency: On-demand, Low volume
 
 ---
 
 ## Part 2: Detailed User Stories
 
 ### Priority: High
+
+---
 
 ## User Story 1: Account Listing
 
@@ -76,35 +78,59 @@
 **I want to** retrieve a list of all bank accounts I have access to  
 **So that** I can view my accounts and select which one to perform operations on
 
+### API Endpoints
+1. **GET /obp/v5.1.0/users/{USER_ID}/banks/{BANK_ID}/accounts-held**
+   - Method: `getAccountsHeldByUserAtBank`
+   - Purpose: Retrieve accounts held by user at a specific bank
+   - Entitlements: CanGetAccountsHeldAtOneBank OR CanGetAccountsHeldAtAnyBank
+
+2. **GET /obp/v5.1.0/users/{USER_ID}/accounts-held**
+   - Method: `getAccountsHeldByUser`
+   - Purpose: Retrieve accounts held by user across all banks
+   - Entitlements: CanGetAccountsHeldAtAnyBank
+
 ### Acceptance Criteria
-1. User can retrieve accounts held at a specific bank
+1. User can retrieve accounts held at a specific bank by providing bank ID
 2. User can retrieve accounts held across all banks they have access to
-3. Response includes core account information (account ID, bank ID, account type)
-4. Results can be filtered by account type (e.g., checking, savings)
+3. Response includes core account information (account ID, bank ID, label, number, account_routings)
+4. Results can be filtered by account type using query parameters (account_type_filter, account_type_filter_operation)
 5. Only accounts the user has permission to view are returned
 6. System handles pagination for users with many accounts
 7. Response time is under 2 seconds for typical user account lists
+8. Invalid user ID returns appropriate error message
+9. Invalid bank ID returns appropriate error message
+10. Account type filter validation ensures operation is INCLUDE or EXCLUDE
 
 ### Technical Context
 - **Classes/Services Involved**: 
   - APIMethods510.getAccountsHeldByUserAtBank - retrieves accounts at specific bank
   - APIMethods510.getAccountsHeldByUser - retrieves accounts across all banks
+  - AccountsHelper.filterWithAccountType - applies account type filtering
   - ViewNewStyle - manages view permissions
   - JSONFactory300.createCoreAccountsByCoreAccountsJSON - formats response
-- **Input Data**: User ID, Bank ID (optional), account type filters (query parameters)
-- **Output Data**: JSON array of core account objects with id, bank_id, label, account_type
+  - Connector.getAccountsHeld - retrieves account data from core banking system
+  - Connector.getAccountsHeldByUser - retrieves account data across banks
+- **Input Data**: User ID, Bank ID (optional), account type filters (query parameters: account_type_filter, account_type_filter_operation)
+- **Output Data**: JSON array of core account objects with id, bank_id, label, number, account_routings
 - **Processing Type**: Real-time REST API
 
 ### Business Rules (from code)
 1. User must be authenticated to retrieve account lists
 2. Only accounts where user has at least one view permission are returned
-3. Account type filtering is optional and supports multiple types
-4. Results must respect user's entitlements (canGetAccountsHeldAtOneBank or canGetAccountsHeldAtAnyBank)
+3. Account type filtering is optional and supports multiple types via comma-separated values
+4. Account type filter operation must be either INCLUDE or EXCLUDE
+5. Results must respect user's entitlements (canGetAccountsHeldAtOneBank or canGetAccountsHeldAtAnyBank)
+6. Bank-specific endpoint requires bank ID parameter
+7. All-banks endpoint does not require bank ID parameter
+8. View permission check is performed before including account in results
+9. Account type filter defaults to INCLUDE if not specified
+10. Empty filter list returns all accounts regardless of type
 
-### Data Validations (if applicable)
+### Data Validations
 - User ID must be valid and exist in system
 - Bank ID must be valid if specified
 - Account type filter values must match valid account types
+- Account type filter operation must be "INCLUDE" or "EXCLUDE"
 - User must have appropriate entitlements for the requested scope
 
 ### Dependencies
@@ -113,547 +139,912 @@
 - **External Systems**: Bank connector for retrieving actual account data
 
 ### Notes for Implementation
-- Performance optimization needed for users with large numbers of accounts
-- Consider caching account lists with short TTL for frequent requests
-- Needs SME Input: Business rules for determining "held" vs "accessible" accounts
-- Needs SME Input: Default account type values and filtering logic
+- Short TTL caching should be implemented for frequent requests to improve performance
+- Pagination mechanism needed for users with large numbers of accounts
+- Account type filter supports both inclusion and exclusion logic
+- Response format must match CoreAccountsHeldJsonV300 structure exactly
+- Audit trail should be maintained for all account access requests
 
 ---
 
 ## User Story 2: Account Detail Retrieval
 
 ### Story Overview
-**As a** banking application user or API consumer  
-**I want to** view comprehensive details about a specific account  
-**So that** I can see balance, limits, attributes, and account configuration
+**As a** banking application user or account holder  
+**I want to** view comprehensive information about a specific account  
+**So that** I can see account details, balances, limits, and other relevant information
+
+### API Endpoints
+1. **GET /obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/views/{VIEW_ID}**
+   - Method: `getCoreAccountByIdThroughView`
+   - Purpose: Get core account details through a specific view
+   - Entitlements: View-specific permissions
+
+2. **GET /obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}**
+   - Method: `getCoreAccountById`
+   - Purpose: Get core account information by ID
+   - Entitlements: Account access permissions
+
+3. **GET /obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/account**
+   - Method: `getPrivateAccountByIdFull`
+   - Purpose: Get full private account details including sensitive information
+   - Entitlements: Owner or specific view permissions
+
+4. **GET /obp/v3.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/{VIEW_ID}/account**
+   - Method: `getPrivateAccountById`
+   - Purpose: Get private account details through view (v3.0.0)
+   - Entitlements: View-specific permissions
+
+5. **GET /obp/v3.0.0/my/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/account**
+   - Method: `getPublicAccountById`
+   - Purpose: Get public account information
+   - Entitlements: Public view access
 
 ### Acceptance Criteria
-1. User can retrieve full account details by providing bank ID and account ID
-2. Response includes balance information (current balance, available balance)
-3. Response includes account metadata (label, account type, currency)
-4. Response includes account limits (credit limit, debit limit)
-5. Response includes custom attributes if any are defined
-6. User must have appropriate view permission to see account details
-7. System returns appropriate error if account does not exist or user lacks access
+1. User can retrieve account details by providing bank ID, account ID, and view ID
+2. Response includes comprehensive account information based on view permissions
+3. Account balance is included in the response
+4. Account limits and restrictions are displayed
+5. Account routing information (IBAN, account number) is provided
+6. Account type and currency are included
+7. Account label and description are returned
+8. Only information permitted by the view is returned
+9. Invalid account ID returns appropriate error
+10. User without view permission receives authorization error
+11. Response time is under 2 seconds
 
 ### Technical Context
 - **Classes/Services Involved**:
-  - APIMethods510.getCoreAccountByIdThroughView - retrieves account with view permission check
-  - APIMethods400.getPrivateAccountByIdFull - retrieves private account details
-  - NewStyle.function.getBankAccount - fetches account from bank connector
-  - AccountAttributeX - retrieves custom attributes
-- **Input Data**: Bank ID, Account ID, View ID
-- **Output Data**: Complete account JSON with balance, limits, attributes, account holder information
+  - APIMethods510.getCoreAccountByIdThroughView - retrieves account through view
+  - APIMethods400.getCoreAccountById - retrieves core account data
+  - APIMethods400.getPrivateAccountByIdFull - retrieves full account details
+  - ViewNewStyle.checkViewAccessAndReturnView - validates view permissions
+  - BankAccount - domain model for account data
+  - JSONFactory - formats account response
+- **Input Data**: Bank ID, Account ID, View ID, user authentication context
+- **Output Data**: JSON object with account details (id, bank_id, label, number, balance, currency, account_type, account_routings, limits)
 - **Processing Type**: Real-time REST API
 
 ### Business Rules (from code)
-1. User must have access to at least one view on the account
-2. View permissions control which account fields are visible
-3. Balance visibility depends on view permissions (CAN_SEE_AVAILABLE_BALANCE)
-4. Private information requires elevated view permissions
-5. Account attributes are returned only if user has permission to see them
+1. User must have view permission to access account details
+2. Different views expose different levels of account information
+3. Owner view provides full account access
+4. Public view provides limited account information
+5. Account must exist and be active
+6. Bank ID and Account ID must match
+7. View permissions are checked before returning data
+8. Sensitive information is filtered based on view permissions
+9. Account balance is current as of request time
+10. Account routing information follows banking standards
 
-### Data Validations (if applicable)
-- Bank ID and Account ID must be valid
-- View ID must be valid and exist for the account
-- User must have access to the specified view
-- Account must exist and be active
+### Data Validations
+- Bank ID must be valid and exist
+- Account ID must be valid and exist
+- View ID must be valid for the account
+- User must have permission for the specified view
+- Account must belong to the specified bank
 
 ### Dependencies
-- **Upstream**: User authentication, view permission assignment
-- **Downstream**: Transaction retrieval, payment initiation, account updates
-- **External Systems**: Bank connector for account data, attribute storage
+- **Upstream**: User authentication, view permission management
+- **Downstream**: Transaction viewing, balance inquiries, account operations
+- **External Systems**: Core banking system via connector
 
 ### Notes for Implementation
-- View-based field filtering adds complexity to response generation
-- Consider separate endpoints for different detail levels to optimize performance
-- Needs SME Input: Definition of "full" account details vs. summary
-- Needs SME Input: Business rules for account holder information visibility
+- Different API versions provide different levels of detail
+- View-based access control is critical for data privacy
+- Response format varies by API version
+- Caching strategy should consider data freshness requirements
+- Audit logging required for account access
 
 ---
 
 ## User Story 3: Account Creation
 
 ### Story Overview
-**As a** bank administrator or authorized system  
-**I want to** create new bank accounts with specified attributes  
-**So that** new customers can be onboarded and begin using banking services
+**As a** bank administrator or authorized user  
+**I want to** create new bank accounts with specified parameters  
+**So that** customers can have accounts to perform banking operations
+
+### API Endpoints
+1. **POST /obp/v4.0.0/banks/{BANK_ID}/accounts**
+   - Method: `addAccount`
+   - Purpose: Add new account with full parameters
+   - Entitlements: CanCreateAccount
+
+2. **PUT /obp/v2.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}**
+   - Method: `createAccount`
+   - Purpose: Create account (v2.0.0)
+   - Entitlements: CanCreateAccount
+
+3. **POST /obp/v2.2.0/banks/{BANK_ID}/accounts**
+   - Method: `createAccount`
+   - Purpose: Create account (v2.2.0)
+   - Entitlements: CanCreateAccount
+
+4. **POST /obp/v3.1.0/banks/{BANK_ID}/accounts**
+   - Method: `createAccount`
+   - Purpose: Create account (v3.1.0)
+   - Entitlements: CanCreateAccount
+
+5. **POST /obp/v5.0.0/banks/{BANK_ID}/accounts**
+   - Method: `createAccount`
+   - Purpose: Create account (v5.0.0)
+   - Entitlements: CanCreateAccount
 
 ### Acceptance Criteria
-1. Authorized user can create account by providing bank ID and account details
-2. Account creation requires account type, currency, initial balance, and account holder
-3. System generates unique account ID for the new account
-4. System creates default views for the account (owner, public, accountant, auditor)
-5. Account holder (customer) is linked to the account
-6. Custom attributes can be specified during account creation
-7. System validates all required fields before creating account
-8. Transaction record is created for initial balance deposit
+1. Administrator can create new account by providing required parameters
+2. Account is created with unique account ID
+3. Account number is generated or validated
+4. Account type is specified (checking, savings, etc.)
+5. Account currency is set
+6. Initial balance can be specified
+7. Account owner/customer is linked
+8. Account label and description can be set
+9. Account routing information is configured
+10. Account is created in active status
+11. Appropriate entitlements are checked before creation
+12. Validation errors return clear error messages
+13. Duplicate account numbers are prevented
 
 ### Technical Context
 - **Classes/Services Involved**:
-  - APIMethods400.addAccount - creates new account
-  - Various API versions have createAccount endpoints
-  - BankAccountCreation - data access layer for account creation
-  - NewStyle.function.createBankAccount - bank connector call
-  - Views - creates default view set
-- **Input Data**: Bank ID, account type, currency, initial balance, user ID (account holder), label, branch ID, account routing
-- **Output Data**: Complete account JSON with generated account ID and created views
+  - APIMethods400.addAccount - creates account with full parameters
+  - APIMethods200.createAccount - creates account (v2.0.0)
+  - APIMethods220.createAccount - creates account (v2.2.0)
+  - APIMethods310.createAccount - creates account (v3.1.0)
+  - APIMethods500.createAccount - creates account (v5.0.0)
+  - Connector.createBankAccount - creates account in core banking system
+  - BankAccount - account domain model
+  - Customer - customer domain model for linking
+- **Input Data**: Bank ID, account parameters (user_id, label, type, balance, currency, account_routing, branch_id)
+- **Output Data**: JSON object with created account details including generated account ID
 - **Processing Type**: Real-time REST API
 
 ### Business Rules (from code)
-1. User must have canCreateAccount entitlement
-2. Account ID must be unique within the bank
-3. Initial balance must be non-negative for most account types
-4. Account holder must be a valid customer at the bank
-5. Currency must be supported by the bank
-6. Default view set is automatically created (owner view mandatory)
-7. Account status is set to active by default
+1. User must have CanCreateAccount entitlement
+2. Bank ID must be valid and active
+3. Account type must be valid (checking, savings, loan, etc.)
+4. Currency must be valid ISO currency code
+5. Account number must be unique within bank
+6. Customer/user must exist before account creation
+7. Initial balance must be non-negative for most account types
+8. Account routing information must follow banking standards
+9. Branch ID must be valid if specified
+10. Account label is required
 
-### Data Validations (if applicable)
-- Bank ID must be valid and active
-- Account type must be from approved list (CURRENT, SAVINGS, etc.)
-- Currency code must be valid ISO 4217 code
-- Initial balance format and precision validated
-- Account holder must exist as customer
-- Account routing information validated based on type (IBAN, ABA, etc.)
+### Data Validations
+- Bank ID validation
+- Account type validation against allowed types
+- Currency code validation (ISO 4217)
+- Account number uniqueness check
+- Customer/user existence validation
+- Balance format and range validation
+- Routing information format validation
+- Branch ID validation if provided
 
 ### Dependencies
-- **Upstream**: Customer onboarding, KYC verification
-- **Downstream**: Account access assignment, initial transactions
-- **External Systems**: Bank connector, customer database, view management system
+- **Upstream**: User/customer registration, bank setup
+- **Downstream**: Account access management, view creation, initial deposit
+- **External Systems**: Core banking system for account creation
 
 ### Notes for Implementation
-- Account creation is sensitive operation requiring audit logging
-- Consider two-phase creation (pending review then activation) for regulatory compliance
-- Needs SME Input: Complete list of required vs. optional fields
-- Needs SME Input: Business rules for initial balance limits
-- Needs SME Input: Account numbering scheme and format validation
+- Different API versions have different parameter requirements
+- Account number generation strategy may vary by bank
+- Initial balance handling varies by account type
+- Audit trail required for account creation
+- Transaction may need to be atomic with initial deposit
+- Consider regulatory requirements for account opening
 
 ---
 
 ## User Story 4: Account Update
 
 ### Story Overview
-**As a** bank staff member or account owner  
-**I want to** modify account properties such as labels and settings  
-**So that** account information stays current and accurately reflects account purpose
+**As a** account owner or authorized user  
+**I want to** modify account attributes such as labels and descriptions  
+**So that** I can keep account information current and organized
+
+### API Endpoints
+1. **PUT /obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}**
+   - Method: `updateAccountLabel`
+   - Purpose: Update account label
+   - Entitlements: CanUpdateAccountLabel OR account owner
+
+2. **PUT /obp/v1.2.1/banks/{BANK_ID}/accounts/{ACCOUNT_ID}**
+   - Method: `updateAccountLabel`
+   - Purpose: Update account label (v1.2.1)
+   - Entitlements: CanUpdateAccountLabel OR account owner
+
+3. **PUT /obp/v3.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}**
+   - Method: `updateAccount`
+   - Purpose: Update account details
+   - Entitlements: CanUpdateAccount OR account owner
 
 ### Acceptance Criteria
-1. Authorized user can update account label/description
-2. System validates user has permission to update the account
-3. Update operations preserve account ID and core immutable fields
-4. System maintains audit trail of account modifications
-5. Updates are reflected immediately in subsequent queries
-6. System rejects updates to prohibited fields (account number, creation date)
+1. Account owner can update account label
+2. Account owner can update account description
+3. Authorized users with proper entitlements can update accounts
+4. Account ID and bank ID must match
+5. Updated information is immediately reflected
+6. Invalid account ID returns error
+7. Unauthorized users receive permission error
+8. Label length is validated
+9. Special characters in label are handled appropriately
+10. Update history is maintained for audit purposes
 
 ### Technical Context
 - **Classes/Services Involved**:
   - APIMethods400.updateAccountLabel - updates account label
-  - NewStyle.function.updateBankAccount - updates account in connector
-  - MappedBankAccount - persistence layer
-- **Input Data**: Bank ID, Account ID, updated fields (label, description, etc.)
-- **Output Data**: Updated account JSON
+  - APIMethods121.updateAccountLabel - updates account label (v1.2.1)
+  - APIMethods310.updateAccount - updates account details
+  - Connector.updateBankAccount - updates account in core system
+  - BankAccount - account domain model
+- **Input Data**: Bank ID, Account ID, updated label/description
+- **Output Data**: JSON object with updated account information
 - **Processing Type**: Real-time REST API
 
 ### Business Rules (from code)
-1. User must have owner view or canUpdateAccount entitlement
-2. Only specific fields are mutable (label, description, tags)
-3. Core account fields (account ID, type, currency, creation date) are immutable
-4. Account status changes require separate workflow
-5. Updates to financial fields (balance, limits) require elevated permissions
+1. User must be account owner or have CanUpdateAccountLabel entitlement
+2. Account must exist and be active
+3. Bank ID and Account ID must match
+4. Label cannot be empty
+5. Label length must be within limits
+6. Description is optional
+7. Core account attributes (number, type, currency) cannot be changed via label update
+8. Update is atomic
+9. Audit trail is maintained
 
-### Data Validations (if applicable)
-- Account must exist and be accessible
-- Updated field values must meet format requirements
-- Label length must be within limits (Needs SME Input: specific limits)
-- User must have appropriate permissions
+### Data Validations
+- Bank ID validation
+- Account ID validation
+- Label length validation (typically 1-255 characters)
+- Label format validation (allowed characters)
+- User permission validation
+- Account existence validation
 
 ### Dependencies
-- **Upstream**: Account access permissions, user authentication
-- **Downstream**: Account display, reporting, search indexing
-- **External Systems**: Bank connector, audit logging system
+- **Upstream**: Account creation, user authentication
+- **Downstream**: Account display, account listing
+- **External Systems**: Core banking system for persistence
 
 ### Notes for Implementation
-- Limited update scope suggests simple validation logic
-- Consider supporting bulk update for efficiency
-- Needs SME Input: Complete list of updatable fields and business rules for each
-- Needs SME Input: Whether updates require approval workflow
+- Different API versions support different update capabilities
+- v3.1.0 updateAccount may support more fields than just label
+- Consider rate limiting for update operations
+- Audit logging required for all updates
+- Optimistic locking may be needed for concurrent updates
 
 ---
 
 ## User Story 5: Balance Inquiry
 
 ### Story Overview
-**As a** banking application user  
-**I want to** check my current account balance  
-**So that** I know how much money I have available for spending or transfer
+**As a** account holder or authorized user  
+**I want to** check current account balance and available funds  
+**So that** I can make informed financial decisions and track my account status
+
+### API Endpoints
+1. **GET /obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/views/{VIEW_ID}/balances**
+   - Method: `getBankAccountBalances`
+   - Purpose: Get account balances through view
+   - Entitlements: View-specific permissions
+
+2. **GET /obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/balances/{BALANCE_ID}**
+   - Method: `getBankAccountBalanceById`
+   - Purpose: Get specific balance by ID
+   - Entitlements: CanGetBankAccountBalance
+
+3. **GET /obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/balances**
+   - Method: `getAllBankAccountBalances`
+   - Purpose: Get all balances for account
+   - Entitlements: CanGetBankAccountBalances
+
+4. **GET /obp/v3.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/balances**
+   - Method: `getBankAccountsBalances`
+   - Purpose: Get account balances (v3.1.0)
+   - Entitlements: View permissions
 
 ### Acceptance Criteria
-1. User can retrieve balance for specific account by providing bank ID and account ID
-2. Response includes current balance (ledger balance)
-3. Response includes available balance (current balance minus holds/reserves)
-4. Balance amounts include currency code
-5. Response time is under 1 second for typical requests
-6. System supports high request volume during peak hours
-7. User must have view permission that includes balance visibility
+1. User can retrieve current account balance
+2. Available balance is displayed (balance minus holds/reserves)
+3. Currency is included with balance
+4. Balance timestamp is provided
+5. Multiple balance types can be retrieved (current, available, pending)
+6. Balance is accurate as of request time
+7. View permissions control balance visibility
+8. Invalid account ID returns error
+9. Unauthorized access returns permission error
+10. Response time is under 1 second for balance queries
 
 ### Technical Context
 - **Classes/Services Involved**:
-  - APIMethods510.getBankAccountBalances - retrieves account balances
-  - BalanceNewStyle.getBankAccountBalances - balance retrieval logic
-  - JSONFactory400.createAccountBalancesJson - formats response
-- **Input Data**: Bank ID, Account ID
-- **Output Data**: JSON with current_balance, available_balance, currency
-- **Processing Type**: Real-time REST API, high volume
+  - APIMethods510.getBankAccountBalances - retrieves balances through view
+  - APIMethods510.getBankAccountBalanceById - retrieves specific balance
+  - APIMethods510.getAllBankAccountBalances - retrieves all balances
+  - APIMethods310.getBankAccountsBalances - retrieves balances (v3.1.0)
+  - Connector.getBankAccountBalance - retrieves balance from core system
+  - ViewNewStyle - manages view permissions
+  - Balance - balance domain model
+- **Input Data**: Bank ID, Account ID, View ID (optional), Balance ID (optional)
+- **Output Data**: JSON object with balance information (amount, currency, type, timestamp)
+- **Processing Type**: Real-time REST API
 
 ### Business Rules (from code)
-1. User must be authenticated
-2. User must have view with CAN_SEE_AVAILABLE_BALANCE permission
-3. Current balance = sum of all posted transactions
-4. Available balance = current balance - holds - minimum balance requirement
-5. Negative balances are allowed for accounts with overdraft
-6. Balance precision matches currency decimal places
+1. User must have view permission to see balance
+2. Balance is current as of request time
+3. Different balance types may be available (current, available, pending)
+4. Currency is always included with balance amount
+5. Balance precision follows currency standards
+6. Negative balances are allowed for certain account types
+7. View permissions determine balance visibility
+8. Balance timestamp indicates data freshness
 
-### Data Validations (if applicable)
-- Bank ID and Account ID must be valid
-- Account must exist and be active
-- User must have view access with balance permission
+### Data Validations
+- Bank ID validation
+- Account ID validation
+- View ID validation (if provided)
+- Balance ID validation (if provided)
+- User permission validation
+- Account existence validation
 
 ### Dependencies
-- **Upstream**: Transaction posting, hold management
-- **Downstream**: Payment authorization, overdraft decisions
-- **External Systems**: Bank connector for real-time balance calculation
+- **Upstream**: Account creation, view permission setup
+- **Downstream**: Transaction processing, payment authorization
+- **External Systems**: Core banking system for real-time balance data
 
 ### Notes for Implementation
-- High-traffic endpoint requiring caching strategy
-- Consider read replicas for balance queries
-- Balance calculation must be consistent with transaction ledger
-- Needs SME Input: Caching policy and staleness tolerance
-- Needs SME Input: Handling of pending transactions in available balance
+- Balance queries should be highly optimized for performance
+- Caching strategy should balance freshness vs performance
+- Consider real-time vs near-real-time balance requirements
+- Audit logging for balance inquiries may be required
+- Support for multiple balance types (current, available, pending, etc.)
 
 ---
 
 ## User Story 6: Multi-Account Balance Check
 
 ### Story Overview
-**As a** banking application user or aggregation service  
+**As a** banking application user with multiple accounts  
 **I want to** retrieve balances for multiple accounts in a single request  
-**So that** I can efficiently display summary information across all my accounts
+**So that** I can get a consolidated view of my financial position efficiently
+
+### API Endpoints
+1. **GET /obp/v5.1.0/banks/{BANK_ID}/accounts/balances**
+   - Method: `getBankAccountsBalances`
+   - Purpose: Get balances for multiple accounts at a bank
+   - Entitlements: CanGetBankAccountsBalances
+
+2. **GET /obp/v5.1.0/banks/{BANK_ID}/views/{VIEW_ID}/balances**
+   - Method: `getBankAccountsBalancesThroughView`
+   - Purpose: Get balances for multiple accounts through specific view
+   - Entitlements: View-specific permissions
+
+3. **GET /obp/v4.0.0/banks/{BANK_ID}/balances**
+   - Method: `getBankAccountsBalancesForCurrentUser`
+   - Purpose: Get all account balances for current user
+   - Entitlements: Authenticated user
+
+4. **GET /obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/balances**
+   - Method: `getBankAccountBalancesForCurrentUser`
+   - Purpose: Get balances for specific account for current user
+   - Entitlements: Account access permissions
 
 ### Acceptance Criteria
-1. User can request balances for multiple accounts at once
-2. Request can specify accounts across multiple banks
-3. Response includes balance for each requested account
-4. System handles partial failures (some accounts accessible, others not)
-5. Response indicates which accounts were successfully retrieved
-6. Performance scales efficiently with number of requested accounts
-7. Each account balance respects individual view permissions
+1. User can retrieve balances for all accessible accounts in one request
+2. Response includes account ID with each balance
+3. Balances are grouped by account
+4. Currency is included for each balance
+5. Only accounts user has permission to view are included
+6. Response is paginated for users with many accounts
+7. Total portfolio value can be calculated from response
+8. Balances are current as of request time
+9. Response time is under 3 seconds for typical number of accounts
+10. Empty result is returned if user has no accessible accounts
 
 ### Technical Context
 - **Classes/Services Involved**:
-  - APIMethods510.getBankAccountsBalances - multi-account balance retrieval
-  - APIMethods510.getBankAccountsBalancesThroughView - with view filtering
-  - BalanceNewStyle - balance calculation
-- **Input Data**: List of bank ID and account ID pairs, view ID (optional)
-- **Output Data**: JSON array of account balance objects
+  - APIMethods510.getBankAccountsBalances - retrieves multi-account balances
+  - APIMethods510.getBankAccountsBalancesThroughView - retrieves through view
+  - APIMethods400.getBankAccountsBalancesForCurrentUser - retrieves for current user
+  - APIMethods400.getBankAccountBalancesForCurrentUser - retrieves for specific account
+  - Connector.getBankAccountsBalances - retrieves from core system
+  - ViewNewStyle - manages permissions
+- **Input Data**: Bank ID, View ID (optional), user authentication context
+- **Output Data**: JSON array of account balances with account IDs
 - **Processing Type**: Real-time REST API
 
 ### Business Rules (from code)
-1. User must have access to requested accounts
-2. Accounts without proper permissions are excluded from response
-3. Response includes only successfully retrieved balances
-4. Request is not atomic - partial success is acceptable
-5. Maximum number of accounts per request may be limited (Needs SME Input)
+1. User must be authenticated
+2. Only accounts with view permissions are included
+3. Balances are retrieved in parallel for performance
+4. Response includes all accessible accounts at specified bank
+5. View-based filtering applies to account inclusion
+6. Currency conversion is not performed (native currencies returned)
+7. Pagination is supported for large account sets
 
-### Data Validations (if applicable)
-- Each bank ID and account ID pair must be well-formed
-- User must have appropriate view access for each account
-- Request size must be within acceptable limits
+### Data Validations
+- Bank ID validation
+- View ID validation (if provided)
+- User authentication validation
+- Permission validation for each account
 
 ### Dependencies
-- **Upstream**: Account access permissions, user authentication
-- **Downstream**: Dashboard display, reporting, analytics
-- **External Systems**: Bank connector for balance data
+- **Upstream**: Account creation, view permissions, user authentication
+- **Downstream**: Portfolio analysis, financial reporting
+- **External Systems**: Core banking system for balance data
 
 ### Notes for Implementation
-- Performance optimization critical for this endpoint
-- Consider parallel processing for multiple account queries
-- Needs SME Input: Maximum number of accounts per request
-- Needs SME Input: Timeout handling for slow account queries
-- Needs SME Input: Error handling strategy for partial failures
+- Performance optimization critical for users with many accounts
+- Consider parallel balance retrieval
+- Caching strategy for frequently accessed data
+- Pagination parameters should be configurable
+- Consider aggregation options (total by currency, etc.)
 
 ---
 
 ## User Story 7: Account Access Management
 
 ### Story Overview
-**As a** bank administrator or account owner  
-**I want to** grant or revoke user access to specific account views  
-**So that** I can control who can see and operate on my accounts
+**As a** account owner or administrator  
+**I want to** grant and revoke user access to specific account views  
+**So that** I can control who can see and interact with account information
+
+### API Endpoints
+1. **POST /obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/views/{VIEW_ID}/user-account-access**
+   - Method: `createUserWithAccountAccessById`
+   - Purpose: Create user with account access
+   - Entitlements: CanCreateUserWithAccountAccess
+
+2. **POST /obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/views/{VIEW_ID}/account-access/grant**
+   - Method: `grantUserAccessToViewById`
+   - Purpose: Grant user access to view
+   - Entitlements: CanGrantAccountAccess OR account owner
+
+3. **POST /obp/v5.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/views/{VIEW_ID}/account-access/revoke**
+   - Method: `revokeUserAccessToViewById`
+   - Purpose: Revoke user access to view
+   - Entitlements: CanRevokeAccountAccess OR account owner
+
+4. **GET /obp/v5.1.0/users/{USER_ID}/account-access**
+   - Method: `getAccountAccessByUserId`
+   - Purpose: Get account access for user
+   - Entitlements: CanGetAccountAccess
+
+5. **POST /obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/user-account-access**
+   - Method: `createUserWithAccountAccess`
+   - Purpose: Create user with account access (v4.0.0)
+   - Entitlements: CanCreateUserWithAccountAccess
+
+6. **POST /obp/v1.2.1/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/permissions/{PROVIDER}/{PROVIDER_ID}/{VIEW_ID}**
+   - Method: `addPermissionForUserForBankAccountForOneView`
+   - Purpose: Add permission for user (v1.2.1)
+   - Entitlements: Account owner
+
+7. **DELETE /obp/v1.2.1/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/permissions/{PROVIDER}/{PROVIDER_ID}/{VIEW_ID}**
+   - Method: `removePermissionForUserForBankAccountForOneView`
+   - Purpose: Remove permission for user (v1.2.1)
+   - Entitlements: Account owner
 
 ### Acceptance Criteria
-1. Account owner can grant view access to another user by specifying user ID and view ID
-2. Account owner can revoke existing view access from a user
-3. System validates user has authority to modify access (owner view or admin entitlement)
-4. Access changes take effect immediately
-5. System maintains audit trail of all access changes
-6. Granting access to non-existent user or view returns appropriate error
-7. Revoking non-existent access permission completes successfully
+1. Account owner can grant view access to other users
+2. Account owner can revoke view access from users
+3. Administrator with proper entitlements can manage access
+4. Access can be granted for specific views (owner, public, accountant, etc.)
+5. User receiving access is notified (if configured)
+6. Access changes are immediately effective
+7. Audit trail is maintained for access changes
+8. Cannot revoke owner's own access
+9. Invalid user ID returns error
+10. Invalid view ID returns error
+11. Duplicate access grant is handled gracefully
 
 ### Technical Context
 - **Classes/Services Involved**:
-  - APIMethods510.grantUserAccessToViewById - grants view access
-  - APIMethods510.revokeUserAccessToViewById - revokes view access
-  - APIMethods510.createUserWithAccountAccessById - creates user and grants access
-  - ViewNewStyle - view permission management
-  - Views.views.vend.addPermission - persistence
-- **Input Data**: Bank ID, Account ID, View ID, User ID (for grant/revoke)
-- **Output Data**: Success/failure status, updated view information
+  - APIMethods510.createUserWithAccountAccessById - creates user with access
+  - APIMethods510.grantUserAccessToViewById - grants access
+  - APIMethods510.revokeUserAccessToViewById - revokes access
+  - APIMethods510.getAccountAccessByUserId - retrieves access info
+  - ViewNewStyle.grantAccessToView - grants view access
+  - ViewNewStyle.revokeAccessToView - revokes view access
+  - ViewImpl - view permission management
+- **Input Data**: Bank ID, Account ID, View ID, User ID, provider information
+- **Output Data**: JSON confirmation of access change
 - **Processing Type**: Real-time REST API
 
 ### Business Rules (from code)
-1. Granting user must have owner view or canCreateUserAccountAccess entitlement
-2. View ID must be valid for the specified account
-3. User being granted access must exist in the system
-4. Cannot revoke owner's own owner view access
-5. System view access may have additional restrictions
-6. Some views (e.g., owner) may be restricted to account holder only
+1. User must be account owner or have appropriate entitlement
+2. View must exist for the account
+3. User receiving access must exist
+4. Owner view access cannot be revoked from account owner
+5. Access changes are atomic
+6. Duplicate access grants are idempotent
+7. Revoking non-existent access returns error
+8. System views (owner, public) have special rules
+9. Custom views can be created and managed separately
 
-### Data Validations (if applicable)
-- Bank ID, Account ID, View ID must all be valid
-- User ID must correspond to existing user
-- Requesting user must have appropriate authority
-- View type must support the requested access operation
+### Data Validations
+- Bank ID validation
+- Account ID validation
+- View ID validation
+- User ID validation
+- Provider validation
+- Permission validation for requester
 
 ### Dependencies
-- **Upstream**: User management, view definition, account ownership
-- **Downstream**: All account and transaction operations that check permissions
-- **External Systems**: User directory, audit logging
+- **Upstream**: Account creation, user registration, view creation
+- **Downstream**: Account access, transaction viewing, balance inquiries
+- **External Systems**: User management system, notification system
 
 ### Notes for Implementation
-- Critical security operation requiring comprehensive audit logging
-- Consider notification to user when they receive new account access
-- Needs SME Input: Business rules for who can grant/revoke each view type
-- Needs SME Input: Approval workflow requirements for sensitive views
-- Needs SME Input: Maximum number of users per account view
+- Access changes should be audited
+- Consider notification mechanism for access grants
+- Support for bulk access management may be needed
+- Different API versions have different access management approaches
+- View hierarchy and inheritance should be considered
 
 ---
 
 ## User Story 8: Account Search by Routing
 
 ### Story Overview
-**As a** bank staff member or payment system  
-**I want to** locate accounts using routing numbers (ABA, IBAN, sort code)  
-**So that** I can identify the correct account for incoming payments or inquiries
+**As a** payment processor or banking application  
+**I want to** locate accounts using routing numbers or IBAN  
+**So that** I can process payments and transfers to the correct accounts
+
+### API Endpoints
+1. **POST /obp/v4.0.0/management/accounts/account-routing-query**
+   - Method: `getAccountByAccountRouting`
+   - Purpose: Get account by routing information (exact match)
+   - Entitlements: CanGetAccountByAccountRouting
+
+2. **POST /obp/v4.0.0/management/accounts/account-routing-regex-query**
+   - Method: `getAccountsByAccountRoutingRegex`
+   - Purpose: Search accounts by routing regex pattern
+   - Entitlements: CanSearchAccountsByAccountRouting
 
 ### Acceptance Criteria
-1. User can search for account by providing bank ID and account routing information
-2. System supports multiple routing schemes (IBAN, ABA number, sort code, account number)
-3. Exact match search returns single account if found
-4. Regex pattern search returns multiple matching accounts
-5. Search results respect user's view permissions
-6. System returns appropriate error if no accounts match or user lacks access
-7. Response includes enough information to identify the correct account
+1. User can search for account using IBAN
+2. User can search for account using account number
+3. User can search for account using routing number
+4. Search supports exact match
+5. Search supports regex pattern matching
+6. Response includes account details if found
+7. Multiple matches return all matching accounts
+8. No match returns empty result
+9. Invalid routing scheme returns error
+10. Response time is under 2 seconds
+11. Only accounts user has permission to view are returned
 
 ### Technical Context
 - **Classes/Services Involved**:
-  - APIMethods400.getAccountByAccountRouting - exact match search
-  - APIMethods400.getAccountsByAccountRoutingRegex - pattern search
-  - NewStyle.function.getBankAccountByRouting - bank connector query
-- **Input Data**: Bank ID, routing scheme, routing address (or regex pattern)
-- **Output Data**: Account JSON or array of accounts
+  - APIMethods400.getAccountByAccountRouting - searches by routing
+  - APIMethods400.getAccountsByAccountRoutingRegex - searches by regex
+  - Connector.getAccountByAccountRouting - retrieves from core system
+  - AccountRouting - routing information model
+  - BankAccount - account domain model
+- **Input Data**: Bank ID, routing scheme (IBAN, AccountNumber, etc.), routing address/pattern
+- **Output Data**: JSON object or array with matching account details
 - **Processing Type**: Real-time REST API
 
 ### Business Rules (from code)
-1. User must have appropriate entitlement (canSearchAccountByRouting)
-2. Routing information must include scheme (iban, account_number, etc.) and address
-3. Routing information is validated against scheme-specific format
-4. Search is case-insensitive for most routing schemes
-5. Regex search requires elevated permissions
-6. Results filtered by user's view access
+1. User must have appropriate entitlement to search
+2. Routing scheme must be valid (IBAN, AccountNumber, etc.)
+3. Routing address format must match scheme requirements
+4. Search is case-insensitive
+5. Regex search supports standard regex patterns
+6. Only active accounts are returned
+7. View permissions filter results
+8. Bank ID scope limits search to specific bank
 
-### Data Validations (if applicable)
-- Routing scheme must be recognized (IBAN, AccountNumber, etc.)
-- Routing address must conform to scheme format (e.g., IBAN checksum)
-- Bank ID must be valid
-- User must have search entitlement
-- Regex pattern must be valid regex syntax
+### Data Validations
+- Bank ID validation
+- Routing scheme validation (must be recognized scheme)
+- Routing address format validation (IBAN checksum, etc.)
+- Regex pattern validation (for regex search)
+- User permission validation
 
 ### Dependencies
 - **Upstream**: Account creation with routing information
-- **Downstream**: Payment processing, account linking
-- **External Systems**: Bank connector, routing validation services
+- **Downstream**: Payment processing, transfer initiation
+- **External Systems**: Core banking system, routing validation services
 
 ### Notes for Implementation
-- IBAN validation includes checksum verification
-- Consider indexing strategy for efficient routing lookups
-- Needs SME Input: Complete list of supported routing schemes
-- Needs SME Input: Format validation rules for each routing scheme
-- Needs SME Input: Security considerations for regex search
+- IBAN validation should include checksum verification
+- Routing information must be indexed for performance
+- Consider caching for frequently searched routing numbers
+- Support for international routing standards (IBAN, SWIFT, etc.)
+- Regex search should have performance safeguards
 
 ---
 
 ## User Story 9: Settlement Account Management
 
 ### Story Overview
-**As a** bank operations staff or payment system administrator  
-**I want to** create and manage settlement accounts  
-**So that** the bank can process transaction settlements and reconciliation
+**As a** bank administrator or payment operations manager  
+**I want to** manage special settlement accounts for payment clearing  
+**So that** payment processing and clearing operations can be performed correctly
+
+### API Endpoints
+1. **POST /obp/v4.0.0/banks/{BANK_ID}/settlement-accounts**
+   - Method: `createSettlementAccount`
+   - Purpose: Create new settlement account
+   - Entitlements: CanCreateSettlementAccount
+
+2. **GET /obp/v4.0.0/banks/{BANK_ID}/settlement-accounts**
+   - Method: `getSettlementAccounts`
+   - Purpose: Retrieve all settlement accounts
+   - Entitlements: CanGetSettlementAccounts
 
 ### Acceptance Criteria
-1. Authorized user can create settlement accounts with special attributes
-2. Settlement accounts can be designated as RELEASER accounts or HOLDING accounts
-3. System can retrieve all settlement accounts for a bank
-4. Settlement accounts can be linked to other accounts via attributes
-5. Holding accounts can be located by their associated releaser account ID
-6. Settlement accounts support special processing rules different from customer accounts
-7. Access to settlement accounts is restricted to authorized personnel
+1. Administrator can create settlement accounts
+2. Settlement accounts have special attributes
+3. Settlement accounts can be listed
+4. Settlement accounts are distinguished from regular accounts
+5. Settlement account creation includes currency specification
+6. Settlement accounts support multiple currencies
+7. Settlement accounts have appropriate access controls
+8. Settlement account balance can be monitored
+9. Invalid parameters return validation errors
+10. Audit trail is maintained for settlement account operations
 
 ### Technical Context
 - **Classes/Services Involved**:
   - APIMethods400.createSettlementAccount - creates settlement account
-  - APIMethods400.getSettlementAccounts - retrieves all settlement accounts
-  - APIMethods600 - manages holding account relationships
-  - AccountAttributeX - stores account relationships (RELEASER_ACCOUNT_ID attribute)
-- **Input Data**: Bank ID, account type (SETTLEMENT/HOLDING), associated account IDs, attributes
-- **Output Data**: Settlement account JSON with account ID, type, links, attributes
+  - APIMethods400.getSettlementAccounts - retrieves settlement accounts
+  - Connector.createSettlementAccount - creates in core system
+  - SettlementAccount - settlement account model
+  - BankAccount - base account model
+- **Input Data**: Bank ID, settlement account parameters (currency, type, purpose)
+- **Output Data**: JSON object with settlement account details
 - **Processing Type**: Real-time REST API
 
 ### Business Rules (from code)
-1. User must have canGetSettlementAccountAtOneBank entitlement
-2. Settlement accounts have account_type = "SETTLEMENT" or "HOLDING"
-3. Holding accounts must be linked to a releaser account via RELEASER_ACCOUNT_ID attribute
-4. Settlement accounts may have special balance and transaction rules
-5. First matching holding account is returned when searching by releaser
-6. Settlement accounts are not visible in regular account lists
+1. User must have CanCreateSettlementAccount entitlement
+2. Settlement accounts are special-purpose accounts
+3. Settlement accounts may have different rules than regular accounts
+4. Currency must be specified for settlement accounts
+5. Settlement accounts are used for clearing operations
+6. Access to settlement accounts is restricted
+7. Settlement accounts may not be visible to regular users
 
-### Data Validations (if applicable)
-- Bank ID must be valid
-- Account type must be SETTLEMENT or HOLDING
-- For holding accounts, releaser account ID must be valid
-- User must have settlement account entitlement
-- Attribute values must be properly formatted
+### Data Validations
+- Bank ID validation
+- Currency validation
+- Settlement account type validation
+- User entitlement validation
+- Uniqueness validation for settlement account identifiers
 
 ### Dependencies
-- **Upstream**: Payment processing configuration, bank setup
-- **Downstream**: Transaction settlement processing, reconciliation
-- **External Systems**: Bank connector, payment clearing systems
+- **Upstream**: Bank setup, currency configuration
+- **Downstream**: Payment clearing, settlement processing
+- **External Systems**: Core banking system, clearing systems
 
 ### Notes for Implementation
-- Settlement accounts have specialized accounting rules
-- Integration with payment clearing and settlement systems
-- Needs SME Input: Complete business rules for settlement vs. holding accounts
-- Needs SME Input: Linking rules between releaser and holding accounts
-- Needs SME Input: Settlement account lifecycle management
+- Settlement accounts have special regulatory requirements
+- Consider multi-currency settlement account support
+- Audit logging is critical for settlement operations
+- Integration with clearing and settlement systems
+- May require special reconciliation processes
 
 ---
 
 ## User Story 10: Account Attribute Management
 
 ### Story Overview
-**As a** bank administrator or system integrator  
+**As a** bank administrator or account manager  
 **I want to** add, update, and remove custom attributes on accounts  
-**So that** I can store additional metadata and configuration specific to my bank's needs
+**So that** I can store flexible metadata and extend account information without schema changes
+
+### API Endpoints
+1. **POST /obp/v4.0.0/banks/{BANK_ID}/attribute-definitions/account**
+   - Method: `createOrUpdateAccountAttributeDefinition`
+   - Purpose: Create or update account attribute definition
+   - Entitlements: CanCreateAccountAttributeDefinition
+
+2. **DELETE /obp/v4.0.0/banks/{BANK_ID}/attribute-definitions/{ATTRIBUTE_DEFINITION_ID}**
+   - Method: `deleteAccountAttributeDefinition`
+   - Purpose: Delete account attribute definition
+   - Entitlements: CanDeleteAccountAttributeDefinition
+
+3. **GET /obp/v4.0.0/banks/{BANK_ID}/attribute-definitions/account**
+   - Method: `getAccountAttributeDefinition`
+   - Purpose: Get account attribute definitions
+   - Entitlements: CanGetAccountAttributeDefinition
+
+4. **POST /obp/v3.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/attributes**
+   - Method: `createAccountAttribute`
+   - Purpose: Create account attribute value
+   - Entitlements: CanCreateAccountAttribute
+
+5. **PUT /obp/v3.1.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/attributes/{ACCOUNT_ATTRIBUTE_ID}**
+   - Method: `updateAccountAttribute`
+   - Purpose: Update account attribute value
+   - Entitlements: CanUpdateAccountAttribute
+
+6. **POST /obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/views/{VIEW_ID}/tags**
+   - Method: `addTagForViewOnAccount`
+   - Purpose: Add tag to account view
+   - Entitlements: CanAddTagForViewOnAccount
+
+7. **DELETE /obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/views/{VIEW_ID}/tags/{TAG_ID}**
+   - Method: `deleteTagForViewOnAccount`
+   - Purpose: Delete tag from account view
+   - Entitlements: CanDeleteTagForViewOnAccount
+
+8. **GET /obp/v4.0.0/banks/{BANK_ID}/accounts/{ACCOUNT_ID}/views/{VIEW_ID}/tags**
+   - Method: `getTagsForViewOnAccount`
+   - Purpose: Get tags for account view
+   - Entitlements: CanGetTagsForViewOnAccount
 
 ### Acceptance Criteria
-1. Authorized user can add custom attributes to accounts
-2. Attributes have name, value, and type (string, number, date)
-3. User can update existing attribute values
-4. User can remove attributes from accounts
-5. System can retrieve all attributes for a specific account
-6. System can search for accounts by attribute values
-7. Attribute operations preserve data type integrity
+1. Administrator can define custom attribute types
+2. Attributes have name, type, and validation rules
+3. Attribute definitions can be updated
+4. Attribute definitions can be deleted if not in use
+5. Attribute values can be set on accounts
+6. Attribute values can be updated
+7. Attribute values can be retrieved
+8. Tags can be added to accounts for categorization
+9. Tags can be removed from accounts
+10. Attribute validation is enforced
+11. Attribute history is maintained
+12. Invalid attribute types return errors
 
 ### Technical Context
 - **Classes/Services Involved**:
-  - AccountAttributeX - account attribute management
-  - APIMethods600.getAccountAttributesByAccount - retrieves attributes
-  - APIMethods600.getAccountIdsByParams - searches by attributes
-  - Multiple API versions have create/update/delete attribute endpoints
-- **Input Data**: Bank ID, Account ID, attribute name, attribute value, attribute type
-- **Output Data**: Attribute JSON with name, value, type, or list of attributes
+  - APIMethods400.createOrUpdateAccountAttributeDefinition - manages definitions
+  - APIMethods400.deleteAccountAttributeDefinition - deletes definitions
+  - APIMethods400.getAccountAttributeDefinition - retrieves definitions
+  - APIMethods310.createAccountAttribute - creates attribute values
+  - APIMethods310.updateAccountAttribute - updates attribute values
+  - APIMethods400.addTagForViewOnAccount - adds tags
+  - APIMethods400.deleteTagForViewOnAccount - deletes tags
+  - APIMethods400.getTagsForViewOnAccount - retrieves tags
+  - AccountAttribute - attribute model
+  - AttributeDefinition - definition model
+- **Input Data**: Bank ID, Account ID, attribute definitions, attribute values, tags
+- **Output Data**: JSON objects with attribute/tag information
 - **Processing Type**: Real-time REST API
 
 ### Business Rules (from code)
-1. User must have appropriate entitlement (varies by operation)
-2. Attribute names must be unique per account
-3. Attribute types include STRING, INTEGER, DOUBLE, DATE_WITH_DAY
-4. Some attribute names may be reserved (e.g., RELEASER_ACCOUNT_ID)
-5. Attributes can be used to link accounts (e.g., holding to releaser)
-6. Attribute search returns list of matching account IDs
+1. User must have appropriate entitlements for attribute operations
+2. Attribute definitions must be created before values can be set
+3. Attribute values must conform to definition type and validation
+4. Attribute definitions cannot be deleted if in use
+5. Tags are simpler key-value pairs for categorization
+6. Attributes support complex types and validation
+7. Attribute changes are audited
+8. View-based access controls apply to attributes
 
-### Data Validations (if applicable)
-- Attribute name must be non-empty string
-- Attribute value must match specified type
-- For dates, format must be YYYY-MM-DD
-- For numbers, value must be parseable
-- Attribute name length within limits
+### Data Validations
+- Bank ID validation
+- Account ID validation
+- Attribute definition validation (name, type, rules)
+- Attribute value validation against definition
+- Tag format validation
+- User permission validation
 
 ### Dependencies
-- **Upstream**: Account creation, attribute schema definition
-- **Downstream**: Account search, settlement account linking, custom business logic
-- **External Systems**: Bank connector, attribute storage
+- **Upstream**: Account creation, attribute definition setup
+- **Downstream**: Account reporting, account filtering, custom business logic
+- **External Systems**: Core banking system for persistence
 
 ### Notes for Implementation
-- Flexible schema allows custom bank-specific extensions
-- Consider schema registry for attribute definitions
-- Needs SME Input: Naming conventions for custom attributes
-- Needs SME Input: List of reserved attribute names
-- Needs SME Input: Validation rules for attribute values
-- Needs SME Input: Maximum number of attributes per account
+- Attribute system provides flexibility for custom data
+- Consider performance impact of many attributes
+- Attribute definitions should be versioned
+- Support for different attribute types (string, number, date, boolean, etc.)
+- Tags provide simpler categorization mechanism
+- Audit logging for all attribute changes
+- Consider attribute inheritance or defaults
 
 ---
 
 ## Part 3: Open Questions
 
-### Business Logic Questions
-1. What is the complete list of account types supported (CURRENT, SAVINGS, etc.) and their specific business rules?
-2. What are the exact balance calculation rules, especially for available balance (holds, minimum balance, pending transactions)?
-3. What workflow approvals are required for account creation, updates, and access changes?
-4. What are the retention and archival policies for account data?
-5. What are the business rules for account closure and reactivation?
+### Questions Requiring SME Clarification
 
-### Data & Validation Questions
-6. What are the exact field length limits for account labels, descriptions, and attributes?
-7. What are the format requirements for each account routing scheme (beyond IBAN)?
-8. What is the maximum number of accounts a user can hold?
-9. What is the maximum number of custom attributes per account?
-10. What are the account numbering schemes and how are they validated?
+1. **Account Listing**
+   - What is the exact business definition of "held" accounts vs "accessible" accounts?
+   - What are all valid account types for filtering?
+   - What is the specific threshold for pagination trigger?
+   - What is the acceptable TTL for cached account lists?
+   - Is there a hard limit on accounts returned in multi-account queries?
 
-### Integration Questions
-11. How do account operations integrate with core banking systems?
-12. What real-time vs. batch processing is used for account data synchronization?
-13. How are account balances calculated when distributed across multiple systems?
-14. What external systems need to be notified of account changes?
+2. **Account Detail Retrieval**
+   - What specific fields should be included in each view type?
+   - What is the data freshness requirement for account details?
+   - Should balance be included in account details or separate endpoint?
+   - What are the performance SLAs for account detail retrieval?
 
-### Security & Performance Questions
-15. What are the specific role/entitlement requirements for each operation?
-16. What audit logging is required for account operations?
-17. What are the performance SLAs for high-volume endpoints (balance inquiry)?
-18. What caching strategies are acceptable for account and balance data?
-19. What rate limiting is applied to account operations?
+3. **Account Creation**
+   - What are the complete validation rules for account numbers?
+   - What is the account number generation strategy?
+   - What are the regulatory requirements for account opening?
+   - Should initial deposit be part of account creation or separate?
+   - What are the allowed account types and their specific rules?
+
+4. **Account Update**
+   - What account fields can be updated after creation?
+   - Are there any fields that require special approval to update?
+   - What is the audit retention period for account updates?
+
+5. **Balance Inquiry**
+   - What is the acceptable latency for balance queries?
+   - What are the different balance types (current, available, pending)?
+   - How should holds and reserves be reflected in balances?
+   - What is the caching strategy for balance data?
+
+6. **Multi-Account Balance Check**
+   - What is the maximum number of accounts in a single balance query?
+   - Should currency conversion be supported?
+   - What aggregation options are needed?
+
+7. **Account Access Management**
+   - What are all the standard view types and their permissions?
+   - Can custom views be created by users or only administrators?
+   - What is the notification mechanism for access grants?
+   - Are there limits on number of users with access to an account?
+
+8. **Account Search by Routing**
+   - What routing schemes must be supported (IBAN, SWIFT, local)?
+   - What validation is required for each routing scheme?
+   - Should international routing be supported?
+   - What are the performance requirements for routing searches?
+
+9. **Settlement Account Management**
+   - What are the specific types of settlement accounts?
+   - What are the regulatory requirements for settlement accounts?
+   - How do settlement accounts integrate with clearing systems?
+   - What reconciliation processes are needed?
+
+10. **Account Attribute Management**
+    - What are the standard attribute types needed?
+    - What validation rules should be supported?
+    - Should attributes be versioned?
+    - What is the maximum number of attributes per account?
+    - How should attribute inheritance work?
+
+### Technical Clarifications Needed
+
+1. **API Version Strategy**
+   - Which API version should be prioritized for migration?
+   - Should all versions be supported or only latest?
+   - What is the deprecation strategy for older versions?
+
+2. **Performance Requirements**
+   - What are the specific SLAs for each endpoint?
+   - What are the expected transaction volumes?
+   - What are the peak load requirements?
+
+3. **Security & Compliance**
+   - What are the specific regulatory requirements (PSD2, GDPR, etc.)?
+   - What audit logging is required?
+   - What data retention policies apply?
+
+4. **Integration Requirements**
+   - What core banking systems need to be supported?
+   - What are the connector interface requirements?
+   - What external systems need integration?
 
 ---
 
-## Document Metadata
+## Summary
 
-**Generated**: November 5, 2025  
-**Source System**: Open Bank Project (OBP) API  
-**Scope**: Account Management capabilities (10 user stories)  
-**Based on**: OBP-API Scala codebase analysis  
-**Purpose**: Requirements elaboration and development planning
+This document provides comprehensive user stories for all 10 Account Management capabilities identified in the OBP API high-level requirements. Each user story includes:
 
-### Next Steps
-1. Review user stories with business stakeholders to validate business rules
-2. Confirm technical implementation details with development team
-3. Resolve open questions through SME interviews
-4. Break down user stories into implementable tasks
-5. Define acceptance test scenarios for each story
-6. Prioritize stories for development sprints
+- Clear business value proposition
+- Complete list of API endpoints across all versions
+- Detailed acceptance criteria
+- Technical context and implementation details
+- Business rules extracted from code
+- Data validation requirements
+- Dependencies and integration points
+- Implementation notes and considerations
 
-### Related Documentation
-- OBP-API High-Level Requirements Document
-- API Documentation (ResourceDoc annotations)
-- View Permission Matrix
-- Account Type Configuration Guide (Needs Creation)
-- Routing Scheme Validation Rules (Needs Creation)
+The user stories cover:
+- **High Priority**: Account Listing, Account Detail Retrieval, Balance Inquiry (high-volume, real-time operations)
+- **Medium Priority**: Account Creation, Account Update, Multi-Account Balance Check, Account Access Management, Account Search by Routing (medium-volume operations)
+- **Low Priority**: Settlement Account Management, Account Attribute Management (low-volume, specialized operations)
+
+All API endpoints from multiple versions (v1.2.1 through v6.0.0) are documented to ensure complete coverage for migration from Scala to Go application.
