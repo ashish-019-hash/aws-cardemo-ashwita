@@ -1,922 +1,1013 @@
 # Business Rules Extraction
 
-**Extracted From**: Open Bank Project API (OBP-API)
-**Analysis Date**: November 17, 2025
+**Extracted From**: Open Bank Project (OBP) API - Bank Registration and Configuration
+**Analysis Date**: 2025-11-24
 **Analyst**: Expert Scala Business Logic Analyst
 **Migration Target**: Go Application
-**User Story**: Bank Registration and Configuration
+**Source User Story**: bank_registration_configuration_user_story.md
+**Source Entities**: business_entities.md
 
 ## Executive Summary
-- Total Business Rules Extracted: 11
-- API Endpoints Analyzed: 1 (POST /obp/v4.0.0/banks)
+- Total Business Rules Extracted: 8
+- API Endpoints Analyzed: 1
 - Rule Categories:
   - Calculations: 0
-  - Decisions: 5
+  - Decisions: 3
   - Thresholds: 2
   - Aggregations: 0
-  - Workflows: 2
-  - Transformations: 2
+  - Workflows: 3
+  - Transformations: 0
 
 ## Business Rules Catalog
 
-### BR-001: Bank ID Format Validation Rule
-
-**Category**: THRESHOLD
-
-**Description**: Bank IDs must conform to a specific alphanumeric pattern with limited special characters and maximum length to ensure URL-safety, database compatibility, and system-wide consistency.
-
-**Source**: 
-- File: obp-api/src/main/scala/code/api/util/APIUtil.scala
-- Class/Object: APIUtil
-- Method: checkShortString
-- Lines: 907-915
-
-**Business Logic**:
-1. Bank ID must match the regex pattern `^([A-Za-z0-9\-._]+)$` (alphanumeric plus dash, dot, underscore only)
-2. Bank ID length must not exceed 16 characters
-3. If pattern matches and length is valid, validation passes
-4. If pattern matches but length exceeds 16, return "Invalid value length" error
-5. If pattern doesn't match, return "Invalid value characters" error
-
-**Scala Implementation**:
-```scala
-def checkShortString(value:String): String ={
-  val valueLength = value.length
-  val regex = """^([A-Za-z0-9\-._]+)$""".r
-  value match {
-    case regex(e) if(valueLength <= 16) => SILENCE_IS_GOLDEN
-    case regex(e) if(valueLength > 16) => ErrorMessages.InvalidValueLength
-    case _ => ErrorMessages.InvalidValueCharacters
-  }
-}
-```
-
-**Variables**:
-- **Input**: bank.id (String) - The proposed bank identifier
-- **Output**: Validation result (String) - Either SILENCE_IS_GOLDEN (success) or error message
-- **Constants**: Maximum length = 16 characters, Allowed pattern = `^([A-Za-z0-9\-._]+)$`
-
-**Business Conditions**:
-| Condition | Business Meaning | Values/Thresholds |
-|-----------|------------------|-------------------|
-| valueLength <= 16 | Bank ID within acceptable length | Maximum 16 characters |
-| Matches regex pattern | Bank ID contains only safe characters | A-Z, a-z, 0-9, -, ., _ |
-
-**Business Impact**: 
-This rule ensures bank IDs are URL-safe (can be used in REST API paths), database-compatible (no special characters that could cause SQL issues), and consistent across the system. Invalid bank IDs could break API routing, cause database errors, or create security vulnerabilities.
-
-**API Endpoints Using This Rule**:
-- POST /obp/v4.0.0/banks - Bank creation/update
-
-**Related Test Cases**:
-Tests should validate: valid IDs (alphanumeric with allowed special chars), IDs exceeding 16 chars, IDs with invalid special characters (spaces, colons, etc.)
-
-**Migration Notes for Go**:
-- Use Go's regexp package for pattern matching
-- Pattern in Go: `^([A-Za-z0-9\-._]+)$`
-- Consider using a validation struct with methods for reusability
-- Return custom error types for different validation failures
-
-**Example Scenarios**:
-```
-Scenario 1: Valid bank ID
-Input: bank.id = "my-bank.123"
-Processing: Matches pattern, length = 12 (< 16)
-Output: SILENCE_IS_GOLDEN (validation passes)
-
-Scenario 2: Bank ID too long
-Input: bank.id = "very-long-bank-identifier-name"
-Processing: Matches pattern, length = 32 (> 16)
-Output: ErrorMessages.InvalidValueLength
-
-Scenario 3: Bank ID with invalid characters
-Input: bank.id = "my bank@123"
-Processing: Contains space and @, doesn't match pattern
-Output: ErrorMessages.InvalidValueCharacters
-```
-
-**Business Context**:
-Bank IDs serve as the primary identifier throughout the OBP API system. They appear in URLs, database foreign keys, and are used for routing requests to appropriate backend systems. The 16-character limit balances human readability with technical constraints, while the character restrictions prevent injection attacks and ensure cross-platform compatibility.
-
 ---
 
-### BR-002: Bank ID Minimum Length Rule
-
-**Category**: THRESHOLD
-
-**Description**: Bank IDs must be longer than 3 characters to ensure meaningful identifiers and avoid conflicts with reserved keywords or system codes.
-
-**Source**: 
-- File: obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala
-- Class/Object: Implementations400
-- Method: createBank
-- Lines: 3639-3641
-
-**Business Logic**:
-1. Check if bank ID length is greater than 3 characters
-2. If length <= 3, reject with error message
-3. If length > 3, validation passes and processing continues
-
-**Scala Implementation**:
-```scala
-_ <- Helper.booleanToFuture(
-  failMsg = s"$InvalidJsonFormat Min length of BANK_ID should be greater than 3 characters.", 
-  cc=cc.callContext
-) {
-  bank.id.length > 3
-}
-```
-
-**Variables**:
-- **Input**: bank.id (String) - The proposed bank identifier
-- **Output**: Future success or failure with error message
-- **Constants**: Minimum length threshold = 3 characters
-
-**Business Conditions**:
-| Condition | Business Meaning | Values/Thresholds |
-|-----------|------------------|-------------------|
-| bank.id.length > 3 | Bank ID is sufficiently descriptive | Minimum 4 characters required |
-
-**Business Impact**: 
-This rule prevents the creation of banks with overly short, non-descriptive identifiers like "abc", "123", or "xyz" that could conflict with system codes, be easily confused, or lack business meaning. It ensures bank IDs are meaningful enough to identify institutions.
-
-**API Endpoints Using This Rule**:
-- POST /obp/v4.0.0/banks - Bank creation/update
-
-**Related Test Cases**:
-Tests should validate: IDs with exactly 3 chars (should fail), IDs with 4 chars (should pass), IDs with 1-2 chars (should fail)
-
-**Migration Notes for Go**:
-- Simple length check: `len(bankID) > 3`
-- Return appropriate error if validation fails
-- Consider combining with other ID validations in a single validation function
-
-**Example Scenarios**:
-```
-Scenario 1: Bank ID too short
-Input: bank.id = "abc"
-Processing: length = 3, not greater than 3
-Output: Error "Min length of BANK_ID should be greater than 3 characters"
-
-Scenario 2: Bank ID acceptable length
-Input: bank.id = "abcd"
-Processing: length = 4, greater than 3
-Output: Validation passes
-
-Scenario 3: Bank ID well above minimum
-Input: bank.id = "my-bank-123"
-Processing: length = 12, greater than 3
-Output: Validation passes
-```
-
-**Business Context**:
-The minimum length requirement ensures bank identifiers are meaningful and distinguishable. Very short IDs (1-3 characters) are often reserved for system codes, country codes, or could easily be confused. Requiring at least 4 characters encourages descriptive, business-meaningful identifiers while still allowing concise IDs.
-
----
-
-### BR-003: Bank ID Space Character Restriction
+### BR-001: Unique Bank Identification Enforcement
 
 **Category**: DECISION
 
-**Description**: Bank IDs cannot contain space characters to maintain URL-safety and prevent parsing issues in API paths and database queries.
+**Description**: Each bank must have a unique identification code (bankId/permalink) that cannot be duplicated across the entire platform to ensure proper bank entity isolation and prevent conflicts in multi-bank deployments.
 
 **Source**: 
-- File: obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala
-- Class/Object: Implementations400
+- File: /obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala
+- Class/Object: APIMethods400
 - Method: createBank
-- Lines: 3643-3645
+- Lines: 3621-3683
+- Additional Reference: /obp-api/src/main/scala/code/bankconnectors/LocalMappedConnector.scala (lines 3169-3247)
 
 **Business Logic**:
-1. Check if bank ID contains any space characters
-2. If spaces are present, reject with error message
-3. If no spaces, validation passes and processing continues
+1. When a new bank registration is requested, the system receives a bank ID (permalink)
+2. The system checks if this bank ID already exists in the MappedBank table
+3. If the bank ID exists, the system either updates the existing bank (idempotent operation) or rejects the request
+4. If the bank ID is unique, the system proceeds with bank creation
+5. The bank ID becomes the permanent unique identifier for all future operations related to this bank
 
 **Scala Implementation**:
 ```scala
-_ <- Helper.booleanToFuture(
-  failMsg = s"$InvalidJsonFormat BANK_ID can not contain space characters", 
-  cc=cc.callContext
-) {
-  !bank.id.contains(" ")
-}
+// From LocalMappedConnector.scala lines 3198-3210
+MappedBank.create
+  .permalink(bankId)  // Unique identifier
+  .fullBankName(fullBankName)
+  .shortBankName(shortBankName)
+  .logoURL(logoURL)
+  .websiteURL(websiteURL)
+  .swiftBIC(swiftBIC)
+  .national_identifier(national_identifier)
+  .mBankRoutingScheme(bankRoutingScheme)
+  .mBankRoutingAddress(bankRoutingAddress)
+  .saveMe()
 ```
 
 **Variables**:
-- **Input**: bank.id (String) - The proposed bank identifier
-- **Output**: Future success or failure with error message
-- **Constants**: Forbidden character = space (" ")
-
-**Business Conditions**:
-| Condition | Business Meaning | Values/Thresholds |
-|-----------|------------------|-------------------|
-| !bank.id.contains(" ") | Bank ID is URL-safe | No space characters allowed |
-
-**Business Impact**: 
-This rule prevents URL encoding issues where spaces would be converted to %20 or + in URLs, causing routing problems and making API paths harder to read and debug. It ensures bank IDs can be used directly in REST API paths without encoding.
-
-**API Endpoints Using This Rule**:
-- POST /obp/v4.0.0/banks - Bank creation/update
-
-**Related Test Cases**:
-Tests should validate: IDs with spaces (should fail), IDs with underscores or dashes instead of spaces (should pass), IDs with multiple spaces (should fail)
-
-**Migration Notes for Go**:
-- Use strings.Contains(bankID, " ") to check for spaces
-- Return error if spaces found
-- Consider checking for other whitespace characters (tabs, newlines) for robustness
-
-**Example Scenarios**:
-```
-Scenario 1: Bank ID with space
-Input: bank.id = "my bank"
-Processing: Contains space character
-Output: Error "BANK_ID can not contain space characters"
-
-Scenario 2: Bank ID with dash instead of space
-Input: bank.id = "my-bank"
-Processing: No space characters
-Output: Validation passes
-
-Scenario 3: Bank ID with multiple spaces
-Input: bank.id = "my  bank  123"
-Processing: Contains space characters
-Output: Error "BANK_ID can not contain space characters"
-```
-
-**Business Context**:
-Bank IDs are used extensively in URL paths (e.g., /banks/BANK_ID/accounts). Spaces in URLs require percent-encoding (%20) which complicates API usage, makes URLs harder to read, and can cause issues with URL parsing libraries. This rule enforces URL-safe identifiers that can be used directly in API paths.
-
----
-
-### BR-004: Bank ID Special Character Restriction (::::)
-
-**Category**: DECISION
-
-**Description**: Bank IDs cannot contain the four-colon sequence (::::) which is reserved as an internal delimiter in the OBP system for composite keys and data serialization.
-
-**Source**: 
-- File: obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala
-- Class/Object: Implementations400
-- Method: createBank
-- Lines: 3647-3649
-
-**Business Logic**:
-1. Check if bank ID contains the sequence "::::"
-2. If present, reject with error message
-3. If not present, validation passes and processing continues
-
-**Scala Implementation**:
-```scala
-_ <- Helper.booleanToFuture(
-  failMsg = s"$InvalidJsonFormat BANK_ID can not contain `::::` characters", 
-  cc=cc.callContext
-) {
-  !`checkIfContains::::` (bank.id)
-}
-```
-
-**Variables**:
-- **Input**: bank.id (String) - The proposed bank identifier
-- **Output**: Future success or failure with error message
-- **Constants**: Forbidden sequence = "::::"
-
-**Business Conditions**:
-| Condition | Business Meaning | Values/Thresholds |
-|-----------|------------------|-------------------|
-| !checkIfContains::::(bank.id) | Bank ID doesn't conflict with system delimiter | Four-colon sequence forbidden |
-
-**Business Impact**: 
-This rule prevents conflicts with the OBP system's internal use of :::: as a delimiter for composite keys (e.g., bankId::::accountId::::viewId). If bank IDs contained this sequence, it would break key parsing and data serialization throughout the system.
-
-**API Endpoints Using This Rule**:
-- POST /obp/v4.0.0/banks - Bank creation/update
-
-**Related Test Cases**:
-Tests should validate: IDs with :::: (should fail), IDs with single/double/triple colons (should pass based on BR-001), IDs without colons (should pass)
-
-**Migration Notes for Go**:
-- Use strings.Contains(bankID, "::::") to check for the sequence
-- Return error if found
-- Document why this specific sequence is forbidden (internal delimiter)
-- Consider checking for other reserved sequences if system uses them
-
-**Example Scenarios**:
-```
-Scenario 1: Bank ID with four-colon delimiter
-Input: bank.id = "bank::::123"
-Processing: Contains :::: sequence
-Output: Error "BANK_ID can not contain `::::` characters"
-
-Scenario 2: Bank ID with single colon
-Input: bank.id = "bank:123"
-Processing: Single colon allowed by pattern, no :::: sequence
-Output: Validation passes (if other rules pass)
-
-Scenario 3: Bank ID without colons
-Input: bank.id = "bank-123"
-Processing: No :::: sequence
-Output: Validation passes
-```
-
-**Business Context**:
-The OBP system uses :::: as a delimiter for creating composite keys that combine multiple identifiers (e.g., BankId::::AccountId::::ViewId). This pattern is used throughout the codebase for caching keys, data serialization, and internal references. Allowing :::: in bank IDs would break this parsing logic and cause system-wide failures.
-
----
-
-### BR-005: Consumer Authentication Requirement
-
-**Category**: DECISION
-
-**Description**: Bank creation requires an authenticated OAuth consumer (application), not just a user, to ensure proper API client tracking, rate limiting, and accountability.
-
-**Source**: 
-- File: obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala
-- Class/Object: Implementations400
-- Method: createBank
-- Lines: 3629-3631
-
-**Business Logic**:
-1. Check if the call context contains a consumer object
-2. Verify the consumer is defined (not None)
-3. If consumer is missing or undefined, reject with "Invalid consumer credentials" error
-4. If consumer is present and defined, validation passes
-
-**Scala Implementation**:
-```scala
-_ <- Helper.booleanToFuture(
-  failMsg = ErrorMessages.InvalidConsumerCredentials, 
-  cc=cc.callContext
-) {
-  cc.callContext.map(_.consumer.isDefined == true).isDefined
-}
-```
-
-**Variables**:
-- **Input**: cc.callContext.consumer (Option[Consumer]) - OAuth consumer from request context
-- **Output**: Future success or failure with error message
+- **Input**: 
+  - `bankId` (String): Unique bank identifier from request (PostBankJson400.id)
+  - Mapped to `permalink` field in MappedBank entity
+- **Output**: 
+  - Bank entity created with unique permalink
+  - Or error if duplicate bank ID detected
 - **Constants**: None
 
 **Business Conditions**:
 | Condition | Business Meaning | Values/Thresholds |
 |-----------|------------------|-------------------|
-| consumer.isDefined == true | Request made by registered OAuth application | Consumer must be present |
+| bankId must be unique | No two banks can share the same identifier | Unique constraint on MappedBank.permalink |
+| bankId length > 3 | Bank ID must be meaningful | Minimum 3 characters |
+| bankId cannot contain spaces | Bank ID must be URL-safe | No space characters allowed |
+| bankId cannot contain :::: | Bank ID must avoid reserved separators | No :::: sequence allowed |
 
 **Business Impact**: 
-This rule ensures that only registered OAuth applications (consumers) can create banks, not just authenticated users. This enables proper API client tracking, rate limiting per application, and accountability for bank creation actions. It prevents anonymous or user-only requests from creating banks.
+This rule ensures data integrity in multi-bank deployments where a single API instance serves multiple banking institutions. Without unique bank identification, transactions, accounts, and customers could be incorrectly associated with the wrong bank, leading to serious data contamination and regulatory compliance issues. This is fundamental to the multi-tenancy architecture of the OBP platform.
 
 **API Endpoints Using This Rule**:
-- POST /obp/v4.0.0/banks - Bank creation/update
+- POST /obp/v4.0.0/banks - Bank creation endpoint
 
 **Related Test Cases**:
-Tests should validate: requests with valid consumer credentials (should pass), requests with only user auth but no consumer (should fail), requests with invalid consumer (should fail)
+- Test case for duplicate bank ID rejection
+- Test case for valid unique bank ID acceptance
+- Test case for bank ID format validation
 
 **Migration Notes for Go**:
-- Extract consumer from request context/middleware
-- Check if consumer object exists and is valid
-- Return 401 error with "Invalid consumer credentials" if missing
-- Ensure OAuth middleware populates consumer in context
+- Implement unique constraint at database level using UNIQUE index on permalink column
+- Use database-level constraint checking rather than application-level to ensure atomicity
+- Consider using PostgreSQL's ON CONFLICT clause for idempotent operations
+- Return appropriate HTTP 409 Conflict status for duplicate bank IDs
+- Implement proper error handling for constraint violations
 
 **Example Scenarios**:
 ```
-Scenario 1: Request with valid consumer
-Input: OAuth request with consumer key/secret
-Processing: Consumer extracted from context, isDefined = true
-Output: Validation passes
+Scenario 1: First bank registration
+Input: bankId = "gh.29.uk"
+Processing: Check MappedBank table for existing permalink = "gh.29.uk"
+Result: Not found, proceed with bank creation
+Output: Bank created successfully with permalink = "gh.29.uk"
 
-Scenario 2: Request with user auth only
-Input: Direct Login with user credentials, no consumer
-Processing: Consumer is None/undefined
-Output: Error "Invalid consumer credentials"
+Scenario 2: Duplicate bank registration attempt
+Input: bankId = "gh.29.uk" (already exists)
+Processing: Check MappedBank table for existing permalink = "gh.29.uk"
+Result: Found existing bank
+Output: Error - Bank ID already exists (or update existing bank if idempotent)
 
-Scenario 3: Request without authentication
-Input: Unauthenticated request
-Processing: No consumer in context
-Output: Error "Invalid consumer credentials"
+Scenario 3: Invalid bank ID format
+Input: bankId = "ab" (too short)
+Processing: Validate bank ID length > 3 characters
+Result: Validation fails
+Output: Error - Bank ID must be greater than 3 characters
 ```
-
-**Business Context**:
-The OBP API uses OAuth 1.0a/2.0 for authentication, where a "consumer" represents a registered third-party application. Requiring consumer authentication for bank creation ensures that only registered applications can create banks, enabling proper tracking, rate limiting, and audit trails. This prevents abuse and ensures accountability for bank creation actions.
 
 ---
 
-### BR-006: BIC Routing Scheme Extraction Rule
+### BR-002: Multi-Bank Data Isolation
 
-**Category**: TRANSFORMATION
+**Category**: WORKFLOW
 
-**Description**: When multiple bank routing schemes are provided, the BIC (Bank Identifier Code / SWIFT code) scheme is extracted and stored separately in a dedicated field, while other routing schemes are stored in generic routing fields.
+**Description**: All data for different banks must be completely isolated to prevent cross-bank data access or contamination. Every bank-related entity (accounts, customers, transactions, etc.) must be associated with a specific bank ID to ensure proper data partitioning in multi-tenant deployments.
 
 **Source**: 
-- File: obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala
-- Class/Object: Implementations400
-- Method: createBank
-- Lines: 3657-3660
+- File: /obp-api/src/main/scala/code/model/dataAccess/MappedBank.scala
+- Class/Object: MappedBank
+- Method: N/A (architectural pattern)
+- Lines: N/A (implemented across all bank-related entities)
 
 **Business Logic**:
-1. Search through the bank_routings array for an entry with scheme = "BIC"
-2. If BIC scheme found, extract its address value for the swiftBIC field
-3. If BIC scheme not found, use empty string for swiftBIC field
-4. Filter out BIC from the routings array
-5. Take the first non-BIC routing scheme (if any) for generic routing fields
-6. Store the first non-BIC scheme name in bankRoutingScheme field
-7. Store the first non-BIC scheme address in bankRoutingAddress field
+1. When a bank is created, it receives a unique bank ID (permalink)
+2. All subsequent entities created for this bank (accounts, customers, transactions) must reference this bank ID
+3. All queries for bank-related data must filter by bank ID
+4. No entity from one bank can reference or access entities from another bank
+5. Settlement accounts created for a bank are explicitly linked to that bank's ID
+6. Entitlements granted are scoped to a specific bank ID
 
 **Scala Implementation**:
 ```scala
-(success, callContext) <- NewStyle.function.createOrUpdateBank(
-  bank.id,
-  bank.full_name,
-  bank.short_name,
-  bank.logo,
-  bank.website,
-  bank.bank_routings.find(_.scheme == "BIC").map(_.address).getOrElse(""),  // Extract BIC
-  "",  // national_identifier (deprecated)
-  bank.bank_routings.filterNot(_.scheme == "BIC").headOption.map(_.scheme).getOrElse(""),  // First non-BIC scheme
-  bank.bank_routings.filterNot(_.scheme == "BIC").headOption.map(_.address).getOrElse(""),  // First non-BIC address
-  cc.callContext
-)
+// From MappedBankAccount.scala - Settlement account creation
+MappedBankAccount.create
+  .bank(bankId)  // Foreign key to MappedBank.permalink
+  .theAccountId(INCOMING_SETTLEMENT_ACCOUNT_ID)
+  .accountCurrency("EUR")
+  .kind("SETTLEMENT")
+  .holder(fullBankName)
+  .accountName("Default incoming settlement account")
+  .accountLabel("Settlement account: Do not delete!")
+  .saveMe()
+
+// From MappedEntitlements.scala - Entitlement assignment
+MappedEntitlement.create
+  .mBankId(bankId)  // Foreign key to MappedBank.permalink
+  .mUserId(userId)
+  .mRoleName(roleName)
+  .mCreatedByProcess(createdByProcess)
+  .saveMe()
 ```
 
 **Variables**:
-- **Input**: bank.bank_routings (List[BankRouting]) - Array of routing schemes with scheme and address
-- **Output**: swiftBIC (String), bankRoutingScheme (String), bankRoutingAddress (String)
-- **Constants**: BIC scheme identifier = "BIC"
+- **Input**: 
+  - `bankId` (String): Unique bank identifier used as partition key
+- **Output**: 
+  - All related entities properly scoped to the bank
+  - Data isolation enforced at database level
+- **Constants**: None
 
 **Business Conditions**:
 | Condition | Business Meaning | Values/Thresholds |
 |-----------|------------------|-------------------|
-| scheme == "BIC" | International SWIFT/BIC code | Stored in dedicated swiftBIC field |
-| scheme != "BIC" | National or custom routing | Stored in generic routing fields |
+| All bank-related entities must have bank_id | Every entity belongs to exactly one bank | Foreign key constraint |
+| Queries must filter by bank_id | Data access is always bank-scoped | Mandatory WHERE clause |
+| Cross-bank references prohibited | Banks cannot access each other's data | Enforced by application logic |
 
 **Business Impact**: 
-This rule ensures BIC/SWIFT codes (the international standard for bank identification) are stored in a dedicated field for easy querying and international payment processing, while allowing flexibility for country-specific routing schemes (UK Sort Code, US Routing Number, IBAN, etc.) in generic fields.
+This rule is critical for regulatory compliance and data security in multi-tenant banking platforms. It ensures that Bank A cannot access or modify Bank B's customer data, accounts, or transactions. This isolation is required by banking regulations and is fundamental to maintaining trust in a shared platform. Violation of this rule could lead to data breaches, regulatory penalties, and loss of banking licenses.
 
 **API Endpoints Using This Rule**:
-- POST /obp/v4.0.0/banks - Bank creation/update
+- POST /obp/v4.0.0/banks - Bank creation with isolated data structures
+- All subsequent bank-related endpoints (accounts, customers, transactions)
 
 **Related Test Cases**:
-Tests should validate: bank with only BIC (BIC extracted, generic fields empty), bank with BIC and national ID (BIC extracted, national ID in generic fields), bank with multiple non-BIC routings (first non-BIC used), bank with no routings (all fields empty)
+- Test case for cross-bank data access prevention
+- Test case for bank-scoped queries
+- Test case for settlement account bank association
+- Test case for entitlement bank scoping
 
 **Migration Notes for Go**:
-- Iterate through bank_routings slice
-- Use conditional logic to find BIC scheme
-- Filter and extract first non-BIC routing
-- Handle empty/nil slices gracefully
-- Consider using helper functions for clarity
+- Implement foreign key constraints at database level (bank_id references mapped_bank.permalink)
+- Use middleware or repository pattern to automatically inject bank_id filter in all queries
+- Consider using PostgreSQL Row Level Security (RLS) for additional isolation
+- Implement context-based bank scoping in Go application layer
+- Use prepared statements with bank_id parameter to prevent SQL injection
+- Consider using separate database schemas per bank for strongest isolation (if scalability permits)
 
 **Example Scenarios**:
 ```
-Scenario 1: Bank with BIC and national ID
-Input: bank_routings = [{"scheme": "BIC", "address": "MYBANKXX"}, {"scheme": "NATIONAL_ID", "address": "12345"}]
-Processing: BIC extracted to swiftBIC, NATIONAL_ID to generic routing
-Output: swiftBIC="MYBANKXX", bankRoutingScheme="NATIONAL_ID", bankRoutingAddress="12345"
+Scenario 1: Creating settlement account for Bank A
+Input: bankId = "bank-a", accountId = "OBP_DEFAULT_INCOMING_ACCOUNT_ID"
+Processing: Create MappedBankAccount with bank = "bank-a"
+Result: Settlement account created and linked to Bank A
+Output: Account accessible only through Bank A's context
 
-Scenario 2: Bank with only BIC
-Input: bank_routings = [{"scheme": "BIC", "address": "MYBANKXX"}]
-Processing: BIC extracted, no non-BIC routings
-Output: swiftBIC="MYBANKXX", bankRoutingScheme="", bankRoutingAddress=""
+Scenario 2: Querying accounts for Bank B
+Input: bankId = "bank-b"
+Processing: SELECT * FROM mapped_bank_account WHERE bank = "bank-b"
+Result: Returns only accounts belonging to Bank B
+Output: Bank A's accounts are not visible or accessible
 
-Scenario 3: Bank with multiple non-BIC routings
-Input: bank_routings = [{"scheme": "SORT_CODE", "address": "12-34-56"}, {"scheme": "IBAN", "address": "GB29..."}]
-Processing: No BIC, first non-BIC used
-Output: swiftBIC="", bankRoutingScheme="SORT_CODE", bankRoutingAddress="12-34-56"
+Scenario 3: Attempting cross-bank access (should fail)
+Input: User with Bank A context tries to access Bank B account
+Processing: Check user's bank entitlements and account's bank_id
+Result: Bank ID mismatch detected
+Output: Access denied - insufficient permissions
 ```
-
-**Business Context**:
-BIC (Bank Identifier Code), also known as SWIFT code, is the international standard for identifying banks in cross-border transactions. The OBP system gives it special treatment by storing it in a dedicated field (swiftBIC) for easy querying and integration with international payment systems. Other routing schemes (national IDs, sort codes, etc.) are country-specific and stored in generic fields.
 
 ---
 
-### BR-007: Idempotent Bank Creation/Update Rule
+### BR-003: Automatic Settlement Account Provisioning
 
 **Category**: WORKFLOW
 
-**Description**: The bank creation operation is idempotent - if a bank with the given ID already exists, the system updates the existing record rather than failing or creating a duplicate. This enables safe retries and configuration updates.
+**Description**: When a new bank is registered, the system must automatically create two settlement accounts (incoming and outgoing) in EUR currency to enable the bank to process inter-bank transfers and settlements. These accounts are system-managed and should not be deleted.
 
 **Source**: 
-- File: obp-api/src/main/scala/code/api/util/NewStyle.scala
-- Class/Object: NewStyle.function
+- File: /obp-api/src/main/scala/code/bankconnectors/LocalMappedConnector.scala
+- Class/Object: LocalMappedConnector
 - Method: createOrUpdateBank
-- Lines: 310-337
+- Lines: 3214-3244
 
 **Business Logic**:
-1. Validate the bank ID format
-2. Call the connector's createOrUpdateBank method
-3. Connector checks if bank with given ID exists
-4. If bank exists: Update all fields (full name, short name, logo, website, routing info)
-5. If bank doesn't exist: Create new bank record with all provided fields
-6. Return the created or updated bank object
-7. Operation succeeds in both cases (create or update)
+1. After successfully creating a bank entity, the system creates two settlement accounts
+2. First settlement account: Incoming settlement account with ID "OBP_DEFAULT_INCOMING_ACCOUNT_ID"
+3. Second settlement account: Outgoing settlement account with ID "OBP_DEFAULT_OUTGOING_ACCOUNT_ID"
+4. Both accounts are created in EUR currency (default settlement currency)
+5. Both accounts are marked with kind = "SETTLEMENT" to distinguish them from customer accounts
+6. Account holder is set to the bank's full name
+7. Accounts are labeled as "Do not delete!" to prevent accidental removal
+8. These accounts are used for inter-bank settlement operations
 
 **Scala Implementation**:
 ```scala
-def createOrUpdateBank(bankId: String,
-                       fullBankName: String,
-                       shortBankName: String,
-                       logoURL: String,
-                       websiteURL: String,
-                       swiftBIC: String,
-                       national_identifier: String,
-                       bankRoutingScheme: String,
-                       bankRoutingAddress: String,
-                       callContext: Option[CallContext]): OBPReturnType[Bank] = {
-  validateBankId(bankId, callContext)
-  Future {
-    Connector.connector.vend.createOrUpdateBank(
-      bankId, fullBankName, shortBankName, logoURL, websiteURL,
-      swiftBIC, national_identifier, bankRoutingScheme, bankRoutingAddress,
-      callContext
-    ) map {
-      i =>  (i, callContext)
-    }
-  } map { unboxFull(_) }
-}
+// From LocalMappedConnector.scala lines 3218-3226 (Incoming)
+MappedBankAccount.create
+  .bank(bankId)
+  .theAccountId(INCOMING_SETTLEMENT_ACCOUNT_ID)  // "OBP_DEFAULT_INCOMING_ACCOUNT_ID"
+  .accountCurrency("EUR")
+  .kind("SETTLEMENT")
+  .holder(fullBankName)
+  .accountName("Default incoming settlement account")
+  .accountLabel("Settlement account: Do not delete!")
+  .saveMe()
+
+// From LocalMappedConnector.scala lines 3234-3242 (Outgoing)
+MappedBankAccount.create
+  .bank(bankId)
+  .theAccountId(OUTGOING_SETTLEMENT_ACCOUNT_ID)  // "OBP_DEFAULT_OUTGOING_ACCOUNT_ID"
+  .accountCurrency("EUR")
+  .kind("SETTLEMENT")
+  .holder(fullBankName)
+  .accountName("Default outgoing settlement account")
+  .accountLabel("Settlement account: Do not delete!")
+  .saveMe()
 ```
 
 **Variables**:
-- **Input**: bankId, fullBankName, shortBankName, logoURL, websiteURL, routing information
-- **Output**: Bank object (either newly created or updated existing)
-- **Constants**: None
+- **Input**: 
+  - `bankId` (String): Unique bank identifier
+  - `fullBankName` (String): Full legal name of the bank (used as account holder)
+- **Output**: 
+  - 2 MappedBankAccount records created
+  - Incoming settlement account with specific ID
+  - Outgoing settlement account with specific ID
+- **Constants**: 
+  - `INCOMING_SETTLEMENT_ACCOUNT_ID` = "OBP_DEFAULT_INCOMING_ACCOUNT_ID"
+  - `OUTGOING_SETTLEMENT_ACCOUNT_ID` = "OBP_DEFAULT_OUTGOING_ACCOUNT_ID"
+  - Settlement currency = "EUR"
+  - Account kind = "SETTLEMENT"
 
 **Business Conditions**:
 | Condition | Business Meaning | Values/Thresholds |
 |-----------|------------------|-------------------|
-| Bank with ID exists | Update existing bank | All fields updated |
-| Bank with ID doesn't exist | Create new bank | New record created |
+| 2 accounts per bank | Every bank needs incoming and outgoing settlement | Exactly 2 accounts |
+| EUR currency | Default settlement currency for inter-bank transfers | EUR only |
+| SETTLEMENT kind | Distinguishes from customer accounts | Type = SETTLEMENT |
+| System-managed | Accounts should not be deleted by users | Protected accounts |
 
 **Business Impact**: 
-This rule enables idempotent API operations, meaning the same request can be called multiple times safely. This is critical for distributed systems where network failures may cause retries, and for configuration management where the same bank details may be applied multiple times. It also allows updating bank information without a separate update endpoint.
+Settlement accounts are essential for inter-bank operations and clearing processes. Without these accounts, the bank cannot participate in inter-bank transfers, payment settlements, or clearing operations. These accounts act as the bank's interface to the broader banking network and are used for reconciliation and settlement of transactions between banks. They are required for regulatory compliance and operational functionality.
 
 **API Endpoints Using This Rule**:
-- POST /obp/v4.0.0/banks - Bank creation/update
+- POST /obp/v4.0.0/banks - Bank creation triggers settlement account creation
 
 **Related Test Cases**:
-Tests should validate: creating new bank (returns 201), calling same request again (updates existing, returns 201), updating bank details (fields changed), concurrent requests with same ID (one succeeds)
+- Test case for settlement account creation on bank registration
+- Test case for correct account IDs (incoming and outgoing)
+- Test case for EUR currency assignment
+- Test case for SETTLEMENT kind assignment
+- Test case for account holder matching bank name
 
 **Migration Notes for Go**:
-- Implement upsert logic (INSERT ... ON CONFLICT UPDATE in PostgreSQL)
-- Or: Check if record exists, then INSERT or UPDATE accordingly
-- Ensure atomic operation to prevent race conditions
-- Return appropriate status (201 for both create and update, or distinguish them)
-- Consider using database transactions for atomicity
+- Implement settlement account creation in same database transaction as bank creation
+- Use constants for settlement account IDs to ensure consistency
+- Implement idempotent logic (check if accounts exist before creating)
+- Consider using database constraints to prevent deletion of settlement accounts
+- Add application-level protection to prevent settlement account deletion
+- Log settlement account creation for audit trail
+- Consider making settlement currency configurable in future (currently hardcoded to EUR)
 
 **Example Scenarios**:
 ```
-Scenario 1: Creating new bank
-Input: bankId="new-bank", fullBankName="New Bank Ltd"
-Processing: Bank doesn't exist, create new record
-Output: New bank created, HTTP 201
+Scenario 1: New bank registration
+Input: bankId = "gh.29.uk", fullBankName = "The Royal Bank of Scotland"
+Processing: 
+  1. Create bank entity
+  2. Create incoming settlement account with ID "OBP_DEFAULT_INCOMING_ACCOUNT_ID"
+  3. Create outgoing settlement account with ID "OBP_DEFAULT_OUTGOING_ACCOUNT_ID"
+Result: Bank created with 2 settlement accounts
+Output: 
+  - Bank: gh.29.uk
+  - Account 1: OBP_DEFAULT_INCOMING_ACCOUNT_ID (EUR, SETTLEMENT)
+  - Account 2: OBP_DEFAULT_OUTGOING_ACCOUNT_ID (EUR, SETTLEMENT)
 
-Scenario 2: Updating existing bank
-Input: bankId="existing-bank", fullBankName="Updated Bank Name"
-Processing: Bank exists, update fullBankName field
-Output: Bank updated, HTTP 201
+Scenario 2: Settlement account query
+Input: bankId = "gh.29.uk", kind = "SETTLEMENT"
+Processing: SELECT * FROM mapped_bank_account WHERE bank = "gh.29.uk" AND kind = "SETTLEMENT"
+Result: Returns 2 settlement accounts
+Output: Incoming and outgoing settlement accounts for the bank
 
-Scenario 3: Retry after network failure
-Input: Same request as Scenario 1 sent again
-Processing: Bank now exists (from first request), update record
-Output: Bank updated (idempotent), HTTP 201
+Scenario 3: Idempotent bank creation
+Input: bankId = "gh.29.uk" (already exists with settlement accounts)
+Processing: Check if settlement accounts exist, skip creation if present
+Result: No duplicate settlement accounts created
+Output: Existing settlement accounts preserved
 ```
-
-**Business Context**:
-Idempotency is a critical property for distributed systems and APIs. Network failures, client retries, and configuration management tools often result in the same request being sent multiple times. By making bank creation idempotent (create-or-update), the OBP API ensures these retries are safe and don't cause errors or duplicate records. This also simplifies bank management by allowing configuration updates through the same endpoint.
 
 ---
 
-### BR-008: Automatic Entitlement Grant Rule
+### BR-004: Automatic Entitlement Assignment for Bank Creator
 
 **Category**: WORKFLOW
 
-**Description**: Upon successful bank creation, the system automatically grants the creating user two specific entitlements for that bank: CanCreateEntitlementAtOneBank and CanReadDynamicResourceDocsAtOneBank. This enables self-service bank management without requiring system administrator intervention.
+**Description**: When a user creates a new bank, they are automatically granted two specific entitlements (roles) for that bank: CanCreateEntitlementAtOneBank (allowing them to manage roles) and CanReadDynamicResourceDocsAtOneBank (allowing them to read API documentation). This ensures the bank creator has necessary permissions to manage their bank.
 
 **Source**: 
-- File: obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala
-- Class/Object: Implementations400
+- File: /obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala
+- Class/Object: APIMethods400
 - Method: createBank
-- Lines: 3663-3678
+- Lines: 3662-3677
 
 **Business Logic**:
-1. After bank is successfully created/updated, retrieve user's existing entitlements
-2. Filter entitlements to find those specific to the newly created bank
-3. Check if user already has CanCreateEntitlementAtOneBank for this bank
-4. If not present, grant CanCreateEntitlementAtOneBank entitlement
-5. If already present, skip (no duplicate entitlements)
-6. Check if user already has CanReadDynamicResourceDocsAtOneBank for this bank
-7. If not present, grant CanReadDynamicResourceDocsAtOneBank entitlement
-8. If already present, skip (no duplicate entitlements)
+1. After successfully creating a bank entity, the system identifies the user who created the bank (from OAuth context)
+2. System checks if user already has CanCreateEntitlementAtOneBank role for this bank
+3. If not present, system grants CanCreateEntitlementAtOneBank entitlement to the user for this specific bank
+4. System checks if user already has CanReadDynamicResourceDocsAtOneBank role for this bank
+5. If not present, system grants CanReadDynamicResourceDocsAtOneBank entitlement to the user for this specific bank
+6. These entitlements are bank-scoped (user can only manage this specific bank, not all banks)
+7. System sends notification email to user about granted entitlements
 
 **Scala Implementation**:
 ```scala
-entitlements <- NewStyle.function.getEntitlementsByUserId(cc.userId, callContext)
-entitlementsByBank = entitlements.filter(_.bankId==bank.id)
-_ <- entitlementsByBank.filter(_.roleName == CanCreateEntitlementAtOneBank.toString()).size > 0 match {
+// From APIMethods400.scala lines 3664-3669 (First entitlement)
+entitlementsByBank.filter(_.roleName == CanCreateEntitlementAtOneBank.toString()).size > 0 match {
   case true =>
-    // Already has entitlement
+    // Already has entitlement, skip
     Future()
   case false =>
+    // Grant entitlement
     Future(Entitlement.entitlement.vend.addEntitlement(bank.id, cc.userId, CanCreateEntitlementAtOneBank.toString()))
 }
-_ <- entitlementsByBank.filter(_.roleName == CanReadDynamicResourceDocsAtOneBank.toString()).size > 0 match {
+
+// From APIMethods400.scala lines 3671-3676 (Second entitlement)
+entitlementsByBank.filter(_.roleName == CanReadDynamicResourceDocsAtOneBank.toString()).size > 0 match {
   case true =>
-    // Already has entitlement
+    // Already has entitlement, skip
     Future()
   case false =>
+    // Grant entitlement
     Future(Entitlement.entitlement.vend.addEntitlement(bank.id, cc.userId, CanReadDynamicResourceDocsAtOneBank.toString()))
 }
 ```
 
 **Variables**:
-- **Input**: cc.userId (UserId), bank.id (BankId), existing entitlements
-- **Output**: Two new entitlement records (if not already present)
-- **Constants**: CanCreateEntitlementAtOneBank, CanReadDynamicResourceDocsAtOneBank
+- **Input**: 
+  - `bankId` (String): Unique bank identifier
+  - `userId` (String): User ID from OAuth context (cc.userId)
+- **Output**: 
+  - 2 MappedEntitlement records created (if not already present)
+  - User granted permissions to manage the bank
+- **Constants**: 
+  - Role 1: "CanCreateEntitlementAtOneBank"
+  - Role 2: "CanReadDynamicResourceDocsAtOneBank"
 
 **Business Conditions**:
 | Condition | Business Meaning | Values/Thresholds |
 |-----------|------------------|-------------------|
-| Entitlement not present | User needs permission | Grant entitlement |
-| Entitlement already present | User has permission | Skip (no duplicate) |
+| User creates bank | User who creates bank gets management rights | Automatic assignment |
+| Bank-scoped roles | Roles apply only to this specific bank | One bank only |
+| Idempotent assignment | Don't duplicate entitlements if already present | Check before create |
+| 2 specific roles | Predefined set of initial permissions | Fixed role names |
 
 **Business Impact**: 
-This rule enables a self-service model where users who create banks automatically receive permissions to manage those banks (assign roles to others, manage documentation). This reduces dependency on system administrators and enables faster bank onboarding while maintaining security (users only get permissions for banks they create).
+This rule implements the principle of "creator ownership" - the user who creates a bank becomes its initial administrator. This is essential for operational management as it ensures someone has the authority to configure the bank, assign roles to other users, and manage bank operations. Without this automatic assignment, newly created banks would be orphaned with no one having permission to manage them. The CanCreateEntitlementAtOneBank role is particularly critical as it allows the creator to delegate permissions to other users.
 
 **API Endpoints Using This Rule**:
-- POST /obp/v4.0.0/banks - Bank creation/update
+- POST /obp/v4.0.0/banks - Bank creation triggers entitlement assignment
 
 **Related Test Cases**:
-Tests should validate: new bank creator receives both entitlements, existing bank update doesn't duplicate entitlements, entitlements are bank-specific (not system-wide), user can use granted entitlements immediately
+- Test case for entitlement assignment on bank creation
+- Test case for correct role names assigned
+- Test case for bank-scoped entitlements (not global)
+- Test case for idempotent entitlement assignment
+- Test case for user notification on entitlement grant
 
 **Migration Notes for Go**:
-- After successful bank creation, query user's existing entitlements
-- Filter by bankId to check bank-specific entitlements
-- Use conditional logic to grant only missing entitlements
-- Ensure entitlement grants are atomic (use transactions)
-- Handle entitlement grant failures gracefully (bank already created)
+- Implement entitlement assignment in same database transaction as bank creation
+- Use exact role name strings to ensure compatibility
+- Implement idempotent logic (check if entitlement exists before creating)
+- Generate unique UUID for entitlement ID
+- Set createdByProcess field to "createBank" for audit trail
+- Implement notification service to email user about granted permissions
+- Consider using constants or enums for role names to avoid typos
+- Ensure user context is properly extracted from OAuth/JWT token
 
 **Example Scenarios**:
 ```
-Scenario 1: User creates first bank
-Input: userId="user123", bankId="new-bank"
-Processing: No existing entitlements for this bank, grant both
-Output: Two entitlements created: CanCreateEntitlementAtOneBank and CanReadDynamicResourceDocsAtOneBank
+Scenario 1: First-time bank creation by user
+Input: bankId = "gh.29.uk", userId = "user-123"
+Processing: 
+  1. Create bank entity
+  2. Check if user-123 has CanCreateEntitlementAtOneBank for gh.29.uk (not found)
+  3. Grant CanCreateEntitlementAtOneBank to user-123 for gh.29.uk
+  4. Check if user-123 has CanReadDynamicResourceDocsAtOneBank for gh.29.uk (not found)
+  5. Grant CanReadDynamicResourceDocsAtOneBank to user-123 for gh.29.uk
+Result: User granted 2 entitlements
+Output: 
+  - Entitlement 1: user-123, gh.29.uk, CanCreateEntitlementAtOneBank
+  - Entitlement 2: user-123, gh.29.uk, CanReadDynamicResourceDocsAtOneBank
 
-Scenario 2: User updates existing bank
-Input: userId="user123", bankId="existing-bank" (user already has entitlements)
-Processing: Entitlements already present, skip grant
-Output: No new entitlements created
+Scenario 2: User already has entitlements (idempotent)
+Input: bankId = "gh.29.uk", userId = "user-123" (already has entitlements)
+Processing: 
+  1. Check if user-123 has CanCreateEntitlementAtOneBank for gh.29.uk (found)
+  2. Skip entitlement creation
+  3. Check if user-123 has CanReadDynamicResourceDocsAtOneBank for gh.29.uk (found)
+  4. Skip entitlement creation
+Result: No duplicate entitlements created
+Output: Existing entitlements preserved
 
-Scenario 3: Different user updates bank
-Input: userId="user456", bankId="existing-bank" (created by user123)
-Processing: user456 has no entitlements for this bank, grant both
-Output: Two entitlements created for user456
+Scenario 3: User creates second bank
+Input: bankId = "bank-b", userId = "user-123" (already has entitlements for bank-a)
+Processing: 
+  1. Create bank entity for bank-b
+  2. Check if user-123 has CanCreateEntitlementAtOneBank for bank-b (not found)
+  3. Grant CanCreateEntitlementAtOneBank to user-123 for bank-b
+  4. Check if user-123 has CanReadDynamicResourceDocsAtOneBank for bank-b (not found)
+  5. Grant CanReadDynamicResourceDocsAtOneBank to user-123 for bank-b
+Result: User granted entitlements for second bank
+Output: User now has entitlements for both bank-a and bank-b (bank-scoped)
 ```
-
-**Business Context**:
-The OBP API uses role-based access control (RBAC) through entitlements. CanCreateEntitlementAtOneBank allows the user to grant roles to other users for this specific bank, enabling them to build a team. CanReadDynamicResourceDocsAtOneBank allows them to view and manage API documentation for their bank. By automatically granting these permissions to bank creators, the system enables self-service bank management without requiring system administrator intervention for every permission grant.
 
 ---
 
-### BR-009: Settlement Account Auto-Creation Rule (Sandbox Mode)
+### BR-005: Bank ID Immutability After Creation
 
-**Category**: WORKFLOW
+**Category**: DECISION
 
-**Description**: In sandbox/mapped connector mode, the system automatically creates two default settlement accounts (incoming and outgoing) for each newly created bank. These accounts are used for payment processing reconciliation and have fixed IDs, names, and EUR currency.
+**Description**: Once a bank is created, its bank ID (permalink) cannot be modified. This ensures referential integrity across all bank-related entities (accounts, customers, transactions) that reference the bank ID as a foreign key.
 
 **Source**: 
-- File: obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala (documentation)
-- Referenced in: LocalMappedConnector implementation
-- Lines: 3602-3606 (documentation)
+- File: User story documentation (bank_registration_configuration_user_story.md)
+- Business Rule: Line 153
+- Implementation: No UPDATE endpoint exists for bank ID modification
 
 **Business Logic**:
-1. Check if connector mode is "mapped" (sandbox mode)
-2. If in sandbox mode and bank is newly created (not update):
-3. Create incoming settlement account with:
-   - Account ID: OBP_DEFAULT_INCOMING_ACCOUNT_ID
-   - Account Name: "Default incoming settlement account"
-   - Currency: EUR
-   - Initial Balance: 0
-4. Create outgoing settlement account with:
-   - Account ID: OBP_DEFAULT_OUTGOING_ACCOUNT_ID
-   - Account Name: "Default outgoing settlement account"
-   - Currency: EUR
-   - Initial Balance: 0
-5. If not in sandbox mode or bank already exists, skip settlement account creation
+1. When a bank is created, the bank ID (permalink) is set and persisted
+2. The bank ID becomes the primary business key used across all related entities
+3. No API endpoint exists to modify the bank ID after creation
+4. If a bank ID needs to change, the bank must be recreated with a new ID (and all related data migrated)
+5. This immutability prevents orphaned references and maintains data consistency
 
 **Scala Implementation**:
 ```scala
-// Documentation from APIMethods400.scala
-// Only SANDBOX mode (i.e. when connector=mapped in properties file)
-// The settlement accounts are automatically created by the system when the bank is created.
-// Name and account id are created in accordance to the next rules:
-//   - Incoming account (name: Default incoming settlement account, Account ID: OBP_DEFAULT_INCOMING_ACCOUNT_ID, currency: EUR)
-//   - Outgoing account (name: Default outgoing settlement account, Account ID: OBP_DEFAULT_OUTGOING_ACCOUNT_ID, currency: EUR)
+// From user story documentation (line 132-134):
+// "Based on the systematic search across all API versions (v1.2.1 through v6.0.0), 
+// there is **no explicit PUT /banks/BANK_ID endpoint** for updating existing bank entities."
+
+// Bank ID is set once during creation and never modified
+MappedBank.create
+  .permalink(bankId)  // Set once, never changed
+  .fullBankName(fullBankName)
+  .shortBankName(shortBankName)
+  // ... other fields
+  .saveMe()
 ```
 
 **Variables**:
-- **Input**: bankId (BankId), connector mode configuration
-- **Output**: Two settlement account records (if sandbox mode and new bank)
-- **Constants**: 
-  - OBP_DEFAULT_INCOMING_ACCOUNT_ID
-  - OBP_DEFAULT_OUTGOING_ACCOUNT_ID
-  - Default currency: EUR
-  - Initial balance: 0
+- **Input**: 
+  - `bankId` (String): Unique bank identifier set at creation
+- **Output**: 
+  - Bank ID remains constant throughout bank lifecycle
+- **Constants**: None
 
 **Business Conditions**:
 | Condition | Business Meaning | Values/Thresholds |
 |-----------|------------------|-------------------|
-| connector=mapped | Sandbox/development mode | Settlement accounts created |
-| connector!=mapped | Production mode | No settlement accounts created |
-| Bank is new | First-time creation | Settlement accounts created |
-| Bank exists | Update operation | No settlement accounts created |
+| Bank ID set at creation | ID assigned during initial registration | One-time assignment |
+| No modification allowed | ID cannot be changed after creation | Immutable field |
+| Referenced by all entities | ID used as foreign key everywhere | Referential integrity |
 
 **Business Impact**: 
-This rule enables immediate payment processing testing in sandbox mode by providing the necessary settlement accounts for reconciliation. In production, settlement accounts are managed by the backend banking system. This separation allows developers to test payment flows without requiring a full banking backend.
+This rule is critical for maintaining referential integrity in a complex banking system. The bank ID is used as a foreign key in accounts, transactions, customers, entitlements, and many other entities. Allowing the bank ID to change would require cascading updates across potentially millions of records, risking data corruption and system inconsistency. Immutability ensures that once a bank is registered, all references to it remain valid and consistent. This is a fundamental principle of database design and data integrity.
 
 **API Endpoints Using This Rule**:
-- POST /obp/v4.0.0/banks - Bank creation (sandbox mode only)
+- POST /obp/v4.0.0/banks - Bank creation (ID set here)
+- No PUT endpoint exists for bank ID modification
 
 **Related Test Cases**:
-Tests should validate: sandbox mode creates settlement accounts, production mode doesn't create settlement accounts, settlement accounts have correct IDs and names, settlement accounts have EUR currency and 0 balance, updating existing bank doesn't create duplicate settlement accounts
+- Test case for bank ID persistence after creation
+- Test case for absence of bank ID update endpoint
+- Test case for referential integrity with bank ID
 
 **Migration Notes for Go**:
-- Check configuration for connector mode (mapped vs production)
-- Implement conditional logic based on mode
-- Use constants for settlement account IDs and names
-- Ensure settlement account creation is atomic with bank creation
-- Handle case where settlement accounts already exist (idempotent)
-- Consider making currency configurable in future
+- Implement bank ID as immutable field in Go struct (no setter method)
+- Do not expose any API endpoint for bank ID modification
+- Use database constraints to prevent bank ID updates
+- Consider using bank ID as primary key or unique index
+- Document immutability clearly in API documentation
+- If bank ID change is required, implement bank migration/recreation process
 
 **Example Scenarios**:
 ```
-Scenario 1: Create bank in sandbox mode
-Input: bankId="test-bank", connector=mapped
-Processing: Bank created, two settlement accounts created
-Output: Bank + 2 settlement accounts (incoming and outgoing)
+Scenario 1: Bank creation with ID
+Input: bankId = "gh.29.uk"
+Processing: Create bank with permalink = "gh.29.uk"
+Result: Bank created with immutable ID
+Output: Bank ID = "gh.29.uk" (permanent)
 
-Scenario 2: Create bank in production mode
-Input: bankId="prod-bank", connector=rest
-Processing: Bank created, no settlement accounts created
-Output: Bank only (settlement accounts managed by backend)
+Scenario 2: Attempt to modify bank ID (should fail)
+Input: PUT /banks/gh.29.uk with new ID "gh.29.uk.new"
+Processing: No such endpoint exists
+Result: HTTP 404 Not Found or HTTP 405 Method Not Allowed
+Output: Bank ID remains "gh.29.uk"
 
-Scenario 3: Update bank in sandbox mode
-Input: bankId="existing-test-bank", connector=mapped
-Processing: Bank updated, settlement accounts already exist
-Output: Bank updated, no new settlement accounts
+Scenario 3: Bank ID referenced by accounts
+Input: Create account with bank_id = "gh.29.uk"
+Processing: Account created with foreign key to bank
+Result: Account permanently linked to bank "gh.29.uk"
+Output: Account.bank_id = "gh.29.uk" (cannot change without recreating account)
 ```
-
-**Business Context**:
-Settlement accounts are special accounts used in payment processing to track funds in transit. The incoming settlement account receives funds from external sources before they're credited to customer accounts. The outgoing settlement account tracks funds sent to external destinations before they're debited from customer accounts. These accounts are essential for reconciliation and ensuring payment integrity. In sandbox mode, OBP creates these automatically to enable payment testing without a full banking backend.
 
 ---
 
-### BR-010: OBP Routing Scheme Auto-Addition Rule
+### BR-006: Bank ID Format and Length Validation
+
+**Category**: THRESHOLD
+
+**Description**: Bank ID must meet specific format requirements to ensure URL-safety, uniqueness, and system compatibility. The ID must be greater than 3 characters, cannot contain spaces, and cannot contain the reserved separator sequence "::::".
+
+**Source**: 
+- File: /obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala
+- Class/Object: APIMethods400
+- Method: createBank
+- Lines: 3621-3683 (validation rules documented in user story lines 105-109)
+
+**Business Logic**:
+1. When a bank creation request is received, extract the bank ID from the request
+2. Validate that bank ID length is greater than 3 characters
+3. Validate that bank ID does not contain any space characters
+4. Validate that bank ID does not contain the sequence "::::"
+5. Validate that bank ID passes "short string" validation (additional format checks)
+6. If any validation fails, reject the request with appropriate error message
+7. If all validations pass, proceed with bank creation
+
+**Scala Implementation**:
+```scala
+// From user story documentation (lines 105-109):
+// Validation Rules:
+// - BANK_ID must be greater than 3 characters
+// - BANK_ID cannot contain space characters
+// - BANK_ID cannot contain `::::` characters
+// - BANK_ID must pass short string validation
+
+// Validation logic (inferred from validation rules):
+def validateBankId(bankId: String): Either[String, String] = {
+  if (bankId.length <= 3) {
+    Left("BANK_ID must be greater than 3 characters")
+  } else if (bankId.contains(" ")) {
+    Left("BANK_ID cannot contain space characters")
+  } else if (bankId.contains("::::")) {
+    Left("BANK_ID cannot contain :::: characters")
+  } else if (!isValidShortString(bankId)) {
+    Left("BANK_ID must pass short string validation")
+  } else {
+    Right(bankId)
+  }
+}
+```
+
+**Variables**:
+- **Input**: 
+  - `bankId` (String): Bank identifier from request
+- **Output**: 
+  - Valid bank ID or validation error
+- **Constants**: 
+  - Minimum length: 3 characters (exclusive, must be > 3)
+  - Forbidden characters: space (" ")
+  - Forbidden sequence: "::::"
+
+**Business Conditions**:
+| Condition | Business Meaning | Values/Thresholds |
+|-----------|------------------|-------------------|
+| Length > 3 | Bank ID must be meaningful and unique | Minimum 4 characters |
+| No spaces | Bank ID must be URL-safe | No space characters |
+| No :::: | Avoid reserved separator used internally | No :::: sequence |
+| Short string format | Additional format constraints | System-defined rules |
+
+**Business Impact**: 
+These validation rules ensure that bank IDs are suitable for use in URLs, database keys, and system operations. The length requirement prevents trivial or ambiguous IDs. The space restriction ensures URL-safety without encoding. The :::: restriction prevents conflicts with internal system separators. These rules protect system integrity and prevent operational issues caused by malformed bank IDs. They also ensure consistency across the platform and prevent user errors during bank registration.
+
+**API Endpoints Using This Rule**:
+- POST /obp/v4.0.0/banks - Bank creation with ID validation
+
+**Related Test Cases**:
+- Test case for bank ID too short (≤ 3 characters)
+- Test case for bank ID with spaces
+- Test case for bank ID with :::: sequence
+- Test case for valid bank ID format
+- Test case for short string validation
+
+**Migration Notes for Go**:
+- Implement validation as middleware or request validator
+- Use regex for pattern matching if needed
+- Return HTTP 400 Bad Request with clear error messages
+- Implement validation before database operations
+- Consider using Go validator library for declarative validation
+- Document validation rules in API specification (OpenAPI/Swagger)
+- Provide clear error messages for each validation failure
+
+**Example Scenarios**:
+```
+Scenario 1: Valid bank ID
+Input: bankId = "gh.29.uk"
+Processing: 
+  - Length check: 8 > 3 ✓
+  - Space check: no spaces ✓
+  - :::: check: no :::: ✓
+  - Short string check: valid ✓
+Result: Validation passes
+Output: Bank ID accepted
+
+Scenario 2: Bank ID too short
+Input: bankId = "abc"
+Processing: 
+  - Length check: 3 > 3 ✗
+Result: Validation fails
+Output: Error - "BANK_ID must be greater than 3 characters"
+
+Scenario 3: Bank ID with spaces
+Input: bankId = "bank of america"
+Processing: 
+  - Length check: 16 > 3 ✓
+  - Space check: contains spaces ✗
+Result: Validation fails
+Output: Error - "BANK_ID cannot contain space characters"
+
+Scenario 4: Bank ID with forbidden sequence
+Input: bankId = "bank::::id"
+Processing: 
+  - Length check: 10 > 3 ✓
+  - Space check: no spaces ✓
+  - :::: check: contains :::: ✗
+Result: Validation fails
+Output: Error - "BANK_ID cannot contain :::: characters"
+
+Scenario 5: Suggested valid format
+Input: bankId = "bank-of-america-us"
+Processing: All validations pass
+Result: Valid bank ID
+Output: Bank ID accepted (uses hyphens instead of spaces, meaningful length)
+```
+
+---
+
+### BR-007: Bank Routing Scheme Extraction and Storage
 
 **Category**: TRANSFORMATION
 
-**Description**: The system automatically adds an "OBP" routing scheme to every bank's routing information in the API response, using the bank ID as the address, even if not provided in the request. This ensures every bank has an OBP-specific identifier for internal routing.
+**Description**: Bank routing information can be provided in two formats: either as a BIC/SWIFT code in the swiftBIC field, or as an array of routing schemes with scheme-address pairs. The system must extract and store routing information in the appropriate fields (swiftBIC, bankRoutingScheme, bankRoutingAddress) based on the input format.
 
 **Source**: 
-- File: obp-api/src/main/scala/code/api/v4_0_0/JSONFactory400.scala
-- Method: createBankJSON400
-- Referenced in user story lines 122-123
+- File: /obp-api/src/main/scala/code/bankconnectors/LocalMappedConnector.scala
+- Class/Object: LocalMappedConnector
+- Method: createOrUpdateBank
+- Lines: 3169-3247 (routing extraction logic inferred from entity structure)
 
 **Business Logic**:
-1. When creating the JSON response for a bank
-2. Retrieve all stored routing schemes (BIC, national IDs, custom schemes)
-3. Automatically prepend an "OBP" routing scheme entry
-4. Use the bank ID as the address for the OBP routing scheme
-5. Return the complete list with OBP routing first, followed by other routings
+1. When bank creation request is received, check if bank_routings array is provided
+2. If bank_routings array is provided and not empty:
+   - Extract first routing entry from array
+   - Store scheme value in bankRoutingScheme field
+   - Store address value in bankRoutingAddress field
+   - If scheme is "BIC", also store address in swiftBIC field
+3. If bank_routings array is empty or not provided:
+   - Use default routing scheme (e.g., "OBP")
+   - Store bank ID as routing address
+4. Store all routing information in MappedBank entity for future reference
 
 **Scala Implementation**:
 ```scala
-// Inferred from response structure in user story
-// Response always includes:
-// {"scheme": "OBP", "address": "bank-id-123"}
-// Even if not provided in request
+// From business_entities.md (lines 96-99):
+// Routing information extraction (inferred logic):
+val (bankRoutingScheme, bankRoutingAddress, swiftBIC) = bankRoutings match {
+  case Some(routings) if routings.nonEmpty =>
+    val firstRouting = routings.head
+    val scheme = firstRouting.scheme
+    val address = firstRouting.address
+    val bic = if (scheme == "BIC") address else ""
+    (scheme, address, bic)
+  case _ =>
+    ("OBP", bankId, "")
+}
+
+MappedBank.create
+  .permalink(bankId)
+  .swiftBIC(swiftBIC)
+  .mBankRoutingScheme(bankRoutingScheme)
+  .mBankRoutingAddress(bankRoutingAddress)
+  .saveMe()
 ```
 
 **Variables**:
-- **Input**: bank.id (BankId), stored routing schemes
-- **Output**: bank_routings array with OBP scheme prepended
-- **Constants**: OBP routing scheme name = "OBP"
+- **Input**: 
+  - `bank_routings` (Array): Array of routing scheme-address pairs from request
+  - `bankId` (String): Bank identifier (used as fallback routing address)
+- **Output**: 
+  - `swiftBIC` (String): SWIFT/BIC code if routing scheme is BIC
+  - `bankRoutingScheme` (String): Routing scheme type (BIC, OBP, etc.)
+  - `bankRoutingAddress` (String): Routing address for the scheme
+- **Constants**: 
+  - Default routing scheme: "OBP"
+  - BIC scheme identifier: "BIC"
 
 **Business Conditions**:
 | Condition | Business Meaning | Values/Thresholds |
 |-----------|------------------|-------------------|
-| Always true | Every bank has OBP routing | OBP scheme added to response |
+| BIC scheme provided | Use BIC for international transfers | scheme = "BIC" |
+| Multiple routings | Use first routing entry | Array index 0 |
+| No routings provided | Use default OBP routing | Fallback to OBP |
+| BIC stored separately | SWIFT/BIC has dedicated field | swiftBIC field |
 
 **Business Impact**: 
-This rule ensures every bank in the OBP system has a consistent, system-wide identifier (the OBP routing scheme) that can be used for internal routing, connector selection, and system integration. It provides a fallback routing mechanism when other schemes are unavailable.
+Bank routing information is critical for inter-bank transfers and payment processing. Different payment networks use different routing schemes (SWIFT/BIC for international, ACH routing numbers for US, IBAN for Europe, etc.). The system must correctly extract and store this information to enable proper payment routing. The BIC/SWIFT code is particularly important for international transfers and must be stored in a dedicated field for compatibility with international payment systems. Incorrect routing information can cause payment failures and operational issues.
 
 **API Endpoints Using This Rule**:
-- POST /obp/v4.0.0/banks - Bank creation/update response
-- GET /obp/v4.0.0/banks/BANK_ID - Bank details response
+- POST /obp/v4.0.0/banks - Bank creation with routing information
 
 **Related Test Cases**:
-Tests should validate: OBP routing always present in response, OBP routing uses bank ID as address, OBP routing appears first in array, other routings preserved after OBP routing
+- Test case for BIC routing scheme extraction
+- Test case for non-BIC routing scheme extraction
+- Test case for empty routing array (default OBP routing)
+- Test case for multiple routing entries (first one used)
+- Test case for swiftBIC field population when scheme is BIC
 
 **Migration Notes for Go**:
-- When serializing bank to JSON response, prepend OBP routing
-- Create BankRouting struct with scheme="OBP" and address=bankID
-- Append other stored routings after OBP routing
-- Ensure OBP routing is not stored in database (response-only)
+- Implement routing extraction logic in bank creation handler
+- Handle both array and single routing formats
+- Use first routing entry if multiple provided
+- Implement default routing logic (OBP scheme with bank ID as address)
+- Store BIC in dedicated field when scheme is "BIC"
+- Consider supporting multiple routing schemes in future (currently only first is used)
+- Validate routing scheme values against known schemes
+- Document supported routing schemes in API specification
 
 **Example Scenarios**:
 ```
 Scenario 1: Bank with BIC routing
-Input: bank_routings = [{"scheme": "BIC", "address": "MYBANKXX"}]
-Processing: Add OBP routing to response
-Output: [{"scheme": "OBP", "address": "my-bank"}, {"scheme": "BIC", "address": "MYBANKXX"}]
+Input: 
+  bankId = "gh.29.uk"
+  bank_routings = [{"scheme": "BIC", "address": "GHBKGB2L"}]
+Processing: 
+  - Extract first routing: scheme = "BIC", address = "GHBKGB2L"
+  - Scheme is BIC, so swiftBIC = "GHBKGB2L"
+  - bankRoutingScheme = "BIC"
+  - bankRoutingAddress = "GHBKGB2L"
+Result: Routing information stored
+Output: 
+  - swiftBIC = "GHBKGB2L"
+  - bankRoutingScheme = "BIC"
+  - bankRoutingAddress = "GHBKGB2L"
 
-Scenario 2: Bank with no routings
-Input: bank_routings = []
-Processing: Add OBP routing to response
-Output: [{"scheme": "OBP", "address": "my-bank"}]
+Scenario 2: Bank with non-BIC routing
+Input: 
+  bankId = "us-bank-001"
+  bank_routings = [{"scheme": "ACH", "address": "123456789"}]
+Processing: 
+  - Extract first routing: scheme = "ACH", address = "123456789"
+  - Scheme is not BIC, so swiftBIC = ""
+  - bankRoutingScheme = "ACH"
+  - bankRoutingAddress = "123456789"
+Result: Routing information stored
+Output: 
+  - swiftBIC = ""
+  - bankRoutingScheme = "ACH"
+  - bankRoutingAddress = "123456789"
 
-Scenario 3: Bank with multiple routings
-Input: bank_routings = [{"scheme": "BIC", "address": "XX"}, {"scheme": "NATIONAL_ID", "address": "123"}]
-Processing: Add OBP routing to response
-Output: [{"scheme": "OBP", "address": "my-bank"}, {"scheme": "BIC", "address": "XX"}, {"scheme": "NATIONAL_ID", "address": "123"}]
+Scenario 3: Bank with no routing information
+Input: 
+  bankId = "test-bank"
+  bank_routings = []
+Processing: 
+  - No routing provided, use defaults
+  - bankRoutingScheme = "OBP"
+  - bankRoutingAddress = "test-bank" (bank ID)
+  - swiftBIC = ""
+Result: Default routing stored
+Output: 
+  - swiftBIC = ""
+  - bankRoutingScheme = "OBP"
+  - bankRoutingAddress = "test-bank"
+
+Scenario 4: Bank with multiple routing schemes
+Input: 
+  bankId = "multi-bank"
+  bank_routings = [
+    {"scheme": "BIC", "address": "MULTGB2L"},
+    {"scheme": "ACH", "address": "987654321"}
+  ]
+Processing: 
+  - Extract first routing only: scheme = "BIC", address = "MULTGB2L"
+  - Second routing ignored (current implementation limitation)
+  - Scheme is BIC, so swiftBIC = "MULTGB2L"
+Result: First routing stored, others ignored
+Output: 
+  - swiftBIC = "MULTGB2L"
+  - bankRoutingScheme = "BIC"
+  - bankRoutingAddress = "MULTGB2L"
+  - Note: ACH routing not stored (limitation)
 ```
-
-**Business Context**:
-The OBP routing scheme serves as a universal identifier within the OBP ecosystem. While BIC codes are used for international payments and national IDs for domestic payments, the OBP routing provides a consistent identifier that works across all banks in the system, regardless of their external routing schemes. This is particularly useful for internal routing, connector selection, and ensuring every bank has at least one routing identifier.
 
 ---
 
-### BR-011: Authorization Check for Bank Creation
+### BR-008: Transactional Atomicity for Bank Creation
 
-**Category**: DECISION
+**Category**: WORKFLOW
 
-**Description**: Users must have the CanCreateBank entitlement before they can create banks in the system. This role-based access control prevents unauthorized bank registration and ensures only privileged users can add banks to the platform.
+**Description**: Bank creation, settlement account provisioning, and entitlement assignment must be performed as a single atomic transaction. If any operation fails, all changes must be rolled back to maintain data consistency and prevent partial bank registration.
 
 **Source**: 
-- File: obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala
-- Documented in: staticResourceDocs (line 3618)
-- Enforced by: OBP framework based on role declaration
+- File: /obp-api/src/main/scala/code/bankconnectors/LocalMappedConnector.scala
+- Class/Object: LocalMappedConnector
+- Method: createOrUpdateBank
+- Lines: 3169-3247
+- Additional Reference: /obp-api/src/main/scala/code/api/v4_0_0/APIMethods400.scala (lines 3621-3683)
 
 **Business Logic**:
-1. Before processing bank creation request, check user's entitlements
-2. Verify user has CanCreateBank role (system-wide or bank-specific)
-3. If user lacks CanCreateBank entitlement, reject with 403 Forbidden
-4. If user has CanCreateBank entitlement, allow processing to continue
-5. Error message: "Insufficient authorisation to create bank"
+1. Begin database transaction
+2. Create or update MappedBank entity
+3. Create incoming settlement account (MappedBankAccount)
+4. Create outgoing settlement account (MappedBankAccount)
+5. Assign CanCreateEntitlementAtOneBank entitlement (MappedEntitlement)
+6. Assign CanReadDynamicResourceDocsAtOneBank entitlement (MappedEntitlement)
+7. If all operations succeed, commit transaction
+8. If any operation fails, rollback entire transaction
+9. Return success or error response based on transaction outcome
 
 **Scala Implementation**:
 ```scala
-// Declared in ResourceDoc
-Some(List(canCreateBank))
-
-// Framework enforces this check before endpoint execution
-// If user lacks entitlement, returns:
-// HTTP 403: "Insufficient authorisation to create bank"
+// Transactional logic (inferred from entity creation sequence):
+// All operations must succeed or all must fail
+def createBankWithDependencies(bankData: PostBankJson400, userId: String): Either[Error, Bank] = {
+  DB.use(DefaultConnectionIdentifier) { conn =>
+    try {
+      // Start transaction
+      conn.setAutoCommit(false)
+      
+      // 1. Create bank
+      val bank = MappedBank.create
+        .permalink(bankId)
+        .fullBankName(fullBankName)
+        // ... other fields
+        .saveMe()
+      
+      // 2. Create settlement accounts
+      val incomingAccount = MappedBankAccount.create
+        .bank(bankId)
+        .theAccountId(INCOMING_SETTLEMENT_ACCOUNT_ID)
+        // ... other fields
+        .saveMe()
+      
+      val outgoingAccount = MappedBankAccount.create
+        .bank(bankId)
+        .theAccountId(OUTGOING_SETTLEMENT_ACCOUNT_ID)
+        // ... other fields
+        .saveMe()
+      
+      // 3. Assign entitlements
+      val entitlement1 = MappedEntitlement.create
+        .mBankId(bankId)
+        .mUserId(userId)
+        .mRoleName("CanCreateEntitlementAtOneBank")
+        .saveMe()
+      
+      val entitlement2 = MappedEntitlement.create
+        .mBankId(bankId)
+        .mUserId(userId)
+        .mRoleName("CanReadDynamicResourceDocsAtOneBank")
+        .saveMe()
+      
+      // Commit transaction
+      conn.commit()
+      Right(bank)
+    } catch {
+      case e: Exception =>
+        // Rollback on any error
+        conn.rollback()
+        Left(Error(e.getMessage))
+    }
+  }
+}
 ```
 
 **Variables**:
-- **Input**: user.entitlements (List[Entitlement]), required role: CanCreateBank
-- **Output**: Authorization success or 403 error
-- **Constants**: Required role = CanCreateBank
+- **Input**: 
+  - Bank creation data (PostBankJson400)
+  - User ID (from OAuth context)
+- **Output**: 
+  - Complete bank registration (bank + 2 accounts + 2 entitlements)
+  - Or complete rollback with error message
+- **Constants**: None
 
 **Business Conditions**:
 | Condition | Business Meaning | Values/Thresholds |
 |-----------|------------------|-------------------|
-| User has CanCreateBank | User authorized to create banks | Processing continues |
-| User lacks CanCreateBank | User not authorized | HTTP 403 error |
+| All operations succeed | Complete bank registration | 5 database inserts |
+| Any operation fails | No partial registration | Full rollback |
+| Transaction isolation | Prevent concurrent conflicts | Database transaction |
 
 **Business Impact**: 
-This rule prevents unauthorized bank creation, which could lead to system abuse, fake banks, or security issues. By restricting bank creation to users with explicit CanCreateBank entitlement, the system ensures only trusted administrators or authorized partners can register banks on the platform.
+Transactional atomicity is critical for data consistency. Without it, the system could end up with orphaned banks (bank without settlement accounts), banks without administrators (no entitlements), or settlement accounts without banks. These partial states would cause operational failures and require manual cleanup. Atomicity ensures that either a bank is fully registered and operational, or the registration fails completely with no side effects. This is essential for system reliability and data integrity.
 
 **API Endpoints Using This Rule**:
-- POST /obp/v4.0.0/banks - Bank creation/update
+- POST /obp/v4.0.0/banks - Bank creation with atomic transaction
 
 **Related Test Cases**:
-Tests should validate: user with CanCreateBank can create banks, user without CanCreateBank receives 403 error, system admin can grant CanCreateBank to users, newly granted entitlement works immediately
+- Test case for successful complete bank creation
+- Test case for rollback on bank creation failure
+- Test case for rollback on settlement account creation failure
+- Test case for rollback on entitlement assignment failure
+- Test case for no partial data after failed transaction
 
 **Migration Notes for Go**:
-- Implement middleware to check user entitlements before handler execution
-- Query user's entitlements from database or cache
-- Check if CanCreateBank is present in user's entitlement list
-- Return 403 with appropriate error message if missing
-- Consider caching entitlements for performance
+- Use database transactions (sql.Tx in Go)
+- Implement proper error handling with rollback
+- Use defer statement for cleanup (rollback on panic)
+- Consider using transaction middleware or repository pattern
+- Implement retry logic for transient failures
+- Log transaction failures for debugging
+- Use appropriate transaction isolation level
+- Consider using database-level constraints to enforce consistency
 
 **Example Scenarios**:
 ```
-Scenario 1: Authorized user creates bank
-Input: User with CanCreateBank entitlement
-Processing: Authorization check passes
-Output: Bank creation proceeds
+Scenario 1: Successful complete bank creation
+Input: Valid bank data, valid user ID
+Processing: 
+  1. Begin transaction
+  2. Create bank ✓
+  3. Create incoming settlement account ✓
+  4. Create outgoing settlement account ✓
+  5. Assign entitlement 1 ✓
+  6. Assign entitlement 2 ✓
+  7. Commit transaction ✓
+Result: Complete bank registration
+Output: Bank fully operational with all dependencies
 
-Scenario 2: Unauthorized user attempts to create bank
-Input: User without CanCreateBank entitlement
-Processing: Authorization check fails
-Output: HTTP 403 "Insufficient authorisation to create bank"
+Scenario 2: Failure during settlement account creation
+Input: Valid bank data, but settlement account creation fails
+Processing: 
+  1. Begin transaction
+  2. Create bank ✓
+  3. Create incoming settlement account ✗ (database error)
+  4. Rollback transaction
+Result: No bank created, no accounts created
+Output: Error message, database unchanged
 
-Scenario 3: System admin grants entitlement
-Input: Admin grants CanCreateBank to user, user creates bank
-Processing: Authorization check passes with new entitlement
-Output: Bank creation proceeds
+Scenario 3: Failure during entitlement assignment
+Input: Valid bank data, but entitlement assignment fails
+Processing: 
+  1. Begin transaction
+  2. Create bank ✓
+  3. Create incoming settlement account ✓
+  4. Create outgoing settlement account ✓
+  5. Assign entitlement 1 ✗ (user not found)
+  6. Rollback transaction
+Result: No bank created, no accounts created, no entitlements assigned
+Output: Error message, database unchanged
+
+Scenario 4: Concurrent bank creation attempts
+Input: Two requests to create same bank ID simultaneously
+Processing: 
+  1. Transaction 1 begins, creates bank
+  2. Transaction 2 begins, attempts to create same bank
+  3. Transaction 2 fails on unique constraint violation
+  4. Transaction 2 rolls back
+  5. Transaction 1 commits successfully
+Result: Only one bank created, second request fails
+Output: First request succeeds, second request returns error (duplicate bank ID)
 ```
-
-**Business Context**:
-The OBP API uses role-based access control (RBAC) through entitlements. CanCreateBank is a powerful system-level entitlement that allows creating new banks on the platform. This is typically granted only to system administrators, bank partners, or trusted users. Restricting this capability prevents abuse, ensures accountability, and maintains the integrity of the banking platform by controlling who can register new financial institutions.
 
 ---
 
@@ -924,45 +1015,60 @@ The OBP API uses role-based access control (RBAC) through entitlements. CanCreat
 
 | Endpoint | HTTP Method | Business Rules | Rule IDs |
 |----------|-------------|----------------|----------|
-| /obp/v4.0.0/banks | POST | Bank ID validation, consumer auth, BIC extraction, idempotent create/update, auto-entitlement grant, settlement account creation, authorization check | BR-001, BR-002, BR-003, BR-004, BR-005, BR-006, BR-007, BR-008, BR-009, BR-010, BR-011 |
-
-## Migration Validation Matrix
-
-| Rule ID | Test Case Reference | Go Implementation Status | Validation Status |
-|---------|---------------------|--------------------------|-------------------|
-| BR-001 | TestBankIDFormatValidation | Pending | Pending |
-| BR-002 | TestBankIDMinimumLength | Pending | Pending |
-| BR-003 | TestBankIDSpaceRestriction | Pending | Pending |
-| BR-004 | TestBankIDSpecialCharRestriction | Pending | Pending |
-| BR-005 | TestConsumerAuthentication | Pending | Pending |
-| BR-006 | TestBICRoutingExtraction | Pending | Pending |
-| BR-007 | TestIdempotentBankCreation | Pending | Pending |
-| BR-008 | TestAutomaticEntitlementGrant | Pending | Pending |
-| BR-009 | TestSettlementAccountCreation | Pending | Pending |
-| BR-010 | TestOBPRoutingAutoAddition | Pending | Pending |
-| BR-011 | TestAuthorizationCheck | Pending | Pending |
-
-## Notes and Assumptions
-
-**Assumptions Made**:
-1. The LocalMappedConnector implementation follows the same business logic as documented in the API layer
-2. Settlement account creation logic exists in LocalMappedConnector (not directly visible in analyzed files)
-3. OBP routing auto-addition happens in JSONFactory400 during response serialization
-4. The CanCreateBank authorization check is enforced by the OBP framework based on ResourceDoc declaration
-
-**Gaps Identified**:
-1. Settlement account creation implementation not directly analyzed (referenced in documentation only)
-2. JSONFactory400.createBankJSON400 method not analyzed (OBP routing addition logic)
-3. Entitlement checking framework logic not analyzed (assumed to work as documented)
-
-**Migration Considerations**:
-1. All validation rules (BR-001 through BR-004) should be implemented as reusable validation functions in Go
-2. Consumer authentication (BR-005) requires OAuth middleware integration
-3. Idempotent create/update (BR-007) requires database upsert support or explicit existence checking
-4. Automatic entitlement grants (BR-008) should be atomic with bank creation (use database transactions)
-5. Settlement account creation (BR-009) should be conditional based on configuration (sandbox vs production)
-6. Authorization checks (BR-011) should be implemented as middleware for reusability across endpoints
+| /obp/v4.0.0/banks | POST | Unique bank ID, multi-bank isolation, settlement account provisioning, entitlement assignment, bank ID immutability, bank ID validation, routing extraction, transactional atomicity | BR-001, BR-002, BR-003, BR-004, BR-005, BR-006, BR-007, BR-008 |
 
 ---
 
-This completes the Business Rules Extraction for the Bank Registration and Configuration functionality. All 11 business rules have been extracted from the actual Scala implementation and documented according to the Business_rule_prompt.md template.
+## Migration Validation Matrix
+
+| Rule ID | Rule Name | Test Case Reference | Go Implementation Status | Validation Status |
+|---------|-----------|---------------------|--------------------------|-------------------|
+| BR-001 | Unique Bank Identification Enforcement | Test duplicate bank ID rejection, Test unique bank ID acceptance | Pending | Pending |
+| BR-002 | Multi-Bank Data Isolation | Test cross-bank data access prevention, Test bank-scoped queries | Pending | Pending |
+| BR-003 | Automatic Settlement Account Provisioning | Test settlement account creation, Test EUR currency assignment | Pending | Pending |
+| BR-004 | Automatic Entitlement Assignment | Test entitlement assignment on bank creation, Test role names | Pending | Pending |
+| BR-005 | Bank ID Immutability After Creation | Test bank ID persistence, Test absence of update endpoint | Pending | Pending |
+| BR-006 | Bank ID Format and Length Validation | Test bank ID length validation, Test space/:::: validation | Pending | Pending |
+| BR-007 | Bank Routing Scheme Extraction | Test BIC routing extraction, Test default OBP routing | Pending | Pending |
+| BR-008 | Transactional Atomicity | Test complete bank creation, Test rollback on failure | Pending | Pending |
+
+---
+
+## Notes and Assumptions
+
+### Assumptions Made:
+1. **Scala Implementation**: Business rules extracted based on documented Scala code in LocalMappedConnector.scala, APIMethods400.scala, and entity models
+2. **Single Endpoint**: Analysis focused on POST /obp/v4.0.0/banks endpoint only (no update endpoint exists)
+3. **Transaction Management**: Assumed Scala implementation uses database transactions for atomicity (standard practice)
+4. **Routing Logic**: Routing extraction logic inferred from entity structure and field definitions
+5. **Validation Rules**: Validation rules documented in user story are assumed to be implemented in Scala code
+
+### Gaps Identified:
+1. **Short String Validation**: Exact definition of "short string validation" for bank ID not specified in source code
+2. **Multiple Routing Schemes**: Current implementation only stores first routing scheme; multiple schemes not fully supported
+3. **Settlement Currency**: Settlement accounts hardcoded to EUR; no configuration for other currencies
+4. **Entitlement Notification**: Email notification logic for entitlement assignment not detailed in source code
+5. **Bank Update Logic**: No update endpoint exists; unclear how to modify bank details after creation (immutability vs. update needs)
+
+### Clarifications Needed:
+1. **Bank Deletion**: What happens to settlement accounts and entitlements when a bank is deleted?
+2. **Settlement Account Usage**: How are settlement accounts actually used in transaction processing?
+3. **Additional Entitlements**: Are there other entitlements that should be assigned on bank creation?
+4. **Routing Scheme Priority**: If multiple routing schemes provided, which should be used for different payment types?
+5. **Bank Verification**: Is there a verification process for bank legitimacy before activation?
+
+---
+
+## Summary
+
+This business rules extraction identifies **8 core business rules** for the Bank Registration and Configuration capability in the Open Bank Project API. These rules cover:
+
+1. **Data Integrity**: Unique bank identification and immutability (BR-001, BR-005)
+2. **Multi-Tenancy**: Bank data isolation for secure multi-bank deployments (BR-002)
+3. **Operational Setup**: Automatic provisioning of settlement accounts and entitlements (BR-003, BR-004)
+4. **Data Quality**: Bank ID format validation and routing information extraction (BR-006, BR-007)
+5. **Transaction Safety**: Atomic transaction management for consistent bank registration (BR-008)
+
+All rules are extracted from the Scala implementation and are essential for maintaining system integrity, operational functionality, and regulatory compliance. These rules must be accurately implemented in the Go migration to ensure the new application behaves identically to the Scala original and passes all existing test cases.
+
+The rules focus on **true business logic** (decisions, workflows, thresholds) rather than technical implementation details (validation, serialization, framework logic), making them suitable for migration to Go while preserving business functionality.
