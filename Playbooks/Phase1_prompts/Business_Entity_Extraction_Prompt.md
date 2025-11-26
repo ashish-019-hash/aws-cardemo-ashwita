@@ -11,6 +11,234 @@ This prompt is designed for **Scala-to-Go application migration** where:
 - Data types must be accurately translated from Scala to Go equivalents
 - API contracts (request/response structures) must remain identical for test compatibility
 
+---
+
+## IMPORTANT: Database Entity Cross-Verification Requirement
+
+**Point to be Noted:** When extracting business entities, you MUST consider the **exact entity names** that are used in the Scala codebase database. The database entities must be cross-verified against the actual Scala codebase (specifically under `obp-api/src/main` folder in the OBP-API repository). **Only relevant entities must be added** - do not include entities that are not present in the source Scala codebase.
+
+**Point to be Noted:** When extracting business entities and API endpoints, you MUST consider **only those endpoints and entities that suit the description present in the user story file**. Do not include endpoints or entities that are outside the scope of what is explicitly described in the user story. For example, if a user story describes "BankService: Handles creation and management of Bank entities", only include the create (POST) and update (PUT) endpoints - do not include GET, DELETE, or other related endpoints unless they are explicitly mentioned in the user story description.
+
+### OBP-API Database Entity Reference
+
+The following is the comprehensive list of database entities from the OBP-API Scala codebase (`obp-api/src/main/scala/code`). Use these exact entity names when documenting business entities for migration:
+
+#### User & Authentication Entities (PERSONAS)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `AuthUser` | User authentication record (username, password, email) | `code/model/dataAccess/AuthUser.scala` |
+| `ResourceUser` | Core user profile (userId, name, email, provider) | `code/model/dataAccess/ResourceUser.scala` |
+| `Consumer` | OAuth client/application credentials | `code/consumer/` |
+| `UserAttribute` | User-specific attributes | `code/users/MappedUserAttribute.scala` |
+| `UserAgreement` | User agreement records | `code/users/UserAgreement.scala` |
+| `UserInvitation` | User invitation records | `code/users/UserInvitation.scala` |
+| `UserInitAction` | User initialization actions | `code/users/UserInitAction.scala` |
+| `UserLocks` | User lock status | `code/userlocks/UserLocks.scala` |
+| `MappedUserCustomerLink` | Links users to customers | `code/usercustomerlinks/MappedUserCustomerLink.scala` |
+| `MappedUserRefreshes` | User refresh records | `code/refreshuser/MappedUserRefreshesProvider.scala` |
+
+#### Bank & Account Entities (OBJECTS)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedBank` | Bank entity | `code/model/dataAccess/MappedBank.scala` |
+| `MappedBankAccount` | Bank account entity | `code/model/dataAccess/MappedBankAccount.scala` |
+| `MappedBankAccountData` | Bank account additional data | `code/model/dataAccess/MappedBankAccountData.scala` |
+| `BankAccountRouting` | Bank account routing information | `code/model/dataAccess/BankAccountRouting.scala` |
+| `BankAttribute` | Bank-specific attributes | `code/bankattribute/` |
+| `MappedAccountApplication` | Account application records | `code/accountapplication/MappedAccountApplication.scala` |
+| `MappedAccountAttribute` | Account-specific attributes | `code/accountattribute/MappedAccountAttributeProvider.scala` |
+| `MappedAccountWebhook` | Account webhook configurations | `code/webhook/MappedAccountWebhook.scala` |
+| `AccountAccess` | Account access permissions | `code/views/system/AccountAccess.scala` |
+| `AccountIdMapping` | Account ID mappings | `code/model/dataAccess/internalMapping/` |
+| `MapperAccountHolders` | Account holder records | `code/accountholders/MapperAccountHolders.scala` |
+
+#### Customer Entities (PERSONAS)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedCustomer` | Customer entity | `code/customer/` |
+| `MappedCustomerAddress` | Customer address records | `code/customeraddress/MappedCustomerAddressProvider.scala` |
+| `MappedCustomerAttribute` | Customer-specific attributes | `code/customerattribute/MappedCustomerAttributeProvider.scala` |
+| `MappedCustomerDependant` | Customer dependant records | `code/customerDobDependants/` |
+| `MappedCustomerIdMapping` | Customer ID mappings | `code/customer/` |
+| `MappedCustomerMessage` | Customer messages | `code/customer/` |
+| `CustomerAccountLink` | Links customers to accounts | `code/customeraccountlinks/MappedCustomerAccountLink.scala` |
+
+#### Transaction Entities (EVENTS)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedTransaction` | Transaction records | `code/transaction/MappedTransaction.scala` |
+| `MappedTransactionAttribute` | Transaction-specific attributes | `code/transactionattribute/MappedTransactionAttributeProvider.scala` |
+| `MappedTransactionImage` | Transaction images | `code/metadata/` |
+| `MappedTransactionRequest` | Transaction request records | `code/transactionrequests/MappedTransactionRequestProvider.scala` |
+| `MappedTransactionRequestTypeCharge` | Transaction request type charges | `code/transactionrequests/MappedTransactionRequestTypeCharge.scala` |
+| `MappedTransactionType` | Transaction types | `code/transactiontypes/MappedTransactionTypeProvider.scala` |
+| `TransactionIdMapping` | Transaction ID mappings | `code/transaction/internalMapping/TransactionIdMapping.scala` |
+| `TransactionRequestAttribute` | Transaction request attributes | `code/transactionRequestAttribute/TransactionRequestAttribute.scala` |
+| `TransactionRequestReasons` | Transaction request reasons | `code/transactionrequests/MappedTransactionRequestReasons.scala` |
+| `DoubleEntryBookTransaction` | Double-entry book transactions | `code/model/dataAccess/DoubleEntryBookTransaction.scala` |
+
+#### Card Entities (OBJECTS)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedPhysicalCard` | Physical card records | `code/cards/` |
+| `MappedCardAttribute` | Card-specific attributes | `code/cardattribute/MappedCardAttribute.scala` |
+| `CardAction` | Card action records | `code/cards/` |
+| `PinReset` | PIN reset records | `code/cards/` |
+
+#### Product Entities (OBJECTS)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedProduct` | Product entity | `code/products/MappedProductsProvider.scala` |
+| `MappedProductAttribute` | Product-specific attributes | `code/productattribute/MappedProductAttributeProvider.scala` |
+| `MappedProductCollection` | Product collection records | `code/productcollection/MappedProductCollection.scala` |
+| `MappedProductCollectionItem` | Product collection items | `code/productcollectionitem/MappedProductCollectionItem.scala` |
+| `ProductFee` | Product fee records | `code/productfee/MappedProductFeeProvider.scala` |
+
+#### Branch & ATM Entities (OBJECTS)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedBranch` | Branch entity | `code/branches/MappedBranchesProvider.scala` |
+| `MappedAtm` | ATM entity | `code/atms/MappedAtmsProvider.scala` |
+| `AtmAttribute` | ATM-specific attributes | `code/atmattribute/` |
+
+#### Counterparty Entities (OBJECTS)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedCounterparty` | Counterparty entity | `code/metadata/` |
+| `MappedCounterpartyBespoke` | Counterparty bespoke data | `code/customerDobDependants/MapperCounterpartyBespoke.scala` |
+| `MappedCounterpartyMetadata` | Counterparty metadata | `code/metadata/` |
+| `MappedCounterpartyWhereTag` | Counterparty location tags | `code/metadata/` |
+| `CounterpartyLimit` | Counterparty limits | `code/counterpartylimit/MappedCounterpartyLimit.scala` |
+
+#### KYC Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedKycCheck` | KYC check records | `code/kyccheck/MappedKycChecksProvider.scala` |
+| `MappedKycDocument` | KYC document records | `code/kycdocuments/MappedKycDocumentsProvider.scala` |
+| `MappedKycMedia` | KYC media records | `code/kycmedia/MappedKycMediasProvider.scala` |
+| `MappedKycStatus` | KYC status records | `code/kycstatus/MappedKycStatusesProvider.scala` |
+
+#### Consent & Authorization Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedConsent` | Consent records | `code/consent/MappedConsent.scala` |
+| `ConsentRequest` | Consent request records | `code/consent/ConsentRequest.scala` |
+| `MappedConsentAuthContext` | Consent auth context | `code/context/MappedConsentAuthContext.scala` |
+| `MappedEntitlement` | Entitlement records | `code/entitlement/MappedEntitlements.scala` |
+| `MappedEntitlementRequest` | Entitlement request records | `code/entitlementrequest/MappedEntitlementRquests.scala` |
+| `MappedScope` | Scope records | `code/scope/MappedScopesProvider.scala` |
+| `MappedUserScope` | User scope records | `code/scope/MappedUserScopeProvider.scala` |
+| `MappedUserAuthContext` | User auth context | `code/context/MappedUserAuthContext.scala` |
+| `MappedUserAuthContextUpdate` | User auth context updates | `code/context/MappedUserAuthContextUpdate.scala` |
+
+#### View & Permission Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `ViewDefinition` | View definitions | `code/views/system/ViewDefinition.scala` |
+| `ViewPermission` | View permissions | `code/views/system/ViewPermission.scala` |
+
+#### Meeting & CRM Entities (EVENTS)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedMeeting` | Meeting records | `code/meetings/MappedMeetingProvider.scala` |
+| `MappedMeetingInvitee` | Meeting invitee records | `code/meetings/MappedMeetingProvider.scala` |
+| `MappedCrmEvent` | CRM event records | `code/crm/MappedCrmEventProvider.scala` |
+
+#### Payment & Standing Order Entities (EVENTS)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `DirectDebit` | Direct debit records | `code/directdebit/MappedDirectDebit.scala` |
+| `StandingOrder` | Standing order records | `code/standingorders/MappedStandingOrder.scala` |
+| `MappedSigningBasket` | Signing basket records | `code/signingbaskets/` |
+| `MappedSigningBasketConsent` | Signing basket consent | `code/signingbaskets/` |
+| `MappedSigningBasketPayment` | Signing basket payment | `code/signingbaskets/` |
+
+#### Metadata & Tag Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedComment` | Comment records | `code/metadata/` |
+| `MappedTag` | Tag records | `code/metadata/` |
+| `MappedNarrative` | Narrative records | `code/metadata/` |
+| `MappedWhereTag` | Location tag records | `code/metadata/` |
+| `EndpointTag` | Endpoint tag records | `code/endpointTag/` |
+
+#### FX & Currency Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedFXRate` | FX rate records | `code/fx/` |
+| `MappedCurrency` | Currency records | `code/fx/` |
+
+#### Tax & Regulatory Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedTaxResidence` | Tax residence records | `code/taxresidence/MappedTaxResidence.scala` |
+| `MappedRegulatedEntity` | Regulated entity records | `code/regulatedentities/MappedRegulatedEntitiyProvider.scala` |
+| `RegulatedEntityAttribute` | Regulated entity attributes | `code/regulatedentities/attribute/` |
+
+#### Social Media Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedSocialMedia` | Social media records | `code/socialmedia/MappedSocialMediasProvider.scala` |
+
+#### Challenge & Security Entities (EVENTS)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedExpectedChallengeAnswer` | Challenge answer records | `code/transactionChallenge/MappedExpectedChallengeAnswer.scala` |
+| `MappedBadLoginAttempt` | Bad login attempt records | `code/loginattempts/MappedBadLoginAttempt.scala` |
+| `AuthenticationTypeValidation` | Auth type validation | `code/authtypevalidation/MappedAuthenticationTypeValidation.scala` |
+
+#### Token & OAuth Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `Token` | OAuth token records | `code/token/` |
+| `OpenIDConnectToken` | OpenID Connect token records | `code/token/MappedOpenIDConnectToken.scala` |
+| `Nonce` | Nonce records | `code/nonce/` |
+| `PemUsage` | PEM usage records | `code/api/pemusage/MappedPemUsage.scala` |
+
+#### Webhook & Notification Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `BankAccountNotificationWebhook` | Bank account notification webhooks | `code/webhook/BankAccountNotificationWebhook.scala` |
+| `SystemAccountNotificationWebhook` | System account notification webhooks | `code/webhook/SystemAccountNotificationWebhook.scala` |
+
+#### Dynamic & Configuration Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `DynamicEntity` | Dynamic entity definitions | `code/dynamicEntity/MapppedDynamicEntityProvider.scala` |
+| `DynamicData` | Dynamic data records | `code/dynamicEntity/MapppedDynamicDataProvider.scala` |
+| `DynamicEndpoint` | Dynamic endpoint definitions | `code/dynamicEndpoint/MapppedDynamicEndpointProvider.scala` |
+| `DynamicResourceDoc` | Dynamic resource documentation | `code/dynamicResourceDoc/DynamicResourceDoc.scala` |
+| `DynamicMessageDoc` | Dynamic message documentation | `code/dynamicMessageDoc/DynamicMessageDoc.scala` |
+| `ConnectorMethod` | Connector method definitions | `code/connectormethod/ConnectorMethod.scala` |
+| `MethodRouting` | Method routing configuration | `code/methodrouting/MappedMethodRoutingProvider.scala` |
+| `EndpointMapping` | Endpoint mapping configuration | `code/endpointMapping/MappedEndpointMappingProvider.scala` |
+| `WebUiProps` | Web UI properties | `code/webuiprops/MappedWebUiPropsProvider.scala` |
+| `AttributeDefinition` | Attribute definitions | `code/api/attributedefinition/MappedAttributeDefinition.scala` |
+| `JsonSchemaValidation` | JSON schema validation | `code/validation/` |
+
+#### API Collection Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `ApiCollection` | API collection records | `code/apicollection/ApiCollection.scala` |
+| `ApiCollectionEndpoint` | API collection endpoint records | `code/apicollectionendpoint/ApiCollectionEndpoint.scala` |
+
+#### Metrics & Monitoring Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MappedMetric` | API metric records | `code/metrics/` |
+| `MappedConnectorMetric` | Connector metric records | `code/metrics/` |
+| `MetricArchive` | Metric archive records | `code/metrics/` |
+| `RateLimiting` | Rate limiting records | `code/ratelimiting/MappedRateLimiting.scala` |
+| `MappedETag` | ETag cache records | `code/etag/MappedETag.scala` |
+
+#### System & Migration Entities (METADATA)
+| Entity Name | Description | Location |
+|-------------|-------------|----------|
+| `MigrationScriptLog` | Migration script logs | `code/migration/MigrationScriptLog.scala` |
+| `JobScheduler` | Job scheduler records | `code/scheduler/JobScheduler.scala` |
+
+---
+
 ## Your Task
 Extract true business entities from a Scala codebase and document them with migration-specific details:
 
@@ -38,7 +266,7 @@ You will receive:
 
 ### Core Principle: Business Data vs Technical Data
 
-✅ **INCLUDE: True Business Entities**
+**INCLUDE: True Business Entities**
 Business entities represent real-world concepts that exist in the business domain:
 
 **Universal Business Entity Patterns:**
@@ -117,7 +345,7 @@ Business entities represent real-world concepts that exist in the business domai
 **Complexity Test**: "Does this enable complex business relationships that couldn't be modeled with simple foreign keys?"
 **Business Value Test**: "Does this relationship support important business operations or decisions?"
 
-❌ **EXCLUDE: Technical Data Structures**
+**EXCLUDE: Technical Data Structures**
 Technical data that supports system operation but lacks business meaning:
 
 - **System Control Data**: Technical flags, system counters, processing indicators, return codes, HTTP response wrappers
@@ -226,30 +454,31 @@ For each potential business entity, validate using these universal criteria:
 10. **Field Connection Accuracy**: "Do the field mappings accurately reflect the actual foreign key relationships in the source code?"
 11. **Endpoint Completeness**: "Have I documented ALL API endpoints that use this entity?"
 12. **Function Completeness**: "Have I documented ALL business functions operating on this entity?"
+13. **Database Entity Cross-Verification**: "Have I verified that the entity name matches the exact entity name used in the Scala codebase database?"
 
 **Phase 4: Go Migration Mapping**
 
 **Scala-to-Go Type Mapping**
 
 For each entity, document the Go equivalent:
-- **Scala Case Class** → **Go Struct**
-- **Option[T]** → **Pointer (*T)** or custom nullable type
-- **List[T], Seq[T]** → **[]T (slice)**
-- **Set[T]** → **map[T]bool** or custom set implementation
-- **BigDecimal** → **decimal.Decimal** (using shopspring/decimal) or **float64**
-- **String** → **string**
-- **Int, Long** → **int, int64**
-- **Boolean** → **bool**
-- **LocalDate, LocalDateTime** → **time.Time**
-- **Sealed Trait** → **Interface** or **type with constants**
-- **Companion Object methods** → **Package-level functions** or **struct methods**
+- **Scala Case Class** -> **Go Struct**
+- **Option[T]** -> **Pointer (*T)** or custom nullable type
+- **List[T], Seq[T]** -> **[]T (slice)**
+- **Set[T]** -> **map[T]bool** or custom set implementation
+- **BigDecimal** -> **decimal.Decimal** (using shopspring/decimal) or **float64**
+- **String** -> **string**
+- **Int, Long** -> **int, int64**
+- **Boolean** -> **bool**
+- **LocalDate, LocalDateTime** -> **time.Time**
+- **Sealed Trait** -> **Interface** or **type with constants**
+- **Companion Object methods** -> **Package-level functions** or **struct methods**
 
 **Note on Entity Category Mapping**: Research across healthcare, manufacturing, retail, insurance, and other verticals confirms that additional categories like locations, processes, resources, and temporal entities can be effectively mapped to the core 5-category framework:
-- **Locations/Places** → METADATA (business classifications)
-- **Processes/Workflows** → Interactions between PERSONAS, OBJECTS, and EVENTS
-- **Resources/Assets** → OBJECTS (business assets)
-- **Temporal/Time-based** → EVENTS (business activities)
-- **Hierarchical/Organizational** → OBJECTS or METADATA (business structures)
+- **Locations/Places** -> METADATA (business classifications)
+- **Processes/Workflows** -> Interactions between PERSONAS, OBJECTS, and EVENTS
+- **Resources/Assets** -> OBJECTS (business assets)
+- **Temporal/Time-based** -> EVENTS (business activities)
+- **Hierarchical/Organizational** -> OBJECTS or METADATA (business structures)
 
 ## Output Requirements
 
@@ -283,6 +512,7 @@ For each entity, document the Go equivalent:
 **Business Domain**: [Specific business area this entity serves]
 **Description**: [Business purpose and meaning in domain context]
 **Source**: [Package path, case class/trait name, file location]
+**Database Entity Name**: [Exact entity name from Scala codebase - MUST match OBP-API database entity reference]
 
 **Business Attributes**:
 - Primary Key: [Unique identifier fields]
@@ -313,11 +543,11 @@ type [EntityName] struct {
 ```
 
 **Type Mapping Notes**:
-- `Long` → `int64`
-- `String` → `string`
-- `BigDecimal` → `decimal.Decimal` (requires github.com/shopspring/decimal)
-- `Option[String]` → `*string` (pointer for nullable)
-- `List[Item]` → `[]Item` (slice)
+- `Long` -> `int64`
+- `String` -> `string`
+- `BigDecimal` -> `decimal.Decimal` (requires github.com/shopspring/decimal)
+- `Option[String]` -> `*string` (pointer for nullable)
+- `List[Item]` -> `[]Item` (slice)
 
 **API Endpoints Using This Entity**:
 | HTTP Method | Endpoint Path | Controller Method | Request/Response | Purpose |
@@ -338,13 +568,13 @@ type [EntityName] struct {
 
 **Relationships**:
 - Parent: [Entities this depends on with cardinality]
-  - Linked via: [Foreign Key field] → [Primary Key field]
+  - Linked via: [Foreign Key field] -> [Primary Key field]
   - Go Implementation: Foreign key field in struct
 - Children: [Entities depending on this with cardinality]
-  - Linked via: [Primary Key field] → [Foreign Key field]
+  - Linked via: [Primary Key field] -> [Foreign Key field]
   - Go Implementation: Slice field or separate query
 - Associates: [Related business entities]
-  - Linked via: [Relationship field] → [Related field]
+  - Linked via: [Relationship field] -> [Related field]
   - Go Implementation: Join table or embedded reference
 
 **Usage Context**:
@@ -445,6 +675,7 @@ erDiagram
 - [ ] JSON serialization compatibility verified
 - [ ] Optional field handling strategy defined
 - [ ] Collection type handling strategy defined
+- [ ] Database entity names cross-verified with Scala codebase
 
 ### Recommended Go Libraries
 - **Decimal handling**: github.com/shopspring/decimal
@@ -511,16 +742,18 @@ Tags map[string]bool
 - **Type Accuracy**: Scala-to-Go type mappings must be accurate and preserve data integrity
 - **API Compatibility**: Go implementation must maintain exact API contract compatibility
 - **Test Validation**: All documented endpoints and functions must be testable with existing test cases
+- **Database Entity Verification**: All entity names must be cross-verified against the exact Scala codebase database entity names
 
 ### Universal Documentation Standards
 - **Source Verification**: Every entity backed by concrete code references
 - **Attribute Completeness**: Include all relevant business fields and nested structures
 - **Relationship Accuracy**: Document all business dependencies with proper cardinality
-- **Field-Level Relationships**: Document specific field names that connect related entities using "Linked via: [Primary Key field] → [Foreign Key field]" format
+- **Field-Level Relationships**: Document specific field names that connect related entities using "Linked via: [Primary Key field] -> [Foreign Key field]" format
 - **Key Field Identification**: Clearly mark primary keys and foreign keys in data structure tables with "Primary Key" and "Foreign Key" in the Key Type column
 - **Relationship Field Accuracy**: Ensure all "Linked via" mappings are verified against actual case class field definitions
 - **Business Context**: Explain entity usage in business processes and domain context
 - **Go Mapping Accuracy**: Ensure Go struct definitions accurately represent Scala case classes
+- **Database Entity Name Accuracy**: Ensure entity names match exactly with the Scala codebase database entity names
 
 ## Universal Success Criteria
 
@@ -537,6 +770,7 @@ Tags map[string]bool
 - **Type Safety**: All type mappings preserve data integrity
 - **Test Compatibility**: Migrated Go application can be validated with existing test cases
 - **API Contract Preservation**: All request/response structures maintain compatibility
+- **Database Entity Accuracy**: 100% of entity names verified against Scala codebase
 
 ## Universal Pitfalls to Avoid
 
@@ -562,6 +796,7 @@ Tags map[string]bool
 - **Lost Validation**: Not documenting validation logic that must be preserved
 - **API Contract Changes**: Changing JSON field names or structures that break test compatibility
 - **Optional Field Mishandling**: Incorrectly mapping Option[T] leading to null pointer issues
+- **Entity Name Mismatch**: Using entity names that don't match the exact Scala codebase database entity names
 
 ### Universal Relationship Errors
 - **Cardinality Mistakes**: Assuming 1:1 when code shows 1:N relationships (check for List/Seq fields)
@@ -587,12 +822,13 @@ Tags map[string]bool
 6. **Evidence-Based**: Every claim backed by concrete code references and file locations
 7. **Business Context**: Always explain how entities support specific business functions
 8. **5-Category Sufficiency**: The universal 5-category framework effectively covers all business entity types across industry verticals
-9. **Scala Type Awareness**: Properly document Scala-specific patterns (Option, sealed traits, case classes, ADTs)
+9. **Scala Type Awareness**: Properly document Scala-specific patterns (companion objects, implicit conversions, type classes) when they reveal business logic
 10. **Relationship Traceability**: Verify all foreign key relationships by examining actual field definitions
 11. **Endpoint Preservation**: Document every API endpoint to ensure migration maintains compatibility
 12. **Function Preservation**: Document every business function to ensure behavior is maintained
 13. **Type Mapping Accuracy**: Ensure Scala-to-Go type mappings preserve data integrity and API compatibility
 14. **Test Validation Focus**: All documentation must support validation with existing test cases
+15. **Database Entity Cross-Verification**: Always cross-verify entity names against the exact Scala codebase database entity names (refer to OBP-API Database Entity Reference section)
 
 ## Analysis Process
 
@@ -610,6 +846,7 @@ Tags map[string]bool
 - **Examine controller classes for API endpoints**
 - **Analyze route definitions for endpoint paths**
 - **Document all HTTP methods (GET, POST, PUT, DELETE, PATCH)**
+- **Cross-verify entity names against OBP-API Database Entity Reference**
 
 ### Step 3: Systematic Extraction
 - Work through entity identification systematically
@@ -619,6 +856,7 @@ Tags map[string]bool
 - **Map all API endpoints to entities**
 - **Document all business functions operating on entities**
 - **Create Scala-to-Go type mappings**
+- **Verify entity names match exact Scala codebase database entity names**
 
 ### Step 4: Validate Completeness
 - Ensure all aspects of the user story are covered
@@ -628,6 +866,7 @@ Tags map[string]bool
 - **Verify all API endpoints are documented**
 - **Verify all business functions are documented**
 - **Validate type mappings for compatibility**
+- **Confirm all entity names are cross-verified against Scala codebase**
 
 ### Step 5: Document Migration Context
 - Always relate findings back to the user story
@@ -637,6 +876,7 @@ Tags map[string]bool
 - **Document Go struct definitions for each entity**
 - **Provide migration guidance and considerations**
 - **Highlight critical validation points for testing**
+- **Include exact database entity names from Scala codebase**
 
 ## Example Usage
 
@@ -651,8 +891,9 @@ Tags map[string]bool
 5. **Document all API endpoints that expose customer and account data**
 6. **Document all business functions that calculate or retrieve balance information**
 7. **Create Go struct definitions for Customer and Account entities**
-8. **Map Scala types to Go types (e.g., BigDecimal for balance → decimal.Decimal)**
+8. **Map Scala types to Go types (e.g., BigDecimal for balance -> decimal.Decimal)**
 9. Create entity relationship diagram showing connections
+10. **Cross-verify entity names against OBP-API Database Entity Reference (e.g., MappedCustomer, MappedBankAccount)**
 
 **Expected Output:**
 - business_entities.md containing all identified business entities
@@ -665,31 +906,34 @@ Tags map[string]bool
 - Mermaid diagram showing entity relationships and cardinality
 - Business context explaining how entities support the user story
 - **Migration considerations and test validation points**
+- **Exact database entity names from Scala codebase (e.g., MappedCustomer, MappedBankAccount, ResourceUser)**
 
 ## Quality Checklist
 
 Before finalizing, ensure:
 
-☐ All entities are categorized into one of the 5 types (Persona/Object/Event/Metadata/Relationship)
-☐ Each entity references specific Scala source locations (package, file, case class)
-☐ Relationships between entities are documented with cardinality
-☐ "Linked via" mappings specify exact field names for all relationships
-☐ Primary keys and foreign keys are marked in data structure tables
-☐ User story context is explained for each entity
-☐ Technical terminology is explained for clarity
-☐ Entity relationship diagram is complete and accurate
-☐ All Option, List, and Seq types are properly documented
-☐ Sealed trait hierarchies are analyzed for business entity types
-☐ No technical infrastructure objects are included as business entities
-☐ **All API endpoints using each entity are documented**
-☐ **All business functions operating on each entity are documented**
-☐ **Go struct definitions are provided for each entity**
-☐ **Scala-to-Go type mappings are accurate and complete**
-☐ **JSON field names match between Scala and Go for API compatibility**
-☐ **Migration considerations are documented for each entity**
-☐ **Test validation points are identified**
-☐ **Complete endpoint inventory is provided**
-☐ **Complete function inventory is provided**
+- [ ] All entities are categorized into one of the 5 types (Persona/Object/Event/Metadata/Relationship)
+- [ ] Each entity references specific Scala source locations (package, file, case class)
+- [ ] Relationships between entities are documented with cardinality
+- [ ] "Linked via" mappings specify exact field names for all relationships
+- [ ] Primary keys and foreign keys are marked in data structure tables
+- [ ] User story context is explained for each entity
+- [ ] Technical terminology is explained for clarity
+- [ ] Entity relationship diagram is complete and accurate
+- [ ] All Option, List, and Seq types are properly documented
+- [ ] Sealed trait hierarchies are analyzed for business entity types
+- [ ] No technical infrastructure objects are included as business entities
+- [ ] **All API endpoints using each entity are documented**
+- [ ] **All business functions operating on each entity are documented**
+- [ ] **Go struct definitions are provided for each entity**
+- [ ] **Scala-to-Go type mappings are accurate and complete**
+- [ ] **JSON field names match between Scala and Go for API compatibility**
+- [ ] **Migration considerations are documented for each entity**
+- [ ] **Test validation points are identified**
+- [ ] **Complete endpoint inventory is provided**
+- [ ] **Complete function inventory is provided**
+- [ ] **All entity names are cross-verified against OBP-API Database Entity Reference**
+- [ ] **Only relevant entities from the Scala codebase are included**
 
 ## Notes
 
@@ -704,3 +948,5 @@ Before finalizing, ensure:
 - **For migration: Document all validation logic that must be reimplemented in Go**
 - **For migration: Note any Scala-specific features that require special handling in Go**
 - **For test validation: Ensure all documented endpoints can be tested with existing test cases**
+- **IMPORTANT: Always cross-verify entity names against the OBP-API Database Entity Reference section to ensure exact match with Scala codebase database entity names**
+- **IMPORTANT: Only include relevant entities that are present in the source Scala codebase - do not add entities that don't exist in the codebase**
