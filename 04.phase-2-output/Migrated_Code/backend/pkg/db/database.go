@@ -46,6 +46,22 @@ func initSchema(db *sql.DB) error {
 
 	CREATE INDEX IF NOT EXISTS idx_mappedbank_permalink ON mappedbank(permalink);
 	CREATE INDEX IF NOT EXISTS idx_mappedbank_shortbankname ON mappedbank(shortbankname);
+
+	-- BankAttribute table for Bank Information Retrieval user story
+	-- Source: code/bankattribute/MappedBankAttributeProvider.scala
+	-- Relationship: Many-to-One with MappedBank (multiple BankAttribute records belong to one MappedBank)
+	CREATE TABLE IF NOT EXISTS bankattribute (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		bankid TEXT NOT NULL,
+		bankattributeid TEXT NOT NULL UNIQUE,
+		name TEXT NOT NULL,
+		type TEXT NOT NULL,
+		value TEXT NOT NULL,
+		isactive INTEGER NOT NULL DEFAULT 1,
+		FOREIGN KEY (bankid) REFERENCES mappedbank(permalink)
+	);
+
+	CREATE INDEX IF NOT EXISTS idx_bankattribute_bankid ON bankattribute(bankid);
 	`
 	_, err := db.Exec(schema)
 	return err

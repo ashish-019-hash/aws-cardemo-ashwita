@@ -455,8 +455,8 @@ func TestGetBank_Success(t *testing.T) {
 	var response map[string]interface{}
 	err := json.Unmarshal(w2.Body.Bytes(), &response)
 	assert.NoError(t, err)
-	assert.Equal(t, "get-test-bank", response["permalink"])
-	assert.Equal(t, "Get Test Bank", response["fullBankName"])
+	assert.Equal(t, "get-test-bank", response["id"])
+	assert.Equal(t, "Get Test Bank", response["full_name"])
 }
 
 // TestGetBank_NotFound tests GET /api/banks/:bankId with non-existent bank
