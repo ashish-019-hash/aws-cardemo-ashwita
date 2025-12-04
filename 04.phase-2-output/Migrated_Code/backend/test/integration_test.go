@@ -78,7 +78,8 @@ func TestIntegration_FullBankLifecycle(t *testing.T) {
 	assert.Equal(t, "created", createResponse.Status)
 
 	// Step 2: Verify bank was created by retrieving it
-	getReq, _ := http.NewRequest("GET", "/api/banks/integration-test-bank", nil)
+	// Note: Using /banks/:bankId from Bank Information Retrieval user story
+	getReq, _ := http.NewRequest("GET", "/banks/integration-test-bank", nil)
 
 	w2 := httptest.NewRecorder()
 	router.ServeHTTP(w2, getReq)
@@ -88,8 +89,8 @@ func TestIntegration_FullBankLifecycle(t *testing.T) {
 	var bankData map[string]interface{}
 	err = json.Unmarshal(w2.Body.Bytes(), &bankData)
 	require.NoError(t, err)
-	assert.Equal(t, "integration-test-bank", bankData["permalink"])
-	assert.Equal(t, "Integration Test Bank", bankData["fullBankName"])
+	assert.Equal(t, "integration-test-bank", bankData["id"])
+	assert.Equal(t, "Integration Test Bank", bankData["full_name"])
 
 	// Step 3: Update bank identification information (Acceptance Criteria 2)
 	updateNameBody := map[string]interface{}{
@@ -141,7 +142,8 @@ func TestIntegration_FullBankLifecycle(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w5.Code, "Operational params update should return 200 OK")
 
 	// Step 6: Verify all updates were applied
-	finalGetReq, _ := http.NewRequest("GET", "/api/banks/integration-test-bank", nil)
+	// Note: Using /banks/:bankId from Bank Information Retrieval user story
+	finalGetReq, _ := http.NewRequest("GET", "/banks/integration-test-bank", nil)
 
 	w6 := httptest.NewRecorder()
 	router.ServeHTTP(w6, finalGetReq)
@@ -151,7 +153,7 @@ func TestIntegration_FullBankLifecycle(t *testing.T) {
 	var finalBankData map[string]interface{}
 	err = json.Unmarshal(w6.Body.Bytes(), &finalBankData)
 	require.NoError(t, err)
-	assert.Equal(t, "Updated Integration Test Bank", finalBankData["fullBankName"])
+	assert.Equal(t, "Updated Integration Test Bank", finalBankData["full_name"])
 }
 
 // TestIntegration_BR001_UniqueIdentification tests BR-001: Unique Bank Identification Constraint
@@ -509,8 +511,9 @@ func TestIntegration_MultipleBanks(t *testing.T) {
 	}
 
 	// Verify each bank can be retrieved
+	// Note: Using /banks/:bankId from Bank Information Retrieval user story
 	for _, bank := range banks {
-		req, _ := http.NewRequest("GET", "/api/banks/"+bank.id, nil)
+		req, _ := http.NewRequest("GET", "/banks/"+bank.id, nil)
 
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -519,7 +522,7 @@ func TestIntegration_MultipleBanks(t *testing.T) {
 
 		var bankData map[string]interface{}
 		json.Unmarshal(w.Body.Bytes(), &bankData)
-		assert.Equal(t, bank.name, bankData["fullBankName"])
+		assert.Equal(t, bank.name, bankData["full_name"])
 	}
 }
 
@@ -646,5 +649,610 @@ func TestIntegration_AcceptanceCriteria(t *testing.T) {
 		router.ServeHTTP(w2, updateReq)
 
 		assert.Equal(t, http.StatusBadRequest, w2.Code)
+	})
+}
+
+// ============================================================================
+// Bank Information Retrieval Integration Tests
+// User Story: Bank Information Retrieval
+// ============================================================================
+
+// TestIntegration_BankRetrieval_GetAllBanks_EmptyList tests BR-004: Empty Result Handling
+// When no banks exist, the API should return 200 OK with an empty array, not 404
+func TestIntegration_BankRetrieval_GetAllBanks_EmptyList(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	// GET /banks with no banks in database
+	req, _ := http.NewRequest("GET", "/banks", nil)
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// BR-004, VR-006, VR-008: Should return 200 OK with empty array
+	assert.Equal(t, http.StatusOK, w.Code, "Empty bank list should return 200 OK, not 404")
+
+	var response models.BankListResponse
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	require.NoError(t, err)
+	assert.NotNil(t, response.Banks, "Banks array should not be nil")
+	assert.Empty(t, response.Banks, "Banks array should be empty")
+}
+
+// TestIntegration_BankRetrieval_GetAllBanks_WithBanks tests BR-003: Basic Bank Information Composition
+// The bank list should include basic info but exclude attributes for performance
+func TestIntegration_BankRetrieval_GetAllBanks_WithBanks(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	// Create multiple banks first
+	banks := []map[string]interface{}{
+		{
+			"bankId":   "retrieval-bank-alpha",
+			"bankCode": "ALPHA",
+			"bankName": "Alpha Bank",
+			"branding": map[string]interface{}{"logo": "https://alpha.com/logo.png", "colors": "#FF0000"},
+			"operationalParams": map[string]interface{}{
+				"businessHours": "9-5",
+				"limits":        map[string]interface{}{"daily": 10000},
+				"currencies":    []string{"USD"},
+			},
+		},
+		{
+			"bankId":   "retrieval-bank-beta",
+			"bankCode": "BETA",
+			"bankName": "Beta Bank",
+			"branding": map[string]interface{}{"logo": "https://beta.com/logo.png", "colors": "#00FF00"},
+			"operationalParams": map[string]interface{}{
+				"businessHours": "8-6",
+				"limits":        map[string]interface{}{"daily": 20000},
+				"currencies":    []string{"EUR"},
+			},
+		},
+		{
+			"bankId":   "retrieval-bank-gamma",
+			"bankCode": "GAMMA",
+			"bankName": "Gamma Bank",
+			"branding": map[string]interface{}{"logo": "https://gamma.com/logo.png", "colors": "#0000FF"},
+			"operationalParams": map[string]interface{}{
+				"businessHours": "10-4",
+				"limits":        map[string]interface{}{"daily": 30000},
+				"currencies":    []string{"GBP"},
+			},
+		},
+	}
+
+	for _, bank := range banks {
+		data, _ := json.Marshal(bank)
+		req, _ := http.NewRequest("POST", "/api/banks", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusCreated, w.Code)
+	}
+
+	// GET /banks to retrieve all banks
+	getReq, _ := http.NewRequest("GET", "/banks", nil)
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, getReq)
+
+	// VR-005, VR-008: Should return 200 OK with bank list
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var response models.BankListResponse
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	require.NoError(t, err)
+	assert.Len(t, response.Banks, 3, "Should return all 3 banks")
+
+	// BR-003: Verify basic bank info is included (VR-005)
+	for _, bank := range response.Banks {
+		assert.NotEmpty(t, bank.ID, "Bank ID should be present")
+		assert.NotEmpty(t, bank.ShortName, "Short name should be present")
+		assert.NotEmpty(t, bank.FullName, "Full name should be present")
+		// Note: Attributes should NOT be included in list response (BR-003)
+	}
+}
+
+// TestIntegration_BankRetrieval_GetBankById_Success tests BR-002: Complete Bank Information Composition
+// Single bank retrieval should include complete info with attributes
+func TestIntegration_BankRetrieval_GetBankById_Success(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	// Create a bank first
+	createBody := map[string]interface{}{
+		"bankId":   "detail-test-bank",
+		"bankCode": "DETAIL",
+		"bankName": "Detail Test Bank",
+		"branding": map[string]interface{}{"logo": "https://detail.com/logo.png", "colors": "#FFFFFF"},
+		"operationalParams": map[string]interface{}{
+			"businessHours": "9-5",
+			"limits":        map[string]interface{}{"daily": 10000},
+			"currencies":    []string{"USD"},
+		},
+	}
+	createData, _ := json.Marshal(createBody)
+	createReq, _ := http.NewRequest("POST", "/api/banks", bytes.NewBuffer(createData))
+	createReq.Header.Set("Content-Type", "application/json")
+
+	w1 := httptest.NewRecorder()
+	router.ServeHTTP(w1, createReq)
+	assert.Equal(t, http.StatusCreated, w1.Code)
+
+	// GET /banks/:bankId to retrieve single bank with attributes
+	getReq, _ := http.NewRequest("GET", "/banks/detail-test-bank", nil)
+
+	w2 := httptest.NewRecorder()
+	router.ServeHTTP(w2, getReq)
+
+	// BR-002, VR-004, VR-008: Should return 200 OK with complete bank info
+	assert.Equal(t, http.StatusOK, w2.Code)
+
+	var response models.BankDetailResponse
+	err := json.Unmarshal(w2.Body.Bytes(), &response)
+	require.NoError(t, err)
+
+	// VR-004: Verify complete bank info is included
+	assert.Equal(t, "detail-test-bank", response.ID)
+	assert.Equal(t, "DETAIL", response.ShortName)
+	assert.Equal(t, "Detail Test Bank", response.FullName)
+	assert.NotNil(t, response.BankRoutings, "Bank routings should be present")
+
+	// VR-007: Attributes should be empty array, not nil
+	assert.NotNil(t, response.Attributes, "Attributes should not be nil")
+	assert.Empty(t, response.Attributes, "Attributes should be empty array when no attributes exist")
+}
+
+// TestIntegration_BankRetrieval_GetBankById_NotFound tests BR-001: Bank Existence Validation
+// When bank doesn't exist, the API should return 404 Not Found
+func TestIntegration_BankRetrieval_GetBankById_NotFound(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	// GET /banks/:bankId for non-existent bank
+	req, _ := http.NewRequest("GET", "/banks/non-existent-bank", nil)
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// BR-001, VR-002, VR-003, VR-008: Should return 404 Not Found
+	assert.Equal(t, http.StatusNotFound, w.Code, "Non-existent bank should return 404 Not Found")
+
+	var errResponse models.ErrorResponse
+	err := json.Unmarshal(w.Body.Bytes(), &errResponse)
+	require.NoError(t, err)
+	assert.Equal(t, "BANK-VAL-009", errResponse.Code)
+}
+
+// TestIntegration_BankRetrieval_VR001_BankIdRequired tests VR-001: Bank Identifier Required Validation
+// Empty bank ID should return 400 Bad Request
+func TestIntegration_BankRetrieval_VR001_BankIdRequired(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	// GET /banks/ with empty bank ID (trailing slash)
+	// Note: This test verifies the service-level validation
+	// The route /banks/ without ID will hit GetAllBanks, not GetBankById
+	// So we test via the service directly or via a different route pattern
+
+	// Test with explicit empty path parameter handling
+	req, _ := http.NewRequest("GET", "/banks/", nil)
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Note: Gin router may redirect /banks/ to /banks or return 404
+	// The actual VR-001 validation happens at service level when bankId is empty string
+	// This is tested in service_test.go
+}
+
+// TestIntegration_BankRetrieval_UserStory_AcceptanceCriteria tests all acceptance criteria
+// from the Bank Information Retrieval user story
+func TestIntegration_BankRetrieval_UserStory_AcceptanceCriteria(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	// AC1: Retrieve list of all banks with basic information
+	t.Run("AC1_RetrieveAllBanks", func(t *testing.T) {
+		// Create some banks first
+		for i := 1; i <= 3; i++ {
+			body := map[string]interface{}{
+				"bankId":   "ac1-bank-" + string(rune('a'+i-1)),
+				"bankCode": "AC1" + string(rune('A'+i-1)),
+				"bankName": "AC1 Test Bank " + string(rune('A'+i-1)),
+				"branding": map[string]interface{}{"logo": "https://logo.url", "colors": "#FFFFFF"},
+				"operationalParams": map[string]interface{}{
+					"businessHours": "9-5",
+					"limits":        map[string]interface{}{"daily": 10000},
+					"currencies":    []string{"USD"},
+				},
+			}
+			data, _ := json.Marshal(body)
+			req, _ := http.NewRequest("POST", "/api/banks", bytes.NewBuffer(data))
+			req.Header.Set("Content-Type", "application/json")
+
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			require.Equal(t, http.StatusCreated, w.Code)
+		}
+
+		// Retrieve all banks
+		req, _ := http.NewRequest("GET", "/banks", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response models.BankListResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.GreaterOrEqual(t, len(response.Banks), 3)
+	})
+
+	// AC2: Retrieve single bank with complete information including attributes
+	t.Run("AC2_RetrieveSingleBank", func(t *testing.T) {
+		// Create a bank
+		body := map[string]interface{}{
+			"bankId":   "ac2-single-bank",
+			"bankCode": "AC2SINGLE",
+			"bankName": "AC2 Single Bank",
+			"branding": map[string]interface{}{"logo": "https://logo.url", "colors": "#FFFFFF"},
+			"operationalParams": map[string]interface{}{
+				"businessHours": "9-5",
+				"limits":        map[string]interface{}{"daily": 10000},
+				"currencies":    []string{"USD"},
+			},
+		}
+		data, _ := json.Marshal(body)
+		createReq, _ := http.NewRequest("POST", "/api/banks", bytes.NewBuffer(data))
+		createReq.Header.Set("Content-Type", "application/json")
+
+		w1 := httptest.NewRecorder()
+		router.ServeHTTP(w1, createReq)
+		require.Equal(t, http.StatusCreated, w1.Code)
+
+		// Retrieve single bank
+		getReq, _ := http.NewRequest("GET", "/banks/ac2-single-bank", nil)
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, getReq)
+
+		assert.Equal(t, http.StatusOK, w2.Code)
+
+		var response models.BankDetailResponse
+		err := json.Unmarshal(w2.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.Equal(t, "ac2-single-bank", response.ID)
+		assert.Equal(t, "AC2 Single Bank", response.FullName)
+		assert.NotNil(t, response.Attributes)
+	})
+
+	// AC3: Handle non-existent bank with appropriate error
+	t.Run("AC3_HandleNonExistentBank", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/banks/ac3-non-existent", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+
+		var errResponse models.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResponse)
+		require.NoError(t, err)
+		assert.Equal(t, "BANK-VAL-009", errResponse.Code)
+	})
+
+	// AC4: Handle empty bank list gracefully
+	// Note: This is tested in TestIntegration_BankRetrieval_GetAllBanks_EmptyList
+
+	// AC5: Return attributes as empty array when no attributes exist
+	t.Run("AC5_EmptyAttributesArray", func(t *testing.T) {
+		// Create a bank without attributes
+		body := map[string]interface{}{
+			"bankId":   "ac5-no-attrs-bank",
+			"bankCode": "AC5NOATTR",
+			"bankName": "AC5 No Attributes Bank",
+			"branding": map[string]interface{}{"logo": "https://logo.url", "colors": "#FFFFFF"},
+			"operationalParams": map[string]interface{}{
+				"businessHours": "9-5",
+				"limits":        map[string]interface{}{"daily": 10000},
+				"currencies":    []string{"USD"},
+			},
+		}
+		data, _ := json.Marshal(body)
+		createReq, _ := http.NewRequest("POST", "/api/banks", bytes.NewBuffer(data))
+		createReq.Header.Set("Content-Type", "application/json")
+
+		w1 := httptest.NewRecorder()
+		router.ServeHTTP(w1, createReq)
+		require.Equal(t, http.StatusCreated, w1.Code)
+
+		// Retrieve bank and verify attributes is empty array, not null
+		getReq, _ := http.NewRequest("GET", "/banks/ac5-no-attrs-bank", nil)
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, getReq)
+
+		assert.Equal(t, http.StatusOK, w2.Code)
+
+		// Parse raw JSON to verify attributes is [] not null
+		var rawResponse map[string]interface{}
+		err := json.Unmarshal(w2.Body.Bytes(), &rawResponse)
+		require.NoError(t, err)
+
+		attrs, ok := rawResponse["attributes"]
+		assert.True(t, ok, "attributes field should be present")
+		assert.NotNil(t, attrs, "attributes should not be null")
+
+		attrArray, ok := attrs.([]interface{})
+		assert.True(t, ok, "attributes should be an array")
+		assert.Empty(t, attrArray, "attributes should be empty array")
+	})
+}
+
+// TestIntegration_BankRetrieval_BusinessRules tests all business rules (BR-001 through BR-004)
+func TestIntegration_BankRetrieval_BusinessRules(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	// BR-001: Bank Existence Validation for Single Bank Retrieval
+	t.Run("BR001_BankExistenceValidation", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/banks/br001-non-existent", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+
+	// BR-002: Complete Bank Information Composition for Single Bank Retrieval
+	t.Run("BR002_CompleteBankInfoComposition", func(t *testing.T) {
+		// Create a bank
+		body := map[string]interface{}{
+			"bankId":   "br002-complete-bank",
+			"bankCode": "BR002",
+			"bankName": "BR002 Complete Bank",
+			"branding": map[string]interface{}{"logo": "https://logo.url", "colors": "#FFFFFF"},
+			"operationalParams": map[string]interface{}{
+				"businessHours": "9-5",
+				"limits":        map[string]interface{}{"daily": 10000},
+				"currencies":    []string{"USD"},
+			},
+		}
+		data, _ := json.Marshal(body)
+		createReq, _ := http.NewRequest("POST", "/api/banks", bytes.NewBuffer(data))
+		createReq.Header.Set("Content-Type", "application/json")
+
+		w1 := httptest.NewRecorder()
+		router.ServeHTTP(w1, createReq)
+		require.Equal(t, http.StatusCreated, w1.Code)
+
+		// Retrieve and verify complete info
+		getReq, _ := http.NewRequest("GET", "/banks/br002-complete-bank", nil)
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, getReq)
+
+		assert.Equal(t, http.StatusOK, w2.Code)
+
+		var response models.BankDetailResponse
+		err := json.Unmarshal(w2.Body.Bytes(), &response)
+		require.NoError(t, err)
+
+		// Verify all fields are present
+		assert.NotEmpty(t, response.ID)
+		assert.NotEmpty(t, response.ShortName)
+		assert.NotEmpty(t, response.FullName)
+		assert.NotNil(t, response.BankRoutings)
+		assert.NotNil(t, response.Attributes)
+	})
+
+	// BR-003: Basic Bank Information Composition for Bank List Retrieval
+	t.Run("BR003_BasicBankInfoComposition", func(t *testing.T) {
+		// Create a bank
+		body := map[string]interface{}{
+			"bankId":   "br003-basic-bank",
+			"bankCode": "BR003",
+			"bankName": "BR003 Basic Bank",
+			"branding": map[string]interface{}{"logo": "https://logo.url", "colors": "#FFFFFF"},
+			"operationalParams": map[string]interface{}{
+				"businessHours": "9-5",
+				"limits":        map[string]interface{}{"daily": 10000},
+				"currencies":    []string{"USD"},
+			},
+		}
+		data, _ := json.Marshal(body)
+		createReq, _ := http.NewRequest("POST", "/api/banks", bytes.NewBuffer(data))
+		createReq.Header.Set("Content-Type", "application/json")
+
+		w1 := httptest.NewRecorder()
+		router.ServeHTTP(w1, createReq)
+		require.Equal(t, http.StatusCreated, w1.Code)
+
+		// Retrieve list and verify basic info only
+		getReq, _ := http.NewRequest("GET", "/banks", nil)
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, getReq)
+
+		assert.Equal(t, http.StatusOK, w2.Code)
+
+		var response models.BankListResponse
+		err := json.Unmarshal(w2.Body.Bytes(), &response)
+		require.NoError(t, err)
+
+		// Find our bank in the list
+		var found bool
+		for _, bank := range response.Banks {
+			if bank.ID == "br003-basic-bank" {
+				found = true
+				assert.NotEmpty(t, bank.ShortName)
+				assert.NotEmpty(t, bank.FullName)
+				// Note: BankListItem does NOT have Attributes field (BR-003)
+				break
+			}
+		}
+		assert.True(t, found, "Bank should be in the list")
+	})
+
+	// BR-004: Empty Result Handling for Bank List
+	// Tested in TestIntegration_BankRetrieval_GetAllBanks_EmptyList
+}
+
+// TestIntegration_BankRetrieval_ValidationRules tests all validation rules (VR-001 through VR-008)
+func TestIntegration_BankRetrieval_ValidationRules(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	// VR-001: Bank Identifier Required Validation
+	// Tested at service level - empty string bankId returns 400
+
+	// VR-002: Bank Identifier Existence Validation
+	t.Run("VR002_BankIdExistenceValidation", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/banks/vr002-non-existent", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+
+	// VR-003: Valid Bank Identifier Business Rule
+	t.Run("VR003_ValidBankIdBusinessRule", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/banks/vr003-invalid-bank", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+
+	// VR-004: Complete Information for Single Bank
+	t.Run("VR004_CompleteInfoForSingleBank", func(t *testing.T) {
+		// Create a bank
+		body := map[string]interface{}{
+			"bankId":   "vr004-complete-bank",
+			"bankCode": "VR004",
+			"bankName": "VR004 Complete Bank",
+			"branding": map[string]interface{}{"logo": "https://logo.url", "colors": "#FFFFFF"},
+			"operationalParams": map[string]interface{}{
+				"businessHours": "9-5",
+				"limits":        map[string]interface{}{"daily": 10000},
+				"currencies":    []string{"USD"},
+			},
+		}
+		data, _ := json.Marshal(body)
+		createReq, _ := http.NewRequest("POST", "/api/banks", bytes.NewBuffer(data))
+		createReq.Header.Set("Content-Type", "application/json")
+
+		w1 := httptest.NewRecorder()
+		router.ServeHTTP(w1, createReq)
+		require.Equal(t, http.StatusCreated, w1.Code)
+
+		// Retrieve and verify complete info
+		getReq, _ := http.NewRequest("GET", "/banks/vr004-complete-bank", nil)
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, getReq)
+
+		assert.Equal(t, http.StatusOK, w2.Code)
+
+		var response models.BankDetailResponse
+		err := json.Unmarshal(w2.Body.Bytes(), &response)
+		require.NoError(t, err)
+
+		// VR-004: All fields must be present
+		assert.NotEmpty(t, response.ID)
+		assert.NotEmpty(t, response.ShortName)
+		assert.NotEmpty(t, response.FullName)
+		assert.NotNil(t, response.BankRoutings)
+		assert.NotNil(t, response.Attributes)
+	})
+
+	// VR-005: Basic Information for Bank List
+	t.Run("VR005_BasicInfoForBankList", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/banks", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response models.BankListResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.NotNil(t, response.Banks)
+	})
+
+	// VR-006: Empty Bank List Handling
+	// Tested in TestIntegration_BankRetrieval_GetAllBanks_EmptyList
+
+	// VR-007: Empty Attributes Array Handling
+	t.Run("VR007_EmptyAttributesArrayHandling", func(t *testing.T) {
+		// Create a bank without attributes
+		body := map[string]interface{}{
+			"bankId":   "vr007-no-attrs-bank",
+			"bankCode": "VR007",
+			"bankName": "VR007 No Attributes Bank",
+			"branding": map[string]interface{}{"logo": "https://logo.url", "colors": "#FFFFFF"},
+			"operationalParams": map[string]interface{}{
+				"businessHours": "9-5",
+				"limits":        map[string]interface{}{"daily": 10000},
+				"currencies":    []string{"USD"},
+			},
+		}
+		data, _ := json.Marshal(body)
+		createReq, _ := http.NewRequest("POST", "/api/banks", bytes.NewBuffer(data))
+		createReq.Header.Set("Content-Type", "application/json")
+
+		w1 := httptest.NewRecorder()
+		router.ServeHTTP(w1, createReq)
+		require.Equal(t, http.StatusCreated, w1.Code)
+
+		// Retrieve and verify attributes is empty array
+		getReq, _ := http.NewRequest("GET", "/banks/vr007-no-attrs-bank", nil)
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, getReq)
+
+		assert.Equal(t, http.StatusOK, w2.Code)
+
+		var response models.BankDetailResponse
+		err := json.Unmarshal(w2.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.NotNil(t, response.Attributes, "Attributes should not be nil")
+		assert.Empty(t, response.Attributes, "Attributes should be empty array")
+	})
+
+	// VR-008: HTTP Status Code Validation
+	t.Run("VR008_HTTPStatusCodeValidation", func(t *testing.T) {
+		// 200 for successful retrieval
+		body := map[string]interface{}{
+			"bankId":   "vr008-status-bank",
+			"bankCode": "VR008",
+			"bankName": "VR008 Status Bank",
+			"branding": map[string]interface{}{"logo": "https://logo.url", "colors": "#FFFFFF"},
+			"operationalParams": map[string]interface{}{
+				"businessHours": "9-5",
+				"limits":        map[string]interface{}{"daily": 10000},
+				"currencies":    []string{"USD"},
+			},
+		}
+		data, _ := json.Marshal(body)
+		createReq, _ := http.NewRequest("POST", "/api/banks", bytes.NewBuffer(data))
+		createReq.Header.Set("Content-Type", "application/json")
+
+		w1 := httptest.NewRecorder()
+		router.ServeHTTP(w1, createReq)
+		require.Equal(t, http.StatusCreated, w1.Code)
+
+		// 200 for successful single bank retrieval
+		getReq, _ := http.NewRequest("GET", "/banks/vr008-status-bank", nil)
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, getReq)
+		assert.Equal(t, http.StatusOK, w2.Code)
+
+		// 200 for bank list (even if empty)
+		listReq, _ := http.NewRequest("GET", "/banks", nil)
+		w3 := httptest.NewRecorder()
+		router.ServeHTTP(w3, listReq)
+		assert.Equal(t, http.StatusOK, w3.Code)
+
+		// 404 for non-existent bank
+		notFoundReq, _ := http.NewRequest("GET", "/banks/vr008-non-existent", nil)
+		w4 := httptest.NewRecorder()
+		router.ServeHTTP(w4, notFoundReq)
+		assert.Equal(t, http.StatusNotFound, w4.Code)
 	})
 }

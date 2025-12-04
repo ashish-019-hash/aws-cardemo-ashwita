@@ -80,3 +80,58 @@ func NewMappedBank() *MappedBank {
 		UpdatedAt: now,
 	}
 }
+
+// BankAttribute represents configurable attributes/parameters associated with a bank
+// Source: code/bankattribute/MappedBankAttributeProvider.scala
+// User Story: Bank Information Retrieval
+// Database Class: BankAttribute (extends LongKeyedMapper[BankAttribute] with IdPK)
+type BankAttribute struct {
+	// Internal database identifier (auto-generated)
+	ID int64 `json:"-" db:"id"`
+
+	// Foreign key reference to the parent MappedBank (permalink)
+	BankID string `json:"bank_id" db:"bankid" validate:"required"`
+
+	// Unique identifier for the attribute (auto-generated UUID)
+	BankAttributeID string `json:"bank_attribute_id,omitempty" db:"bankattributeid"`
+
+	// Name/key of the attribute
+	Name string `json:"name" db:"name" validate:"required,max=50"`
+
+	// Type classification of the attribute value (BankAttributeType enum)
+	Type string `json:"type" db:"type" validate:"required,max=50"`
+
+	// The actual value of the attribute
+	Value string `json:"value" db:"value" validate:"required,max=255"`
+
+	// Flag indicating if the attribute is currently active (default: true)
+	IsActive bool `json:"is_active" db:"isactive"`
+}
+
+// BankAttributeTrait interface matching the Scala BankAttributeTrait
+// Source: com/openbankproject/commons/model/CommonModelTrait.scala
+type BankAttributeTrait interface {
+	GetBankID() string
+	GetName() string
+	GetType() string
+	GetValue() string
+	GetIsActive() bool
+}
+
+// Implement BankAttributeTrait interface for BankAttribute
+func (a *BankAttribute) GetBankID() string   { return a.BankID }
+func (a *BankAttribute) GetName() string     { return a.Name }
+func (a *BankAttribute) GetType() string     { return a.Type }
+func (a *BankAttribute) GetValue() string    { return a.Value }
+func (a *BankAttribute) GetIsActive() bool   { return a.IsActive }
+
+// NewBankAttribute creates a new BankAttribute with default values
+func NewBankAttribute(bankID, name, attrType, value string) *BankAttribute {
+	return &BankAttribute{
+		BankID:   bankID,
+		Name:     name,
+		Type:     attrType,
+		Value:    value,
+		IsActive: true, // Default to true as per user story
+	}
+}

@@ -98,3 +98,109 @@ type ValidationError struct {
 type ValidationErrorResponse struct {
 	Errors []ValidationError `json:"errors"`
 }
+
+// ============================================================================
+// Bank Information Retrieval DTOs
+// User Story: Bank Information Retrieval
+// ============================================================================
+
+// BankAttributeResponse represents a bank attribute in API responses
+// Source: code/bankattribute/MappedBankAttributeProvider.scala
+// Used in: GET /banks/BANK_ID response
+type BankAttributeResponse struct {
+	BankID   string `json:"bank_id"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	Value    string `json:"value"`
+	IsActive bool   `json:"is_active"`
+}
+
+// BankListItem represents a single bank in the bank list response
+// Used in: GET /banks response
+// Note: Does NOT include attributes (per BR-003 for performance optimization)
+type BankListItem struct {
+	ID           string        `json:"id"`
+	ShortName    string        `json:"short_name"`
+	FullName     string        `json:"full_name"`
+	Logo         string        `json:"logo"`
+	Website      string        `json:"website"`
+	BankRoutings []BankRouting `json:"bank_routings"`
+}
+
+// BankListResponse represents the response for GET /banks
+// User Story: Bank Information Retrieval - Retrieve All Banks
+// BR-003: Basic bank info composition (excludes attributes)
+// BR-004: Empty result returns 200 with empty array, not 404
+type BankListResponse struct {
+	Banks []BankListItem `json:"banks"`
+}
+
+// BankDetailResponse represents the response for GET /banks/BANK_ID
+// User Story: Bank Information Retrieval - Retrieve Single Bank Details
+// BR-002: Complete bank info composition (includes attributes)
+// VR-004: Must include all fields (name, logo, website, routing, attributes)
+// VR-007: Empty attributes returns empty array, not null
+type BankDetailResponse struct {
+	ID           string                  `json:"id"`
+	ShortName    string                  `json:"short_name"`
+	FullName     string                  `json:"full_name"`
+	Logo         string                  `json:"logo"`
+	Website      string                  `json:"website"`
+	BankRoutings []BankRouting           `json:"bank_routings"`
+	Attributes   []BankAttributeResponse `json:"attributes"`
+}
+
+// ToBankListItem converts a MappedBank to BankListItem
+func (b *MappedBank) ToBankListItem() BankListItem {
+	routings := []BankRouting{}
+	if b.BankRoutingScheme != "" || b.BankRoutingAddress != "" {
+		routings = append(routings, BankRouting{
+			Scheme:  b.BankRoutingScheme,
+			Address: b.BankRoutingAddress,
+		})
+	}
+	return BankListItem{
+		ID:           b.Permalink,
+		ShortName:    b.ShortBankName,
+		FullName:     b.FullBankName,
+		Logo:         b.LogoURL,
+		Website:      b.WebsiteURL,
+		BankRoutings: routings,
+	}
+}
+
+// ToBankDetailResponse converts a MappedBank to BankDetailResponse
+// Attributes must be provided separately (from BankAttributeRepository)
+func (b *MappedBank) ToBankDetailResponse(attributes []BankAttributeResponse) BankDetailResponse {
+	routings := []BankRouting{}
+	if b.BankRoutingScheme != "" || b.BankRoutingAddress != "" {
+		routings = append(routings, BankRouting{
+			Scheme:  b.BankRoutingScheme,
+			Address: b.BankRoutingAddress,
+		})
+	}
+	// VR-007: Ensure attributes is never nil, always empty array if no attributes
+	if attributes == nil {
+		attributes = []BankAttributeResponse{}
+	}
+	return BankDetailResponse{
+		ID:           b.Permalink,
+		ShortName:    b.ShortBankName,
+		FullName:     b.FullBankName,
+		Logo:         b.LogoURL,
+		Website:      b.WebsiteURL,
+		BankRoutings: routings,
+		Attributes:   attributes,
+	}
+}
+
+// ToBankAttributeResponse converts a BankAttribute to BankAttributeResponse
+func (a *BankAttribute) ToBankAttributeResponse() BankAttributeResponse {
+	return BankAttributeResponse{
+		BankID:   a.BankID,
+		Name:     a.Name,
+		Type:     a.Type,
+		Value:    a.Value,
+		IsActive: a.IsActive,
+	}
+}

@@ -221,3 +221,98 @@ func (s *BankService) GetBank(ctx context.Context, bankID string) (*models.Mappe
 	}
 	return bank, nil
 }
+
+// ============================================================================
+// Bank Information Retrieval Methods
+// User Story: Bank Information Retrieval
+// ============================================================================
+
+// GetAllBanks retrieves all banks (basic info without attributes)
+// Maps to: GET /banks
+// Implements: BR-003 (Basic Bank Information Composition)
+// Implements: BR-004 (Empty Result Handling - returns 200 with empty array, not 404)
+// Source: LocalMappedConnector.getBanks (code/bankconnectors/LocalMappedConnector.scala)
+func (s *BankService) GetAllBanks(ctx context.Context) (*models.BankListResponse, error) {
+	// Retrieve all banks from repository
+	banks, err := s.repo.GetAllBanks(ctx)
+	if err != nil {
+		return nil, &ServiceError{
+			Code:       "BANK-ERR-001",
+			Message:    "Failed to retrieve banks",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-003: Convert to basic bank info (excludes attributes for performance)
+	// BR-004: Return empty array if no banks exist (not 404)
+	bankItems := make([]models.BankListItem, 0, len(banks))
+	for _, bank := range banks {
+		bankItems = append(bankItems, bank.ToBankListItem())
+	}
+
+	return &models.BankListResponse{
+		Banks: bankItems,
+	}, nil
+}
+
+// GetBankByIdWithAttributes retrieves a single bank with its attributes
+// Maps to: GET /banks/BANK_ID
+// Implements: BR-001 (Bank Existence Validation - returns 404 if not found)
+// Implements: BR-002 (Complete Bank Information Composition - includes attributes)
+// Implements: VR-001 (Bank Identifier Required Validation)
+// Implements: VR-002 (Bank Identifier Existence Validation)
+// Implements: VR-003 (Valid Bank Identifier Business Rule)
+// Implements: VR-004 (Complete Information for Single Bank)
+// Implements: VR-007 (Empty Attributes Array Handling)
+// Implements: VR-008 (HTTP Status Code Validation)
+// Source: LocalMappedConnector.getBank (code/bankconnectors/LocalMappedConnector.scala)
+func (s *BankService) GetBankByIdWithAttributes(ctx context.Context, bankID string) (*models.BankDetailResponse, error) {
+	// VR-001: Validate bank ID is provided (required)
+	if bankID == "" {
+		return nil, &ServiceError{
+			Code:       "BANK-VAL-001",
+			Message:    "Bank identifier is required",
+			HTTPStatus: 400,
+			Field:      "bankId",
+		}
+	}
+
+	// VR-002, VR-003, BR-001: Check if bank exists
+	bank, err := s.repo.GetBankByPermalink(ctx, bankID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// VR-008: Return 404 for non-existent bank
+			return nil, &ServiceError{
+				Code:       "BANK-VAL-009",
+				Message:    "Bank not found: " + bankID,
+				HTTPStatus: 404,
+				Field:      "bankId",
+			}
+		}
+		return nil, &ServiceError{
+			Code:       "BANK-ERR-001",
+			Message:    "Failed to retrieve bank",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-002: Retrieve bank attributes for complete information
+	attributes, err := s.repo.GetBankAttributes(ctx, bankID)
+	if err != nil {
+		return nil, &ServiceError{
+			Code:       "BANK-ERR-001",
+			Message:    "Failed to retrieve bank attributes",
+			HTTPStatus: 500,
+		}
+	}
+
+	// VR-007: Convert attributes to response format (empty array if none)
+	attrResponses := make([]models.BankAttributeResponse, 0, len(attributes))
+	for _, attr := range attributes {
+		attrResponses = append(attrResponses, attr.ToBankAttributeResponse())
+	}
+
+	// VR-004: Return complete bank information with all fields
+	response := bank.ToBankDetailResponse(attrResponses)
+	return &response, nil
+}

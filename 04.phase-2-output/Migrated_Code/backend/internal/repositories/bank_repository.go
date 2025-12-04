@@ -30,6 +30,26 @@ type BankRepository interface {
 
 	// BankExistsByCode checks if a bank exists by code
 	BankExistsByCode(ctx context.Context, code string) (bool, error)
+
+	// ============================================================================
+	// Bank Information Retrieval Methods
+	// User Story: Bank Information Retrieval
+	// ============================================================================
+
+	// GetAllBanks retrieves all banks from the database
+	// Source: LocalMappedConnector.getBanks (code/bankconnectors/LocalMappedConnector.scala)
+	// BR-003: Returns basic bank info (excludes attributes for performance)
+	// BR-004: Returns empty slice if no banks exist (not error)
+	GetAllBanks(ctx context.Context) ([]*models.MappedBank, error)
+
+	// GetBankAttributes retrieves all attributes for a specific bank
+	// Source: MappedBankAttributeProvider.getBankAttributesByBank
+	// VR-007: Returns empty slice if no attributes exist (not nil)
+	GetBankAttributes(ctx context.Context, bankID string) ([]*models.BankAttribute, error)
+
+	// CreateBankAttribute creates a new bank attribute
+	// Used for testing and seeding data
+	CreateBankAttribute(ctx context.Context, attr *models.BankAttribute) error
 }
 
 // bankRepository implements BankRepository
@@ -197,4 +217,131 @@ func (r *bankRepository) BankExistsByCode(ctx context.Context, code string) (boo
 		return false, err
 	}
 	return count > 0, nil
+}
+
+// ============================================================================
+// Bank Information Retrieval Methods Implementation
+// User Story: Bank Information Retrieval
+// ============================================================================
+
+// GetAllBanks retrieves all banks from the database
+// Source: LocalMappedConnector.getBanks (code/bankconnectors/LocalMappedConnector.scala)
+// BR-003: Returns basic bank info (excludes attributes for performance)
+// BR-004: Returns empty slice if no banks exist (not error)
+func (r *bankRepository) GetAllBanks(ctx context.Context) ([]*models.MappedBank, error) {
+	query := `
+		SELECT id, permalink, fullbankname, shortbankname, logourl, websiteurl,
+			   swiftbic, national_identifier, mbankroutingscheme, mbankroutingaddress,
+			   createdat, updatedat
+		FROM mappedbank
+		ORDER BY fullbankname ASC
+	`
+
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// BR-004: Initialize as empty slice, not nil
+	banks := make([]*models.MappedBank, 0)
+
+	for rows.Next() {
+		bank := &models.MappedBank{}
+		err := rows.Scan(
+			&bank.ID,
+			&bank.Permalink,
+			&bank.FullBankName,
+			&bank.ShortBankName,
+			&bank.LogoURL,
+			&bank.WebsiteURL,
+			&bank.SwiftBIC,
+			&bank.NationalIdentifier,
+			&bank.BankRoutingScheme,
+			&bank.BankRoutingAddress,
+			&bank.CreatedAt,
+			&bank.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		banks = append(banks, bank)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return banks, nil
+}
+
+// GetBankAttributes retrieves all attributes for a specific bank
+// Source: MappedBankAttributeProvider.getBankAttributesByBank
+// VR-007: Returns empty slice if no attributes exist (not nil)
+func (r *bankRepository) GetBankAttributes(ctx context.Context, bankID string) ([]*models.BankAttribute, error) {
+	query := `
+		SELECT id, bankid, bankattributeid, name, type, value, isactive
+		FROM bankattribute
+		WHERE bankid = ?
+		ORDER BY name ASC
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, bankID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// VR-007: Initialize as empty slice, not nil
+	attributes := make([]*models.BankAttribute, 0)
+
+	for rows.Next() {
+		attr := &models.BankAttribute{}
+		err := rows.Scan(
+			&attr.ID,
+			&attr.BankID,
+			&attr.BankAttributeID,
+			&attr.Name,
+			&attr.Type,
+			&attr.Value,
+			&attr.IsActive,
+		)
+		if err != nil {
+			return nil, err
+		}
+		attributes = append(attributes, attr)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return attributes, nil
+}
+
+// CreateBankAttribute creates a new bank attribute
+// Used for testing and seeding data
+func (r *bankRepository) CreateBankAttribute(ctx context.Context, attr *models.BankAttribute) error {
+	query := `
+		INSERT INTO bankattribute (bankid, bankattributeid, name, type, value, isactive)
+		VALUES (?, ?, ?, ?, ?, ?)
+	`
+	result, err := r.db.ExecContext(ctx, query,
+		attr.BankID,
+		attr.BankAttributeID,
+		attr.Name,
+		attr.Type,
+		attr.Value,
+		attr.IsActive,
+	)
+	if err != nil {
+		return err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	attr.ID = id
+	return nil
 }

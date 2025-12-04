@@ -8,10 +8,10 @@ import (
 // SetupRoutes configures all API routes
 // Maps to: User Story API Endpoints
 func SetupRoutes(router *gin.Engine, bankController *controllers.BankController) {
-	// API v1 group
+	// API v1 group - Bank Registration User Story endpoints
 	api := router.Group("/api")
 	{
-		// Bank routes - Maps to User Story endpoints
+		// Bank routes - Maps to User Story "Bank Registration and Configuration"
 		banks := api.Group("/banks")
 		{
 			// POST /api/banks - Create Bank Entity
@@ -22,9 +22,31 @@ func SetupRoutes(router *gin.Engine, bankController *controllers.BankController)
 			// Maps to: User Story "Bank Management (Update) Endpoint"
 			banks.PUT("/:bankId", bankController.UpdateBank)
 
-			// GET /api/banks/:bankId - Get Bank (helper, not in user story)
-			banks.GET("/:bankId", bankController.GetBank)
+			// Note: GET endpoint removed - use /banks/:bankId from Bank Information Retrieval
+			// The original Bank Registration user story only specified POST and PUT endpoints
 		}
+	}
+
+	// ============================================================================
+	// Bank Information Retrieval Routes
+	// User Story: Bank Information Retrieval
+	// Note: These routes are at /banks (not /api/banks) to match the user story
+	// ============================================================================
+
+	// Bank Information Retrieval routes
+	banksRetrieval := router.Group("/banks")
+	{
+		// GET /banks - Retrieve All Banks
+		// Maps to: User Story "Bank Information Retrieval - Retrieve All Banks"
+		// BR-003: Returns basic bank info (excludes attributes)
+		// BR-004: Returns 200 with empty array if no banks exist
+		banksRetrieval.GET("", bankController.GetAllBanks)
+
+		// GET /banks/:bankId - Retrieve Single Bank with Attributes
+		// Maps to: User Story "Bank Information Retrieval - Retrieve Single Bank Details"
+		// BR-001: Returns 404 if bank not found
+		// BR-002: Returns complete bank info (includes attributes)
+		banksRetrieval.GET("/:bankId", bankController.GetBankByIdWithAttributes)
 	}
 
 	// Health check endpoint
