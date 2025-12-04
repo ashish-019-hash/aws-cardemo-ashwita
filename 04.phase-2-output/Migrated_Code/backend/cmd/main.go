@@ -26,11 +26,13 @@ func main() {
 	// Initialize repository
 	bankRepo := repositories.NewBankRepository(database)
 
-	// Initialize service
+	// Initialize services
 	bankService := services.NewBankService(bankRepo)
+	bankAttributeService := services.NewBankAttributeService(bankRepo)
 
-	// Initialize controller
+	// Initialize controllers
 	bankController := controllers.NewBankController(bankService)
+	bankAttributeController := controllers.NewBankAttributeController(bankAttributeService)
 
 	// Setup Gin router
 	if cfg.IsProduction() {
@@ -39,7 +41,7 @@ func main() {
 	router := gin.Default()
 
 	// Setup routes
-	routes.SetupRoutes(router, bankController)
+	routes.SetupRoutes(router, bankController, bankAttributeController)
 
 	// Start server
 	log.Printf("Starting server on %s", cfg.GetServerAddress())
@@ -47,6 +49,11 @@ func main() {
 	log.Printf("API endpoints:")
 	log.Printf("  POST http://%s/api/banks - Create Bank", cfg.GetServerAddress())
 	log.Printf("  PUT  http://%s/api/banks/{bankId} - Update Bank", cfg.GetServerAddress())
+	log.Printf("  POST http://%s/banks/{bankId}/attribute - Create Bank Attribute", cfg.GetServerAddress())
+	log.Printf("  GET  http://%s/banks/{bankId}/attributes - Get Bank Attributes", cfg.GetServerAddress())
+	log.Printf("  GET  http://%s/banks/{bankId}/attributes/{attributeId} - Get Bank Attribute", cfg.GetServerAddress())
+	log.Printf("  PUT  http://%s/banks/{bankId}/attributes/{attributeId} - Update Bank Attribute", cfg.GetServerAddress())
+	log.Printf("  DELETE http://%s/banks/{bankId}/attributes/{attributeId} - Delete Bank Attribute", cfg.GetServerAddress())
 
 	if err := router.Run(cfg.GetServerAddress()); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

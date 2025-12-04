@@ -316,3 +316,425 @@ func (s *BankService) GetBankByIdWithAttributes(ctx context.Context, bankID stri
 	response := bank.ToBankDetailResponse(attrResponses)
 	return &response, nil
 }
+
+// ============================================================================
+// Bank Attribute Management Methods
+// User Story: Bank Attribute Management
+// ============================================================================
+
+// BankAttributeService handles CRUD operations for bank attributes
+type BankAttributeService struct {
+	repo      repositories.BankRepository
+	validator *validators.BankAttributeValidator
+}
+
+// NewBankAttributeService creates a new BankAttributeService instance
+func NewBankAttributeService(repo repositories.BankRepository) *BankAttributeService {
+	return &BankAttributeService{
+		repo:      repo,
+		validator: validators.NewBankAttributeValidator(),
+	}
+}
+
+// CreateBankAttribute creates a new bank attribute
+// Maps to: POST /banks/BANK_ID/attribute
+// Implements: BR-001 (Bank Existence Validation)
+// Implements: BR-002 (Attribute Type Validation)
+// Implements: BR-003 (Type-Value Consistency)
+// Implements: VR-003, VR-004, VR-011
+// Source: MappedBankAttributeProvider.createOrUpdateBankAttribute
+func (s *BankAttributeService) CreateBankAttribute(ctx context.Context, bankID string, req *models.CreateBankAttributeRequest) (*models.BankAttributeResponse, error) {
+	// VR-001: Validate bank ID is provided
+	if result := s.validator.ValidateBankIDRequired(bankID); !result.Valid {
+		return nil, &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 400,
+			Field:      result.Field,
+		}
+	}
+
+	// BR-001: Validate bank exists
+	_, err := s.repo.GetBankByPermalink(ctx, bankID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			result := validators.NewBankNotFoundForAttributeError(bankID)
+			return nil, &ServiceError{
+				Code:       result.Code,
+				Message:    result.Message,
+				HTTPStatus: 404,
+				Field:      result.Field,
+			}
+		}
+		return nil, &ServiceError{
+			Code:       "ATTR-ERR-001",
+			Message:    "Failed to validate bank existence",
+			HTTPStatus: 500,
+		}
+	}
+
+	// VR-003, VR-004, BR-002, BR-003: Validate request
+	validationResults := s.validator.ValidateCreateBankAttributeRequest(req)
+	if len(validationResults) > 0 {
+		result := validationResults[0]
+		return nil, &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 400,
+			Field:      result.Field,
+		}
+	}
+
+	// VR-011: Check for duplicate attribute name within bank
+	exists, err := s.repo.AttributeExistsByName(ctx, bankID, req.Name)
+	if err != nil {
+		return nil, &ServiceError{
+			Code:       "ATTR-ERR-001",
+			Message:    "Failed to check attribute name uniqueness",
+			HTTPStatus: 500,
+		}
+	}
+	if exists {
+		result := validators.NewAttributeNameDuplicateError(req.Name, bankID)
+		return nil, &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 409,
+			Field:      result.Field,
+		}
+	}
+
+	// BR-006: Set default is_active to true if not provided
+	isActive := true
+	if req.IsActive != nil {
+		isActive = *req.IsActive
+	}
+
+	// Create attribute entity
+	attr := models.NewBankAttribute(bankID, req.Name, req.Type, req.Value)
+	attr.IsActive = isActive
+
+	// Persist via repository
+	if err := s.repo.CreateBankAttribute(ctx, attr); err != nil {
+		return nil, &ServiceError{
+			Code:       "ATTR-ERR-002",
+			Message:    "Failed to create bank attribute: " + err.Error(),
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-007: Return complete attribute information
+	response := attr.ToBankAttributeResponse()
+	return &response, nil
+}
+
+// UpdateBankAttribute updates an existing bank attribute
+// Maps to: PUT /banks/BANK_ID/attributes/BANK_ATTRIBUTE_ID
+// Implements: BR-001 (Bank Existence Validation)
+// Implements: BR-004 (Attribute Existence Validation)
+// Implements: BR-002, BR-003, VR-012
+// Source: MappedBankAttributeProvider.createOrUpdateBankAttribute
+func (s *BankAttributeService) UpdateBankAttribute(ctx context.Context, bankID, attributeID string, req *models.UpdateBankAttributeRequest) (*models.BankAttributeResponse, error) {
+	// VR-001: Validate bank ID is provided
+	if result := s.validator.ValidateBankIDRequired(bankID); !result.Valid {
+		return nil, &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 400,
+			Field:      result.Field,
+		}
+	}
+
+	// VR-005: Validate attribute ID is provided
+	if result := s.validator.ValidateAttributeIDRequired(attributeID); !result.Valid {
+		return nil, &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 400,
+			Field:      result.Field,
+		}
+	}
+
+	// BR-001: Validate bank exists
+	_, err := s.repo.GetBankByPermalink(ctx, bankID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			result := validators.NewBankNotFoundForAttributeError(bankID)
+			return nil, &ServiceError{
+				Code:       result.Code,
+				Message:    result.Message,
+				HTTPStatus: 404,
+				Field:      result.Field,
+			}
+		}
+		return nil, &ServiceError{
+			Code:       "ATTR-ERR-001",
+			Message:    "Failed to validate bank existence",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-004, VR-012: Validate attribute exists
+	existing, err := s.repo.GetBankAttributeByID(ctx, bankID, attributeID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			result := validators.NewAttributeNotFoundError(attributeID, bankID)
+			return nil, &ServiceError{
+				Code:       result.Code,
+				Message:    result.Message,
+				HTTPStatus: 404,
+				Field:      result.Field,
+			}
+		}
+		return nil, &ServiceError{
+			Code:       "ATTR-ERR-001",
+			Message:    "Failed to retrieve attribute",
+			HTTPStatus: 500,
+		}
+	}
+
+	// VR-003, VR-004, BR-002, BR-003: Validate request
+	validationResults := s.validator.ValidateUpdateBankAttributeRequest(req)
+	if len(validationResults) > 0 {
+		result := validationResults[0]
+		return nil, &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 400,
+			Field:      result.Field,
+		}
+	}
+
+	// VR-011: Check for duplicate attribute name within bank (excluding current attribute)
+	exists, err := s.repo.AttributeExistsByNameExcluding(ctx, bankID, req.Name, attributeID)
+	if err != nil {
+		return nil, &ServiceError{
+			Code:       "ATTR-ERR-001",
+			Message:    "Failed to check attribute name uniqueness",
+			HTTPStatus: 500,
+		}
+	}
+	if exists {
+		result := validators.NewAttributeNameDuplicateError(req.Name, bankID)
+		return nil, &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 409,
+			Field:      result.Field,
+		}
+	}
+
+	// Update attribute fields
+	existing.Name = req.Name
+	existing.Type = req.Type
+	existing.Value = req.Value
+	existing.IsActive = req.IsActive
+
+	// Persist via repository
+	if err := s.repo.UpdateBankAttribute(ctx, existing); err != nil {
+		return nil, &ServiceError{
+			Code:       "ATTR-ERR-003",
+			Message:    "Failed to update bank attribute: " + err.Error(),
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-007: Return complete attribute information
+	response := existing.ToBankAttributeResponse()
+	return &response, nil
+}
+
+// GetBankAttributes retrieves all attributes for a bank
+// Maps to: GET /banks/BANK_ID/attributes
+// Implements: BR-001 (Bank Existence Validation)
+// Implements: BR-005 (Empty Result Handling - returns 200 with empty array)
+// Implements: VR-015 (Empty Attribute List Handling)
+// Source: MappedBankAttributeProvider.getBankAttributesByBank
+func (s *BankAttributeService) GetBankAttributes(ctx context.Context, bankID string) (*models.BankAttributesListResponse, error) {
+	// VR-001: Validate bank ID is provided
+	if result := s.validator.ValidateBankIDRequired(bankID); !result.Valid {
+		return nil, &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 400,
+			Field:      result.Field,
+		}
+	}
+
+	// BR-001: Validate bank exists
+	_, err := s.repo.GetBankByPermalink(ctx, bankID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			result := validators.NewBankNotFoundForAttributeError(bankID)
+			return nil, &ServiceError{
+				Code:       result.Code,
+				Message:    result.Message,
+				HTTPStatus: 404,
+				Field:      result.Field,
+			}
+		}
+		return nil, &ServiceError{
+			Code:       "ATTR-ERR-001",
+			Message:    "Failed to validate bank existence",
+			HTTPStatus: 500,
+		}
+	}
+
+	// Retrieve attributes
+	attributes, err := s.repo.GetBankAttributes(ctx, bankID)
+	if err != nil {
+		return nil, &ServiceError{
+			Code:       "ATTR-ERR-001",
+			Message:    "Failed to retrieve bank attributes",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-005, VR-015: Convert to response format (empty array if none)
+	attrResponses := make([]models.BankAttributeResponse, 0, len(attributes))
+	for _, attr := range attributes {
+		attrResponses = append(attrResponses, attr.ToBankAttributeResponse())
+	}
+
+	return &models.BankAttributesListResponse{
+		BankAttributes: attrResponses,
+	}, nil
+}
+
+// GetBankAttributeByID retrieves a single bank attribute by ID
+// Maps to: GET /banks/BANK_ID/attributes/BANK_ATTRIBUTE_ID
+// Implements: BR-001 (Bank Existence Validation)
+// Implements: BR-004 (Attribute Existence Validation)
+// Implements: BR-007 (Complete Attribute Information)
+// Implements: VR-006 (Attribute ID Existence Validation)
+// Source: MappedBankAttributeProvider.getBankAttributeById
+func (s *BankAttributeService) GetBankAttributeByID(ctx context.Context, bankID, attributeID string) (*models.BankAttributeResponse, error) {
+	// VR-001: Validate bank ID is provided
+	if result := s.validator.ValidateBankIDRequired(bankID); !result.Valid {
+		return nil, &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 400,
+			Field:      result.Field,
+		}
+	}
+
+	// VR-005: Validate attribute ID is provided
+	if result := s.validator.ValidateAttributeIDRequired(attributeID); !result.Valid {
+		return nil, &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 400,
+			Field:      result.Field,
+		}
+	}
+
+	// BR-001: Validate bank exists
+	_, err := s.repo.GetBankByPermalink(ctx, bankID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			result := validators.NewBankNotFoundForAttributeError(bankID)
+			return nil, &ServiceError{
+				Code:       result.Code,
+				Message:    result.Message,
+				HTTPStatus: 404,
+				Field:      result.Field,
+			}
+		}
+		return nil, &ServiceError{
+			Code:       "ATTR-ERR-001",
+			Message:    "Failed to validate bank existence",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-004, VR-006: Retrieve attribute
+	attr, err := s.repo.GetBankAttributeByID(ctx, bankID, attributeID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			result := validators.NewAttributeNotFoundError(attributeID, bankID)
+			return nil, &ServiceError{
+				Code:       result.Code,
+				Message:    result.Message,
+				HTTPStatus: 404,
+				Field:      result.Field,
+			}
+		}
+		return nil, &ServiceError{
+			Code:       "ATTR-ERR-001",
+			Message:    "Failed to retrieve bank attribute",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-007: Return complete attribute information
+	response := attr.ToBankAttributeResponse()
+	return &response, nil
+}
+
+// DeleteBankAttribute deletes a bank attribute
+// Maps to: DELETE /banks/BANK_ID/attributes/BANK_ATTRIBUTE_ID
+// Implements: BR-001 (Bank Existence Validation)
+// Implements: BR-004 (Attribute Existence Validation)
+// Implements: VR-013 (Existing Attribute for Deletion)
+// Source: MappedBankAttributeProvider.deleteBankAttribute
+func (s *BankAttributeService) DeleteBankAttribute(ctx context.Context, bankID, attributeID string) error {
+	// VR-001: Validate bank ID is provided
+	if result := s.validator.ValidateBankIDRequired(bankID); !result.Valid {
+		return &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 400,
+			Field:      result.Field,
+		}
+	}
+
+	// VR-005: Validate attribute ID is provided
+	if result := s.validator.ValidateAttributeIDRequired(attributeID); !result.Valid {
+		return &ServiceError{
+			Code:       result.Code,
+			Message:    result.Message,
+			HTTPStatus: 400,
+			Field:      result.Field,
+		}
+	}
+
+	// BR-001: Validate bank exists
+	_, err := s.repo.GetBankByPermalink(ctx, bankID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			result := validators.NewBankNotFoundForAttributeError(bankID)
+			return &ServiceError{
+				Code:       result.Code,
+				Message:    result.Message,
+				HTTPStatus: 404,
+				Field:      result.Field,
+			}
+		}
+		return &ServiceError{
+			Code:       "ATTR-ERR-001",
+			Message:    "Failed to validate bank existence",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-004, VR-013: Delete attribute (returns error if not found)
+	if err := s.repo.DeleteBankAttribute(ctx, bankID, attributeID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			result := validators.NewAttributeNotFoundError(attributeID, bankID)
+			return &ServiceError{
+				Code:       result.Code,
+				Message:    result.Message,
+				HTTPStatus: 404,
+				Field:      result.Field,
+			}
+		}
+		return &ServiceError{
+			Code:       "ATTR-ERR-004",
+			Message:    "Failed to delete bank attribute: " + err.Error(),
+			HTTPStatus: 500,
+		}
+	}
+
+	return nil
+}

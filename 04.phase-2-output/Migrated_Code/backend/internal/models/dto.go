@@ -106,13 +106,15 @@ type ValidationErrorResponse struct {
 
 // BankAttributeResponse represents a bank attribute in API responses
 // Source: code/bankattribute/MappedBankAttributeProvider.scala
-// Used in: GET /banks/BANK_ID response
+// Used in: GET /banks/BANK_ID response, GET /banks/BANK_ID/attributes response
+// User Story: Bank Attribute Management
 type BankAttributeResponse struct {
-	BankID   string `json:"bank_id"`
-	Name     string `json:"name"`
-	Type     string `json:"type"`
-	Value    string `json:"value"`
-	IsActive bool   `json:"is_active"`
+	BankID          string `json:"bank_id"`
+	BankAttributeID string `json:"bank_attribute_id"`
+	Name            string `json:"name"`
+	Type            string `json:"type"`
+	Value           string `json:"value"`
+	IsActive        bool   `json:"is_active"`
 }
 
 // BankListItem represents a single bank in the bank list response
@@ -197,10 +199,65 @@ func (b *MappedBank) ToBankDetailResponse(attributes []BankAttributeResponse) Ba
 // ToBankAttributeResponse converts a BankAttribute to BankAttributeResponse
 func (a *BankAttribute) ToBankAttributeResponse() BankAttributeResponse {
 	return BankAttributeResponse{
-		BankID:   a.BankID,
-		Name:     a.Name,
-		Type:     a.Type,
-		Value:    a.Value,
-		IsActive: a.IsActive,
+		BankID:          a.BankID,
+		BankAttributeID: a.BankAttributeID,
+		Name:            a.Name,
+		Type:            a.Type,
+		Value:           a.Value,
+		IsActive:        a.IsActive,
 	}
+}
+
+// ============================================================================
+// Bank Attribute Management DTOs
+// User Story: Bank Attribute Management
+// ============================================================================
+
+// CreateBankAttributeRequest represents the request body for POST /banks/BANK_ID/attribute
+// User Story: Bank Attribute Management - Define Bank Attribute
+type CreateBankAttributeRequest struct {
+	// Name of the attribute (required)
+	// VR-003: Attribute name must be provided and non-empty
+	Name string `json:"name" validate:"required,min=1,max=50"`
+
+	// Type of the attribute (required)
+	// VR-004: Attribute type must be one of: STRING, INTEGER, DOUBLE, DATE_WITH_DAY
+	// BR-002: Attribute type validation and enforcement
+	Type string `json:"type" validate:"required,oneof=STRING INTEGER DOUBLE DATE_WITH_DAY"`
+
+	// Value of the attribute (required)
+	// BR-003: Type-value consistency enforcement
+	Value string `json:"value" validate:"required"`
+
+	// Active status of the attribute (optional, defaults to true)
+	// BR-006: Attribute active/inactive status management
+	IsActive *bool `json:"is_active,omitempty"`
+}
+
+// UpdateBankAttributeRequest represents the request body for PUT /banks/BANK_ID/attributes/BANK_ATTRIBUTE_ID
+// User Story: Bank Attribute Management - Manage Bank Attribute
+type UpdateBankAttributeRequest struct {
+	// Name of the attribute (required for update)
+	// VR-003: Attribute name must be provided and non-empty
+	Name string `json:"name" validate:"required,min=1,max=50"`
+
+	// Type of the attribute (required for update)
+	// VR-004: Attribute type must be one of: STRING, INTEGER, DOUBLE, DATE_WITH_DAY
+	// BR-002: Attribute type validation and enforcement
+	Type string `json:"type" validate:"required,oneof=STRING INTEGER DOUBLE DATE_WITH_DAY"`
+
+	// Value of the attribute (required for update)
+	// BR-003: Type-value consistency enforcement
+	Value string `json:"value" validate:"required"`
+
+	// Active status of the attribute (required for update)
+	// BR-006: Attribute active/inactive status management
+	IsActive bool `json:"is_active"`
+}
+
+// BankAttributesListResponse represents the response for GET /banks/BANK_ID/attributes
+// User Story: Bank Attribute Management - Retrieve All Bank Attributes
+// BR-005: Empty result handling - returns 200 with empty array, not 404
+type BankAttributesListResponse struct {
+	BankAttributes []BankAttributeResponse `json:"bank_attributes"`
 }

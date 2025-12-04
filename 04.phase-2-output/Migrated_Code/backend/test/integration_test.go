@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -26,11 +27,13 @@ func setupIntegrationTest(t *testing.T) (*gin.Engine, func()) {
 	require.NoError(t, err)
 
 	repo := repositories.NewBankRepository(testDB)
-	service := services.NewBankService(repo)
-	controller := controllers.NewBankController(service)
+	bankService := services.NewBankService(repo)
+	bankAttributeService := services.NewBankAttributeService(repo)
+	bankController := controllers.NewBankController(bankService)
+	bankAttributeController := controllers.NewBankAttributeController(bankAttributeService)
 
 	router := gin.New()
-	routes.SetupRoutes(router, controller)
+	routes.SetupRoutes(router, bankController, bankAttributeController)
 
 	cleanup := func() {
 		testDB.Close()
@@ -1254,5 +1257,815 @@ func TestIntegration_BankRetrieval_ValidationRules(t *testing.T) {
 		w4 := httptest.NewRecorder()
 		router.ServeHTTP(w4, notFoundReq)
 		assert.Equal(t, http.StatusNotFound, w4.Code)
+	})
+}
+
+// ============================================================================
+// Bank Attribute Management Integration Tests
+// User Story: Bank Attribute Management
+// ============================================================================
+
+// createTestBankForAttributes creates a test bank for attribute tests
+func createTestBankForAttributes(t *testing.T, router *gin.Engine, bankID string) {
+	// Generate a valid uppercase bank code from the bankID
+	// Bank code must be uppercase letters only, 4-10 chars
+	bankCode := "ATTRTEST"
+	if len(bankID) >= 8 {
+		// Use last 4 chars to make it unique, convert to uppercase
+		suffix := bankID[len(bankID)-4:]
+		bankCode = "ATTR" + strings.ToUpper(strings.ReplaceAll(suffix, "-", ""))
+	}
+	createBody := map[string]interface{}{
+		"bankId":   bankID,
+		"bankCode": bankCode,
+		"bankName": "Attribute Test Bank " + bankID,
+		"branding": map[string]interface{}{
+			"logo":   "https://example.com/logo.png",
+			"colors": "#FF5733",
+		},
+		"operationalParams": map[string]interface{}{
+			"businessHours": "9-5",
+			"limits":        map[string]interface{}{"daily": 10000},
+			"currencies":    []string{"USD"},
+		},
+	}
+	createData, _ := json.Marshal(createBody)
+	createReq, _ := http.NewRequest("POST", "/api/banks", bytes.NewBuffer(createData))
+	createReq.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, createReq)
+	require.Equal(t, http.StatusCreated, w.Code, "Failed to create test bank: "+w.Body.String())
+}
+
+// TestIntegration_BankAttribute_CreateAttribute tests POST /banks/:bankId/attribute
+func TestIntegration_BankAttribute_CreateAttribute(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	// Create a test bank first
+	createTestBankForAttributes(t, router, "attr-create-test")
+
+	t.Run("Create STRING attribute successfully", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":      "branch_code",
+			"type":      "STRING",
+			"value":     "NYC-001",
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/attr-create-test/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		var response models.BankAttributeResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.Equal(t, "attr-create-test", response.BankID)
+		assert.Equal(t, "branch_code", response.Name)
+		assert.Equal(t, "STRING", response.Type)
+		assert.Equal(t, "NYC-001", response.Value)
+		assert.True(t, response.IsActive)
+		assert.NotEmpty(t, response.BankAttributeID)
+	})
+
+	t.Run("Create INTEGER attribute successfully", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":      "max_transactions",
+			"type":      "INTEGER",
+			"value":     "1000",
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/attr-create-test/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		var response models.BankAttributeResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.Equal(t, "INTEGER", response.Type)
+		assert.Equal(t, "1000", response.Value)
+	})
+
+	t.Run("Create DOUBLE attribute successfully", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":      "interest_rate",
+			"type":      "DOUBLE",
+			"value":     "3.75",
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/attr-create-test/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		var response models.BankAttributeResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.Equal(t, "DOUBLE", response.Type)
+		assert.Equal(t, "3.75", response.Value)
+	})
+
+	t.Run("Create DATE_WITH_DAY attribute successfully", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":      "founding_date",
+			"type":      "DATE_WITH_DAY",
+			"value":     "2020-01-15",
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/attr-create-test/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		var response models.BankAttributeResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.Equal(t, "DATE_WITH_DAY", response.Type)
+		assert.Equal(t, "2020-01-15", response.Value)
+	})
+
+	t.Run("Create attribute with default is_active", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":  "default_active_attr",
+			"type":  "STRING",
+			"value": "test",
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/attr-create-test/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		var response models.BankAttributeResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.True(t, response.IsActive, "Default is_active should be true")
+	})
+}
+
+// TestIntegration_BankAttribute_BR001_BankExistence tests BR-001: Bank Existence Validation
+func TestIntegration_BankAttribute_BR001_BankExistence(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	t.Run("Create attribute for non-existent bank returns 404", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":      "test_attr",
+			"type":      "STRING",
+			"value":     "test",
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/non-existent-bank/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+
+		var errResponse models.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResponse)
+		require.NoError(t, err)
+		assert.Equal(t, "BANK-VAL-009", errResponse.Code)
+	})
+
+	t.Run("Get attributes for non-existent bank returns 404", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/banks/non-existent-bank/attributes", nil)
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+}
+
+// TestIntegration_BankAttribute_BR002_TypeValidation tests BR-002: Attribute Type Validation
+func TestIntegration_BankAttribute_BR002_TypeValidation(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	createTestBankForAttributes(t, router, "attr-type-test")
+
+	t.Run("Invalid attribute type returns 400", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":      "invalid_type_attr",
+			"type":      "INVALID_TYPE",
+			"value":     "test",
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/attr-type-test/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+
+		var errResponse models.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResponse)
+		require.NoError(t, err)
+		assert.Equal(t, "ATTR-VAL-003", errResponse.Code)
+	})
+
+	t.Run("Empty attribute type returns 400", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":      "empty_type_attr",
+			"type":      "",
+			"value":     "test",
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/attr-type-test/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+}
+
+// TestIntegration_BankAttribute_BR003_TypeValueConsistency tests BR-003: Type-Value Consistency
+func TestIntegration_BankAttribute_BR003_TypeValueConsistency(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	createTestBankForAttributes(t, router, "attr-consistency")
+
+	t.Run("INTEGER type with non-integer value returns 400", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":      "bad_integer",
+			"type":      "INTEGER",
+			"value":     "not-a-number",
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/attr-consistency/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+
+		var errResponse models.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResponse)
+		require.NoError(t, err)
+		assert.Equal(t, "ATTR-VAL-007", errResponse.Code)
+	})
+
+	t.Run("DOUBLE type with non-numeric value returns 400", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":      "bad_double",
+			"type":      "DOUBLE",
+			"value":     "abc.def",
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/attr-consistency/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("DATE_WITH_DAY type with invalid date format returns 400", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":      "bad_date",
+			"type":      "DATE_WITH_DAY",
+			"value":     "01-15-2020", // Wrong format
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/attr-consistency/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+}
+
+// TestIntegration_BankAttribute_GetAttributes tests GET /banks/:bankId/attributes
+func TestIntegration_BankAttribute_GetAttributes(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	createTestBankForAttributes(t, router, "attr-get-test")
+
+	t.Run("Get attributes for bank with no attributes returns empty array", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/banks/attr-get-test/attributes", nil)
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response models.BankAttributesListResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.NotNil(t, response.BankAttributes)
+		assert.Len(t, response.BankAttributes, 0)
+	})
+
+	t.Run("Get attributes for bank with attributes returns all attributes", func(t *testing.T) {
+		// Create some attributes first
+		for i, name := range []string{"attr1", "attr2", "attr3"} {
+			body := map[string]interface{}{
+				"name":      name,
+				"type":      "STRING",
+				"value":     "value" + string(rune('1'+i)),
+				"is_active": true,
+			}
+			data, _ := json.Marshal(body)
+			req, _ := http.NewRequest("POST", "/banks/attr-get-test/attribute", bytes.NewBuffer(data))
+			req.Header.Set("Content-Type", "application/json")
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			require.Equal(t, http.StatusCreated, w.Code)
+		}
+
+		// Now get all attributes
+		req, _ := http.NewRequest("GET", "/banks/attr-get-test/attributes", nil)
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response models.BankAttributesListResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.Len(t, response.BankAttributes, 3)
+	})
+}
+
+// TestIntegration_BankAttribute_GetAttributeByID tests GET /banks/:bankId/attributes/:attributeId
+func TestIntegration_BankAttribute_GetAttributeByID(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	createTestBankForAttributes(t, router, "attr-getbyid")
+
+	// Create an attribute first
+	createBody := map[string]interface{}{
+		"name":      "test_attr",
+		"type":      "STRING",
+		"value":     "test_value",
+		"is_active": true,
+	}
+	createData, _ := json.Marshal(createBody)
+	createReq, _ := http.NewRequest("POST", "/banks/attr-getbyid/attribute", bytes.NewBuffer(createData))
+	createReq.Header.Set("Content-Type", "application/json")
+	w1 := httptest.NewRecorder()
+	router.ServeHTTP(w1, createReq)
+	require.Equal(t, http.StatusCreated, w1.Code)
+
+	var createResponse models.BankAttributeResponse
+	json.Unmarshal(w1.Body.Bytes(), &createResponse)
+	attributeID := createResponse.BankAttributeID
+
+	t.Run("Get existing attribute by ID returns 200", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/banks/attr-getbyid/attributes/"+attributeID, nil)
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response models.BankAttributeResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.Equal(t, attributeID, response.BankAttributeID)
+		assert.Equal(t, "test_attr", response.Name)
+	})
+
+	t.Run("Get non-existent attribute returns 404", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/banks/attr-getbyid/attributes/non-existent-id", nil)
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+
+		var errResponse models.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResponse)
+		require.NoError(t, err)
+		assert.Equal(t, "ATTR-VAL-006", errResponse.Code)
+	})
+}
+
+// TestIntegration_BankAttribute_UpdateAttribute tests PUT /banks/:bankId/attributes/:attributeId
+func TestIntegration_BankAttribute_UpdateAttribute(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	createTestBankForAttributes(t, router, "attr-update")
+
+	// Create an attribute first
+	createBody := map[string]interface{}{
+		"name":      "update_test_attr",
+		"type":      "STRING",
+		"value":     "original_value",
+		"is_active": true,
+	}
+	createData, _ := json.Marshal(createBody)
+	createReq, _ := http.NewRequest("POST", "/banks/attr-update/attribute", bytes.NewBuffer(createData))
+	createReq.Header.Set("Content-Type", "application/json")
+	w1 := httptest.NewRecorder()
+	router.ServeHTTP(w1, createReq)
+	require.Equal(t, http.StatusCreated, w1.Code)
+
+	var createResponse models.BankAttributeResponse
+	json.Unmarshal(w1.Body.Bytes(), &createResponse)
+	attributeID := createResponse.BankAttributeID
+
+	t.Run("Update attribute successfully", func(t *testing.T) {
+		updateBody := map[string]interface{}{
+			"name":      "updated_attr_name",
+			"type":      "INTEGER",
+			"value":     "42",
+			"is_active": false,
+		}
+		updateData, _ := json.Marshal(updateBody)
+		req, _ := http.NewRequest("PUT", "/banks/attr-update/attributes/"+attributeID, bytes.NewBuffer(updateData))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response models.BankAttributeResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.Equal(t, "updated_attr_name", response.Name)
+		assert.Equal(t, "INTEGER", response.Type)
+		assert.Equal(t, "42", response.Value)
+		assert.False(t, response.IsActive)
+	})
+
+	t.Run("Update non-existent attribute returns 404", func(t *testing.T) {
+		updateBody := map[string]interface{}{
+			"name":      "test",
+			"type":      "STRING",
+			"value":     "test",
+			"is_active": true,
+		}
+		updateData, _ := json.Marshal(updateBody)
+		req, _ := http.NewRequest("PUT", "/banks/attr-update/attributes/non-existent-id", bytes.NewBuffer(updateData))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+}
+
+// TestIntegration_BankAttribute_DeleteAttribute tests DELETE /banks/:bankId/attributes/:attributeId
+func TestIntegration_BankAttribute_DeleteAttribute(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	createTestBankForAttributes(t, router, "attr-delete")
+
+	// Create an attribute first
+	createBody := map[string]interface{}{
+		"name":      "delete_test_attr",
+		"type":      "STRING",
+		"value":     "to_be_deleted",
+		"is_active": true,
+	}
+	createData, _ := json.Marshal(createBody)
+	createReq, _ := http.NewRequest("POST", "/banks/attr-delete/attribute", bytes.NewBuffer(createData))
+	createReq.Header.Set("Content-Type", "application/json")
+	w1 := httptest.NewRecorder()
+	router.ServeHTTP(w1, createReq)
+	require.Equal(t, http.StatusCreated, w1.Code)
+
+	var createResponse models.BankAttributeResponse
+	json.Unmarshal(w1.Body.Bytes(), &createResponse)
+	attributeID := createResponse.BankAttributeID
+
+	t.Run("Delete attribute successfully", func(t *testing.T) {
+		req, _ := http.NewRequest("DELETE", "/banks/attr-delete/attributes/"+attributeID, nil)
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNoContent, w.Code)
+
+		// Verify attribute is deleted
+		getReq, _ := http.NewRequest("GET", "/banks/attr-delete/attributes/"+attributeID, nil)
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, getReq)
+		assert.Equal(t, http.StatusNotFound, w2.Code)
+	})
+
+	t.Run("Delete non-existent attribute returns 404", func(t *testing.T) {
+		req, _ := http.NewRequest("DELETE", "/banks/attr-delete/attributes/non-existent-id", nil)
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+}
+
+// TestIntegration_BankAttribute_VR011_UniqueNameWithinBank tests VR-011: Unique Attribute Name Within Bank
+func TestIntegration_BankAttribute_VR011_UniqueNameWithinBank(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	createTestBankForAttributes(t, router, "attr-unique")
+
+	// Create first attribute
+	body1 := map[string]interface{}{
+		"name":      "unique_attr",
+		"type":      "STRING",
+		"value":     "value1",
+		"is_active": true,
+	}
+	data1, _ := json.Marshal(body1)
+	req1, _ := http.NewRequest("POST", "/banks/attr-unique/attribute", bytes.NewBuffer(data1))
+	req1.Header.Set("Content-Type", "application/json")
+	w1 := httptest.NewRecorder()
+	router.ServeHTTP(w1, req1)
+	require.Equal(t, http.StatusCreated, w1.Code)
+
+	t.Run("Duplicate attribute name returns 409", func(t *testing.T) {
+		body2 := map[string]interface{}{
+			"name":      "unique_attr", // Same name
+			"type":      "INTEGER",
+			"value":     "100",
+			"is_active": true,
+		}
+		data2, _ := json.Marshal(body2)
+		req2, _ := http.NewRequest("POST", "/banks/attr-unique/attribute", bytes.NewBuffer(data2))
+		req2.Header.Set("Content-Type", "application/json")
+
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, req2)
+
+		assert.Equal(t, http.StatusConflict, w2.Code)
+
+		var errResponse models.ErrorResponse
+		err := json.Unmarshal(w2.Body.Bytes(), &errResponse)
+		require.NoError(t, err)
+		assert.Equal(t, "ATTR-VAL-008", errResponse.Code)
+	})
+}
+
+// TestIntegration_BankAttribute_FullLifecycle tests the complete attribute lifecycle
+func TestIntegration_BankAttribute_FullLifecycle(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	// Step 1: Create a bank
+	createTestBankForAttributes(t, router, "lifecycle-test")
+
+	// Step 2: Create an attribute
+	createBody := map[string]interface{}{
+		"name":      "lifecycle_attr",
+		"type":      "STRING",
+		"value":     "initial_value",
+		"is_active": true,
+	}
+	createData, _ := json.Marshal(createBody)
+	createReq, _ := http.NewRequest("POST", "/banks/lifecycle-test/attribute", bytes.NewBuffer(createData))
+	createReq.Header.Set("Content-Type", "application/json")
+	w1 := httptest.NewRecorder()
+	router.ServeHTTP(w1, createReq)
+	require.Equal(t, http.StatusCreated, w1.Code)
+
+	var createResponse models.BankAttributeResponse
+	json.Unmarshal(w1.Body.Bytes(), &createResponse)
+	attributeID := createResponse.BankAttributeID
+
+	// Step 3: Retrieve the attribute
+	getReq, _ := http.NewRequest("GET", "/banks/lifecycle-test/attributes/"+attributeID, nil)
+	w2 := httptest.NewRecorder()
+	router.ServeHTTP(w2, getReq)
+	assert.Equal(t, http.StatusOK, w2.Code)
+
+	// Step 4: Update the attribute
+	updateBody := map[string]interface{}{
+		"name":      "updated_lifecycle_attr",
+		"type":      "INTEGER",
+		"value":     "999",
+		"is_active": false,
+	}
+	updateData, _ := json.Marshal(updateBody)
+	updateReq, _ := http.NewRequest("PUT", "/banks/lifecycle-test/attributes/"+attributeID, bytes.NewBuffer(updateData))
+	updateReq.Header.Set("Content-Type", "application/json")
+	w3 := httptest.NewRecorder()
+	router.ServeHTTP(w3, updateReq)
+	assert.Equal(t, http.StatusOK, w3.Code)
+
+	// Step 5: Verify update
+	getReq2, _ := http.NewRequest("GET", "/banks/lifecycle-test/attributes/"+attributeID, nil)
+	w4 := httptest.NewRecorder()
+	router.ServeHTTP(w4, getReq2)
+	assert.Equal(t, http.StatusOK, w4.Code)
+
+	var updatedResponse models.BankAttributeResponse
+	json.Unmarshal(w4.Body.Bytes(), &updatedResponse)
+	assert.Equal(t, "updated_lifecycle_attr", updatedResponse.Name)
+	assert.Equal(t, "INTEGER", updatedResponse.Type)
+	assert.Equal(t, "999", updatedResponse.Value)
+	assert.False(t, updatedResponse.IsActive)
+
+	// Step 6: Delete the attribute
+	deleteReq, _ := http.NewRequest("DELETE", "/banks/lifecycle-test/attributes/"+attributeID, nil)
+	w5 := httptest.NewRecorder()
+	router.ServeHTTP(w5, deleteReq)
+	assert.Equal(t, http.StatusNoContent, w5.Code)
+
+	// Step 7: Verify deletion
+	getReq3, _ := http.NewRequest("GET", "/banks/lifecycle-test/attributes/"+attributeID, nil)
+	w6 := httptest.NewRecorder()
+	router.ServeHTTP(w6, getReq3)
+	assert.Equal(t, http.StatusNotFound, w6.Code)
+}
+
+// TestIntegration_BankAttribute_AcceptanceCriteria tests all acceptance criteria from user story
+func TestIntegration_BankAttribute_AcceptanceCriteria(t *testing.T) {
+	router, cleanup := setupIntegrationTest(t)
+	defer cleanup()
+
+	createTestBankForAttributes(t, router, "ac-test-bank")
+
+	// AC1: Define a new bank attribute with name, type, value, and active status
+	t.Run("AC1: Define new bank attribute", func(t *testing.T) {
+		body := map[string]interface{}{
+			"name":      "ac1_attr",
+			"type":      "STRING",
+			"value":     "ac1_value",
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/ac-test-bank/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusCreated, w.Code)
+	})
+
+	// AC2: Update existing bank attribute
+	t.Run("AC2: Update existing bank attribute", func(t *testing.T) {
+		// Create attribute first
+		createBody := map[string]interface{}{
+			"name":      "ac2_attr",
+			"type":      "STRING",
+			"value":     "original",
+			"is_active": true,
+		}
+		createData, _ := json.Marshal(createBody)
+		createReq, _ := http.NewRequest("POST", "/banks/ac-test-bank/attribute", bytes.NewBuffer(createData))
+		createReq.Header.Set("Content-Type", "application/json")
+		w1 := httptest.NewRecorder()
+		router.ServeHTTP(w1, createReq)
+		require.Equal(t, http.StatusCreated, w1.Code)
+
+		var createResponse models.BankAttributeResponse
+		json.Unmarshal(w1.Body.Bytes(), &createResponse)
+
+		// Update attribute
+		updateBody := map[string]interface{}{
+			"name":      "ac2_attr_updated",
+			"type":      "INTEGER",
+			"value":     "100",
+			"is_active": false,
+		}
+		updateData, _ := json.Marshal(updateBody)
+		updateReq, _ := http.NewRequest("PUT", "/banks/ac-test-bank/attributes/"+createResponse.BankAttributeID, bytes.NewBuffer(updateData))
+		updateReq.Header.Set("Content-Type", "application/json")
+
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, updateReq)
+
+		assert.Equal(t, http.StatusOK, w2.Code)
+	})
+
+	// AC3: Retrieve all bank attributes
+	t.Run("AC3: Retrieve all bank attributes", func(t *testing.T) {
+		req, _ := http.NewRequest("GET", "/banks/ac-test-bank/attributes", nil)
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var response models.BankAttributesListResponse
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.GreaterOrEqual(t, len(response.BankAttributes), 2)
+	})
+
+	// AC4: Retrieve single bank attribute
+	t.Run("AC4: Retrieve single bank attribute", func(t *testing.T) {
+		// Create attribute first
+		createBody := map[string]interface{}{
+			"name":      "ac4_attr",
+			"type":      "DOUBLE",
+			"value":     "3.14",
+			"is_active": true,
+		}
+		createData, _ := json.Marshal(createBody)
+		createReq, _ := http.NewRequest("POST", "/banks/ac-test-bank/attribute", bytes.NewBuffer(createData))
+		createReq.Header.Set("Content-Type", "application/json")
+		w1 := httptest.NewRecorder()
+		router.ServeHTTP(w1, createReq)
+		require.Equal(t, http.StatusCreated, w1.Code)
+
+		var createResponse models.BankAttributeResponse
+		json.Unmarshal(w1.Body.Bytes(), &createResponse)
+
+		// Retrieve single attribute
+		req, _ := http.NewRequest("GET", "/banks/ac-test-bank/attributes/"+createResponse.BankAttributeID, nil)
+
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, req)
+
+		assert.Equal(t, http.StatusOK, w2.Code)
+
+		var response models.BankAttributeResponse
+		err := json.Unmarshal(w2.Body.Bytes(), &response)
+		require.NoError(t, err)
+		assert.Equal(t, "ac4_attr", response.Name)
+	})
+
+	// AC5: Delete bank attribute
+	t.Run("AC5: Delete bank attribute", func(t *testing.T) {
+		// Create attribute first
+		createBody := map[string]interface{}{
+			"name":      "ac5_attr",
+			"type":      "STRING",
+			"value":     "to_delete",
+			"is_active": true,
+		}
+		createData, _ := json.Marshal(createBody)
+		createReq, _ := http.NewRequest("POST", "/banks/ac-test-bank/attribute", bytes.NewBuffer(createData))
+		createReq.Header.Set("Content-Type", "application/json")
+		w1 := httptest.NewRecorder()
+		router.ServeHTTP(w1, createReq)
+		require.Equal(t, http.StatusCreated, w1.Code)
+
+		var createResponse models.BankAttributeResponse
+		json.Unmarshal(w1.Body.Bytes(), &createResponse)
+
+		// Delete attribute
+		req, _ := http.NewRequest("DELETE", "/banks/ac-test-bank/attributes/"+createResponse.BankAttributeID, nil)
+
+		w2 := httptest.NewRecorder()
+		router.ServeHTTP(w2, req)
+
+		assert.Equal(t, http.StatusNoContent, w2.Code)
+	})
+
+	// AC6: Validation on attribute operations
+	t.Run("AC6: Validation on attribute operations", func(t *testing.T) {
+		// Missing name
+		body := map[string]interface{}{
+			"type":      "STRING",
+			"value":     "test",
+			"is_active": true,
+		}
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest("POST", "/banks/ac-test-bank/attribute", bytes.NewBuffer(data))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 }

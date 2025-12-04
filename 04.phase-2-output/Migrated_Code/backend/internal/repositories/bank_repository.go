@@ -50,6 +50,34 @@ type BankRepository interface {
 	// CreateBankAttribute creates a new bank attribute
 	// Used for testing and seeding data
 	CreateBankAttribute(ctx context.Context, attr *models.BankAttribute) error
+
+	// ============================================================================
+	// Bank Attribute Management Methods
+	// User Story: Bank Attribute Management
+	// ============================================================================
+
+	// GetBankAttributeByID retrieves a single bank attribute by its ID
+	// BR-004: Returns error if attribute does not exist
+	// VR-006: Validates attribute exists for the specified bank
+	GetBankAttributeByID(ctx context.Context, bankID, attributeID string) (*models.BankAttribute, error)
+
+	// UpdateBankAttribute updates an existing bank attribute
+	// BR-004: Attribute must exist before update
+	// VR-012: Validates attribute exists for updates
+	UpdateBankAttribute(ctx context.Context, attr *models.BankAttribute) error
+
+	// DeleteBankAttribute deletes a bank attribute
+	// BR-004: Attribute must exist before deletion
+	// VR-013: Validates attribute exists for deletion
+	DeleteBankAttribute(ctx context.Context, bankID, attributeID string) error
+
+	// AttributeExistsByName checks if an attribute with the given name exists for a bank
+	// VR-011: Unique attribute name within bank validation
+	AttributeExistsByName(ctx context.Context, bankID, name string) (bool, error)
+
+	// AttributeExistsByNameExcluding checks if an attribute with the given name exists for a bank
+	// excluding a specific attribute ID (for updates)
+	AttributeExistsByNameExcluding(ctx context.Context, bankID, name, excludeAttributeID string) (bool, error)
 }
 
 // bankRepository implements BankRepository
@@ -344,4 +372,113 @@ func (r *bankRepository) CreateBankAttribute(ctx context.Context, attr *models.B
 	}
 	attr.ID = id
 	return nil
+}
+
+// ============================================================================
+// Bank Attribute Management Methods Implementation
+// User Story: Bank Attribute Management
+// ============================================================================
+
+// GetBankAttributeByID retrieves a single bank attribute by its ID
+// BR-004: Returns error if attribute does not exist
+// VR-006: Validates attribute exists for the specified bank
+func (r *bankRepository) GetBankAttributeByID(ctx context.Context, bankID, attributeID string) (*models.BankAttribute, error) {
+	query := `
+		SELECT id, bankid, bankattributeid, name, type, value, isactive
+		FROM bankattribute
+		WHERE bankid = ? AND bankattributeid = ?
+	`
+
+	attr := &models.BankAttribute{}
+	err := r.db.QueryRowContext(ctx, query, bankID, attributeID).Scan(
+		&attr.ID,
+		&attr.BankID,
+		&attr.BankAttributeID,
+		&attr.Name,
+		&attr.Type,
+		&attr.Value,
+		&attr.IsActive,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return attr, nil
+}
+
+// UpdateBankAttribute updates an existing bank attribute
+// BR-004: Attribute must exist before update
+// VR-012: Validates attribute exists for updates
+func (r *bankRepository) UpdateBankAttribute(ctx context.Context, attr *models.BankAttribute) error {
+	query := `
+		UPDATE bankattribute SET
+			name = ?,
+			type = ?,
+			value = ?,
+			isactive = ?
+		WHERE bankid = ? AND bankattributeid = ?
+	`
+	result, err := r.db.ExecContext(ctx, query,
+		attr.Name,
+		attr.Type,
+		attr.Value,
+		attr.IsActive,
+		attr.BankID,
+		attr.BankAttributeID,
+	)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
+// DeleteBankAttribute deletes a bank attribute
+// BR-004: Attribute must exist before deletion
+// VR-013: Validates attribute exists for deletion
+func (r *bankRepository) DeleteBankAttribute(ctx context.Context, bankID, attributeID string) error {
+	query := `DELETE FROM bankattribute WHERE bankid = ? AND bankattributeid = ?`
+	result, err := r.db.ExecContext(ctx, query, bankID, attributeID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
+// AttributeExistsByName checks if an attribute with the given name exists for a bank
+// VR-011: Unique attribute name within bank validation
+func (r *bankRepository) AttributeExistsByName(ctx context.Context, bankID, name string) (bool, error) {
+	query := `SELECT COUNT(*) FROM bankattribute WHERE bankid = ? AND name = ?`
+	var count int
+	err := r.db.QueryRowContext(ctx, query, bankID, name).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+// AttributeExistsByNameExcluding checks if an attribute with the given name exists for a bank
+// excluding a specific attribute ID (for updates)
+func (r *bankRepository) AttributeExistsByNameExcluding(ctx context.Context, bankID, name, excludeAttributeID string) (bool, error) {
+	query := `SELECT COUNT(*) FROM bankattribute WHERE bankid = ? AND name = ? AND bankattributeid != ?`
+	var count int
+	err := r.db.QueryRowContext(ctx, query, bankID, name, excludeAttributeID).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }

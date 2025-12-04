@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 // MappedBank represents a Bank entity in the OBP system
 // Source: code/model/dataAccess/MappedBank.scala
@@ -128,10 +132,11 @@ func (a *BankAttribute) GetIsActive() bool   { return a.IsActive }
 // NewBankAttribute creates a new BankAttribute with default values
 func NewBankAttribute(bankID, name, attrType, value string) *BankAttribute {
 	return &BankAttribute{
-		BankID:   bankID,
-		Name:     name,
-		Type:     attrType,
-		Value:    value,
-		IsActive: true, // Default to true as per user story
+		BankID:          bankID,
+		BankAttributeID: uuid.New().String(),
+		Name:            name,
+		Type:            attrType,
+		Value:           value,
+		IsActive:        true, // Default to true as per user story
 	}
 }
