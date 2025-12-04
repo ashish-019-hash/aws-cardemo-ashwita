@@ -430,7 +430,8 @@ func TestUpdateBank_NoFieldsProvided(t *testing.T) {
 	assert.Equal(t, "BANK-VAL-015", response.Code)
 }
 
-// TestGetBank_Success tests GET /api/banks/:bankId with existing bank
+// TestGetBank_Success tests GET /banks/:bankId with existing bank
+// Note: Using /banks/:bankId from Bank Information Retrieval user story
 func TestGetBank_Success(t *testing.T) {
 	router, cleanup := setupTestRouter(t)
 	defer cleanup()
@@ -444,8 +445,8 @@ func TestGetBank_Success(t *testing.T) {
 	router.ServeHTTP(w1, createReq)
 	assert.Equal(t, http.StatusCreated, w1.Code)
 
-	// Get bank
-	getReq, _ := http.NewRequest("GET", "/api/banks/get-test-bank", nil)
+	// Get bank using /banks/:bankId from Bank Information Retrieval user story
+	getReq, _ := http.NewRequest("GET", "/banks/get-test-bank", nil)
 
 	w2 := httptest.NewRecorder()
 	router.ServeHTTP(w2, getReq)
@@ -459,12 +460,13 @@ func TestGetBank_Success(t *testing.T) {
 	assert.Equal(t, "Get Test Bank", response["full_name"])
 }
 
-// TestGetBank_NotFound tests GET /api/banks/:bankId with non-existent bank
+// TestGetBank_NotFound tests GET /banks/:bankId with non-existent bank
+// Note: Using /banks/:bankId from Bank Information Retrieval user story
 func TestGetBank_NotFound(t *testing.T) {
 	router, cleanup := setupTestRouter(t)
 	defer cleanup()
 
-	req, _ := http.NewRequest("GET", "/api/banks/non-existent-bank", nil)
+	req, _ := http.NewRequest("GET", "/banks/non-existent-bank", nil)
 
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

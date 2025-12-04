@@ -78,7 +78,8 @@ func TestIntegration_FullBankLifecycle(t *testing.T) {
 	assert.Equal(t, "created", createResponse.Status)
 
 	// Step 2: Verify bank was created by retrieving it
-	getReq, _ := http.NewRequest("GET", "/api/banks/integration-test-bank", nil)
+	// Note: Using /banks/:bankId from Bank Information Retrieval user story
+	getReq, _ := http.NewRequest("GET", "/banks/integration-test-bank", nil)
 
 	w2 := httptest.NewRecorder()
 	router.ServeHTTP(w2, getReq)
@@ -141,7 +142,8 @@ func TestIntegration_FullBankLifecycle(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w5.Code, "Operational params update should return 200 OK")
 
 	// Step 6: Verify all updates were applied
-	finalGetReq, _ := http.NewRequest("GET", "/api/banks/integration-test-bank", nil)
+	// Note: Using /banks/:bankId from Bank Information Retrieval user story
+	finalGetReq, _ := http.NewRequest("GET", "/banks/integration-test-bank", nil)
 
 	w6 := httptest.NewRecorder()
 	router.ServeHTTP(w6, finalGetReq)
@@ -509,8 +511,9 @@ func TestIntegration_MultipleBanks(t *testing.T) {
 	}
 
 	// Verify each bank can be retrieved
+	// Note: Using /banks/:bankId from Bank Information Retrieval user story
 	for _, bank := range banks {
-		req, _ := http.NewRequest("GET", "/api/banks/"+bank.id, nil)
+		req, _ := http.NewRequest("GET", "/banks/"+bank.id, nil)
 
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
