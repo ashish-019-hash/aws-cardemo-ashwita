@@ -25,6 +25,18 @@ const (
 	ErrCodeBankNameLength         = "BANK-VAL-013"
 	ErrCodeCurrenciesArraySize    = "BANK-VAL-014"
 	ErrCodeUpdateFieldRequired    = "BANK-VAL-015"
+
+	// Bank Attribute Management validation error codes
+	// User Story: Bank Attribute Management
+	ErrCodeAttrNameRequired       = "ATTR-VAL-001"
+	ErrCodeAttrTypeRequired       = "ATTR-VAL-002"
+	ErrCodeAttrTypeInvalid        = "ATTR-VAL-003"
+	ErrCodeAttrValueRequired      = "ATTR-VAL-004"
+	ErrCodeAttrIDRequired         = "ATTR-VAL-005"
+	ErrCodeAttrNotFound           = "ATTR-VAL-006"
+	ErrCodeAttrValueTypeInvalid   = "ATTR-VAL-007"
+	ErrCodeAttrNameDuplicate      = "ATTR-VAL-008"
+	ErrCodeAttrIsActiveInvalid    = "ATTR-VAL-009"
 )
 
 // BankValidator handles all validation rules for Bank entities
@@ -410,4 +422,281 @@ func (r ValidationResult) ToError() error {
 		return nil
 	}
 	return errors.New(r.Message)
+}
+
+// ============================================================================
+// Bank Attribute Management Validators
+// User Story: Bank Attribute Management
+// Implements: VR-001 through VR-015 from bank_attribute_management_validation_rules.md
+// ============================================================================
+
+// BankAttributeValidator handles all validation rules for BankAttribute entities
+type BankAttributeValidator struct{}
+
+// NewBankAttributeValidator creates a new BankAttributeValidator instance
+func NewBankAttributeValidator() *BankAttributeValidator {
+	return &BankAttributeValidator{}
+}
+
+// ValidAttributeTypes defines the valid attribute types
+// BR-002: Attribute Type Validation and Enforcement
+var ValidAttributeTypes = map[string]bool{
+	"STRING":        true,
+	"INTEGER":       true,
+	"DOUBLE":        true,
+	"DATE_WITH_DAY": true,
+}
+
+// ValidateCreateBankAttributeRequest validates a CreateBankAttributeRequest
+// Implements: VR-003, VR-004, BR-002, BR-003
+func (v *BankAttributeValidator) ValidateCreateBankAttributeRequest(req *models.CreateBankAttributeRequest) []ValidationResult {
+	var results []ValidationResult
+
+	// VR-003: Attribute Name Required Validation
+	if result := v.ValidateAttributeNameRequired(req.Name); !result.Valid {
+		results = append(results, result)
+	}
+
+	// VR-004: Attribute Type Required Validation
+	if result := v.ValidateAttributeTypeRequired(req.Type); !result.Valid {
+		results = append(results, result)
+	} else {
+		// BR-002: Attribute Type Validation and Enforcement
+		if result := v.ValidateAttributeTypeValid(req.Type); !result.Valid {
+			results = append(results, result)
+		}
+	}
+
+	// VR-004 (value): Attribute Value Required Validation
+	if result := v.ValidateAttributeValueRequired(req.Value); !result.Valid {
+		results = append(results, result)
+	}
+
+	// BR-003: Type-Value Consistency Enforcement (only if type is valid)
+	if len(results) == 0 {
+		if result := v.ValidateTypeValueConsistency(req.Type, req.Value); !result.Valid {
+			results = append(results, result)
+		}
+	}
+
+	return results
+}
+
+// ValidateUpdateBankAttributeRequest validates an UpdateBankAttributeRequest
+// Implements: VR-003, VR-004, BR-002, BR-003, VR-014
+func (v *BankAttributeValidator) ValidateUpdateBankAttributeRequest(req *models.UpdateBankAttributeRequest) []ValidationResult {
+	var results []ValidationResult
+
+	// VR-003: Attribute Name Required Validation
+	if result := v.ValidateAttributeNameRequired(req.Name); !result.Valid {
+		results = append(results, result)
+	}
+
+	// VR-004: Attribute Type Required Validation
+	if result := v.ValidateAttributeTypeRequired(req.Type); !result.Valid {
+		results = append(results, result)
+	} else {
+		// BR-002: Attribute Type Validation and Enforcement
+		if result := v.ValidateAttributeTypeValid(req.Type); !result.Valid {
+			results = append(results, result)
+		}
+	}
+
+	// VR-004 (value): Attribute Value Required Validation
+	if result := v.ValidateAttributeValueRequired(req.Value); !result.Valid {
+		results = append(results, result)
+	}
+
+	// BR-003: Type-Value Consistency Enforcement (only if type is valid)
+	if len(results) == 0 {
+		if result := v.ValidateTypeValueConsistency(req.Type, req.Value); !result.Valid {
+			results = append(results, result)
+		}
+	}
+
+	return results
+}
+
+// VR-001: Bank Identifier Required Validation (for attribute operations)
+func (v *BankAttributeValidator) ValidateBankIDRequired(bankID string) ValidationResult {
+	if strings.TrimSpace(bankID) == "" {
+		return ValidationResult{
+			Valid:   false,
+			Code:    ErrCodeBankIDRequired,
+			Message: "Bank ID is required and cannot be empty",
+			Field:   "bank_id",
+		}
+	}
+	return ValidationResult{Valid: true}
+}
+
+// VR-003: Attribute Name Required Validation
+func (v *BankAttributeValidator) ValidateAttributeNameRequired(name string) ValidationResult {
+	if strings.TrimSpace(name) == "" {
+		return ValidationResult{
+			Valid:   false,
+			Code:    ErrCodeAttrNameRequired,
+			Message: "Attribute name is required and cannot be empty",
+			Field:   "name",
+		}
+	}
+	if len(name) > 50 {
+		return ValidationResult{
+			Valid:   false,
+			Code:    ErrCodeAttrNameRequired,
+			Message: "Attribute name must not exceed 50 characters",
+			Field:   "name",
+		}
+	}
+	return ValidationResult{Valid: true}
+}
+
+// VR-004: Attribute Type Required Validation
+func (v *BankAttributeValidator) ValidateAttributeTypeRequired(attrType string) ValidationResult {
+	if strings.TrimSpace(attrType) == "" {
+		return ValidationResult{
+			Valid:   false,
+			Code:    ErrCodeAttrTypeRequired,
+			Message: "Attribute type is required and cannot be empty",
+			Field:   "type",
+		}
+	}
+	return ValidationResult{Valid: true}
+}
+
+// BR-002: Attribute Type Validation and Enforcement
+func (v *BankAttributeValidator) ValidateAttributeTypeValid(attrType string) ValidationResult {
+	if !ValidAttributeTypes[attrType] {
+		return ValidationResult{
+			Valid:   false,
+			Code:    ErrCodeAttrTypeInvalid,
+			Message: "Invalid attribute type '" + attrType + "'. Must be one of: STRING, INTEGER, DOUBLE, DATE_WITH_DAY",
+			Field:   "type",
+		}
+	}
+	return ValidationResult{Valid: true}
+}
+
+// VR-004 (value): Attribute Value Required Validation
+func (v *BankAttributeValidator) ValidateAttributeValueRequired(value string) ValidationResult {
+	if value == "" {
+		return ValidationResult{
+			Valid:   false,
+			Code:    ErrCodeAttrValueRequired,
+			Message: "Attribute value is required",
+			Field:   "value",
+		}
+	}
+	if len(value) > 255 {
+		return ValidationResult{
+			Valid:   false,
+			Code:    ErrCodeAttrValueRequired,
+			Message: "Attribute value must not exceed 255 characters",
+			Field:   "value",
+		}
+	}
+	return ValidationResult{Valid: true}
+}
+
+// VR-005: Attribute ID Required Validation
+func (v *BankAttributeValidator) ValidateAttributeIDRequired(attributeID string) ValidationResult {
+	if strings.TrimSpace(attributeID) == "" {
+		return ValidationResult{
+			Valid:   false,
+			Code:    ErrCodeAttrIDRequired,
+			Message: "Attribute ID is required and cannot be empty",
+			Field:   "bank_attribute_id",
+		}
+	}
+	return ValidationResult{Valid: true}
+}
+
+// BR-003: Type-Value Consistency Enforcement
+// VR-007: STRING Type Value Validation (any text allowed)
+// VR-008: INTEGER Type Value Validation (whole number required)
+// VR-009: DOUBLE Type Value Validation (decimal number required)
+// VR-010: DATE_WITH_DAY Type Value Validation (YYYY-MM-DD format required)
+func (v *BankAttributeValidator) ValidateTypeValueConsistency(attrType, value string) ValidationResult {
+	switch attrType {
+	case "STRING":
+		// VR-007: Any text value is allowed for STRING type
+		return ValidationResult{Valid: true}
+
+	case "INTEGER":
+		// VR-008: Must be a whole number
+		intRegex := regexp.MustCompile(`^-?\d+$`)
+		if !intRegex.MatchString(value) {
+			return ValidationResult{
+				Valid:   false,
+				Code:    ErrCodeAttrValueTypeInvalid,
+				Message: "Value '" + value + "' is not a valid INTEGER. Must be a whole number (e.g., 123, -456)",
+				Field:   "value",
+			}
+		}
+		return ValidationResult{Valid: true}
+
+	case "DOUBLE":
+		// VR-009: Must be a decimal number
+		doubleRegex := regexp.MustCompile(`^-?\d+(\.\d+)?$`)
+		if !doubleRegex.MatchString(value) {
+			return ValidationResult{
+				Valid:   false,
+				Code:    ErrCodeAttrValueTypeInvalid,
+				Message: "Value '" + value + "' is not a valid DOUBLE. Must be a decimal number (e.g., 12.34, -56.78)",
+				Field:   "value",
+			}
+		}
+		return ValidationResult{Valid: true}
+
+	case "DATE_WITH_DAY":
+		// VR-010: Must be in YYYY-MM-DD format
+		dateRegex := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
+		if !dateRegex.MatchString(value) {
+			return ValidationResult{
+				Valid:   false,
+				Code:    ErrCodeAttrValueTypeInvalid,
+				Message: "Value '" + value + "' is not a valid DATE_WITH_DAY. Must be in YYYY-MM-DD format (e.g., 2012-04-23)",
+				Field:   "value",
+			}
+		}
+		return ValidationResult{Valid: true}
+
+	default:
+		return ValidationResult{
+			Valid:   false,
+			Code:    ErrCodeAttrTypeInvalid,
+			Message: "Unknown attribute type: " + attrType,
+			Field:   "type",
+		}
+	}
+}
+
+// VR-011: Unique Attribute Name Within Bank
+func NewAttributeNameDuplicateError(name, bankID string) ValidationResult {
+	return ValidationResult{
+		Valid:   false,
+		Code:    ErrCodeAttrNameDuplicate,
+		Message: "Attribute with name '" + name + "' already exists for bank '" + bankID + "'",
+		Field:   "name",
+	}
+}
+
+// VR-006, VR-012, VR-013: Attribute Existence Validation
+func NewAttributeNotFoundError(attributeID, bankID string) ValidationResult {
+	return ValidationResult{
+		Valid:   false,
+		Code:    ErrCodeAttrNotFound,
+		Message: "Attribute with ID '" + attributeID + "' not found for bank '" + bankID + "'",
+		Field:   "bank_attribute_id",
+	}
+}
+
+// VR-002: Bank Identifier Existence Validation (for attribute operations)
+func NewBankNotFoundForAttributeError(bankID string) ValidationResult {
+	return ValidationResult{
+		Valid:   false,
+		Code:    ErrCodeBankNotFound,
+		Message: "Bank with ID '" + bankID + "' not found",
+		Field:   "bank_id",
+	}
 }

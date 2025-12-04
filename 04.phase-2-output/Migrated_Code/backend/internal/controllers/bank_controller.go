@@ -200,3 +200,175 @@ func (c *BankController) GetBankByIdWithAttributes(ctx *gin.Context) {
 	// VR-008: Return 200 OK for successful retrieval
 	ctx.JSON(http.StatusOK, response)
 }
+
+// ============================================================================
+// Bank Attribute Management Handlers
+// User Story: Bank Attribute Management
+// ============================================================================
+
+// BankAttributeController handles HTTP requests for BankAttribute entities
+type BankAttributeController struct {
+	service *services.BankAttributeService
+}
+
+// NewBankAttributeController creates a new BankAttributeController instance
+func NewBankAttributeController(service *services.BankAttributeService) *BankAttributeController {
+	return &BankAttributeController{service: service}
+}
+
+// CreateBankAttribute handles POST /banks/:bankId/attribute
+// Maps to: User Story "Bank Attribute Management - Define Bank Attribute"
+// Request: CreateBankAttributeRequest
+// Response: BankAttributeResponse (201 Created) or ErrorResponse (400/404/409)
+// Implements: BR-001 (Bank Existence Validation)
+// Implements: BR-002 (Attribute Type Validation)
+// Implements: BR-003 (Type-Value Consistency)
+// Implements: VR-003, VR-004, VR-011
+func (c *BankAttributeController) CreateBankAttribute(ctx *gin.Context) {
+	bankID := ctx.Param("bankId")
+
+	var req models.CreateBankAttributeRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Code:    "ATTR-ERR-PARSE",
+			Message: "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	response, err := c.service.CreateBankAttribute(ctx.Request.Context(), bankID, &req)
+	if err != nil {
+		if serviceErr, ok := err.(*services.ServiceError); ok {
+			ctx.JSON(serviceErr.HTTPStatus, models.ErrorResponse{
+				Code:    serviceErr.Code,
+				Message: serviceErr.Message,
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Code:    "ATTR-ERR-INTERNAL",
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, response)
+}
+
+// UpdateBankAttribute handles PUT /banks/:bankId/attributes/:attributeId
+// Maps to: User Story "Bank Attribute Management - Manage Bank Attribute"
+// Request: UpdateBankAttributeRequest
+// Response: BankAttributeResponse (200 OK) or ErrorResponse (400/404/409)
+// Implements: BR-001, BR-004, BR-002, BR-003, VR-012
+func (c *BankAttributeController) UpdateBankAttribute(ctx *gin.Context) {
+	bankID := ctx.Param("bankId")
+	attributeID := ctx.Param("attributeId")
+
+	var req models.UpdateBankAttributeRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Code:    "ATTR-ERR-PARSE",
+			Message: "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	response, err := c.service.UpdateBankAttribute(ctx.Request.Context(), bankID, attributeID, &req)
+	if err != nil {
+		if serviceErr, ok := err.(*services.ServiceError); ok {
+			ctx.JSON(serviceErr.HTTPStatus, models.ErrorResponse{
+				Code:    serviceErr.Code,
+				Message: serviceErr.Message,
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Code:    "ATTR-ERR-INTERNAL",
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
+// GetBankAttributes handles GET /banks/:bankId/attributes
+// Maps to: User Story "Bank Attribute Management - Retrieve All Bank Attributes"
+// Response: BankAttributesListResponse (200 OK) or ErrorResponse (400/404)
+// Implements: BR-001, BR-005, VR-015
+func (c *BankAttributeController) GetBankAttributes(ctx *gin.Context) {
+	bankID := ctx.Param("bankId")
+
+	response, err := c.service.GetBankAttributes(ctx.Request.Context(), bankID)
+	if err != nil {
+		if serviceErr, ok := err.(*services.ServiceError); ok {
+			ctx.JSON(serviceErr.HTTPStatus, models.ErrorResponse{
+				Code:    serviceErr.Code,
+				Message: serviceErr.Message,
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Code:    "ATTR-ERR-INTERNAL",
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	// BR-005: Return 200 OK with empty array if no attributes
+	ctx.JSON(http.StatusOK, response)
+}
+
+// GetBankAttributeByID handles GET /banks/:bankId/attributes/:attributeId
+// Maps to: User Story "Bank Attribute Management - Retrieve Single Bank Attribute"
+// Response: BankAttributeResponse (200 OK) or ErrorResponse (400/404)
+// Implements: BR-001, BR-004, BR-007, VR-006
+func (c *BankAttributeController) GetBankAttributeByID(ctx *gin.Context) {
+	bankID := ctx.Param("bankId")
+	attributeID := ctx.Param("attributeId")
+
+	response, err := c.service.GetBankAttributeByID(ctx.Request.Context(), bankID, attributeID)
+	if err != nil {
+		if serviceErr, ok := err.(*services.ServiceError); ok {
+			ctx.JSON(serviceErr.HTTPStatus, models.ErrorResponse{
+				Code:    serviceErr.Code,
+				Message: serviceErr.Message,
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Code:    "ATTR-ERR-INTERNAL",
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
+// DeleteBankAttribute handles DELETE /banks/:bankId/attributes/:attributeId
+// Maps to: User Story "Bank Attribute Management - Delete Bank Attribute"
+// Response: 204 No Content or ErrorResponse (400/404)
+// Implements: BR-001, BR-004, VR-013
+func (c *BankAttributeController) DeleteBankAttribute(ctx *gin.Context) {
+	bankID := ctx.Param("bankId")
+	attributeID := ctx.Param("attributeId")
+
+	err := c.service.DeleteBankAttribute(ctx.Request.Context(), bankID, attributeID)
+	if err != nil {
+		if serviceErr, ok := err.(*services.ServiceError); ok {
+			ctx.JSON(serviceErr.HTTPStatus, models.ErrorResponse{
+				Code:    serviceErr.Code,
+				Message: serviceErr.Message,
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Code:    "ATTR-ERR-INTERNAL",
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}

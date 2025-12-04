@@ -7,7 +7,7 @@ import (
 
 // SetupRoutes configures all API routes
 // Maps to: User Story API Endpoints
-func SetupRoutes(router *gin.Engine, bankController *controllers.BankController) {
+func SetupRoutes(router *gin.Engine, bankController *controllers.BankController, bankAttributeController *controllers.BankAttributeController) {
 	// API v1 group - Bank Registration User Story endpoints
 	api := router.Group("/api")
 	{
@@ -47,6 +47,44 @@ func SetupRoutes(router *gin.Engine, bankController *controllers.BankController)
 		// BR-001: Returns 404 if bank not found
 		// BR-002: Returns complete bank info (includes attributes)
 		banksRetrieval.GET("/:bankId", bankController.GetBankByIdWithAttributes)
+
+		// ============================================================================
+		// Bank Attribute Management Routes
+		// User Story: Bank Attribute Management
+		// Note: These routes are nested under /banks/:bankId
+		// ============================================================================
+
+		// POST /banks/:bankId/attribute - Define Bank Attribute
+		// Maps to: User Story "Bank Attribute Management - Define Bank Attribute"
+		// BR-001: Bank must exist
+		// BR-002, BR-003: Type validation and type-value consistency
+		banksRetrieval.POST("/:bankId/attribute", bankAttributeController.CreateBankAttribute)
+
+		// GET /banks/:bankId/attributes - Retrieve All Bank Attributes
+		// Maps to: User Story "Bank Attribute Management - Retrieve All Bank Attributes"
+		// BR-001: Bank must exist
+		// BR-005: Returns 200 with empty array if no attributes
+		banksRetrieval.GET("/:bankId/attributes", bankAttributeController.GetBankAttributes)
+
+		// GET /banks/:bankId/attributes/:attributeId - Retrieve Single Bank Attribute
+		// Maps to: User Story "Bank Attribute Management - Retrieve Single Bank Attribute"
+		// BR-001: Bank must exist
+		// BR-004: Attribute must exist
+		// BR-007: Returns complete attribute information
+		banksRetrieval.GET("/:bankId/attributes/:attributeId", bankAttributeController.GetBankAttributeByID)
+
+		// PUT /banks/:bankId/attributes/:attributeId - Update Bank Attribute
+		// Maps to: User Story "Bank Attribute Management - Manage Bank Attribute"
+		// BR-001: Bank must exist
+		// BR-004: Attribute must exist
+		// BR-002, BR-003: Type validation and type-value consistency
+		banksRetrieval.PUT("/:bankId/attributes/:attributeId", bankAttributeController.UpdateBankAttribute)
+
+		// DELETE /banks/:bankId/attributes/:attributeId - Delete Bank Attribute
+		// Maps to: User Story "Bank Attribute Management - Delete Bank Attribute"
+		// BR-001: Bank must exist
+		// BR-004: Attribute must exist
+		banksRetrieval.DELETE("/:bankId/attributes/:attributeId", bankAttributeController.DeleteBankAttribute)
 	}
 
 	// Health check endpoint
