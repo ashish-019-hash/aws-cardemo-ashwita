@@ -7,7 +7,7 @@ import (
 
 // SetupRoutes configures all API routes
 // Maps to: User Story API Endpoints
-func SetupRoutes(router *gin.Engine, bankController *controllers.BankController, bankAttributeController *controllers.BankAttributeController) {
+func SetupRoutes(router *gin.Engine, bankController *controllers.BankController, bankAttributeController *controllers.BankAttributeController, multiBankController *controllers.MultiBankController) {
 	// API v1 group - Bank Registration User Story endpoints
 	api := router.Group("/api")
 	{
@@ -85,6 +85,30 @@ func SetupRoutes(router *gin.Engine, bankController *controllers.BankController,
 		// BR-001: Bank must exist
 		// BR-004: Attribute must exist
 		banksRetrieval.DELETE("/:bankId/attributes/:attributeId", bankAttributeController.DeleteBankAttribute)
+
+		// ============================================================================
+		// Multi-Bank Support Routes
+		// User Story: Multi-Bank Support
+		// Note: These routes are nested under /banks/:bankId
+		// ============================================================================
+
+		// GET /banks/:bankId/accounts - Retrieve Bank Accounts
+		// Maps to: User Story "Multi-Bank Support - Retrieve Bank Accounts"
+		// BR-001: Mandatory Bank Identifier for Resource Access
+		// BR-002: Bank Existence Validation
+		// BR-003: Data Isolation Enforcement
+		// BR-004: Empty Result Handling (returns 200 with empty array)
+		// Source: LocalMappedConnector.getBankAccounts
+		banksRetrieval.GET("/:bankId/accounts", multiBankController.GetBankAccounts)
+
+		// GET /banks/:bankId/entitlements - Retrieve Bank Entitlements
+		// Maps to: User Story "Multi-Bank Support - Retrieve Bank Entitlements"
+		// BR-001: Mandatory Bank Identifier for Resource Access
+		// BR-002: Bank Existence Validation
+		// BR-005: Bank-Scoped Entitlements
+		// BR-004: Empty Result Handling (returns 200 with empty array)
+		// Source: MappedEntitlementsProvider.getEntitlementsByBankId
+		banksRetrieval.GET("/:bankId/entitlements", multiBankController.GetBankEntitlements)
 	}
 
 	// Health check endpoint

@@ -78,6 +78,34 @@ type BankRepository interface {
 	// AttributeExistsByNameExcluding checks if an attribute with the given name exists for a bank
 	// excluding a specific attribute ID (for updates)
 	AttributeExistsByNameExcluding(ctx context.Context, bankID, name, excludeAttributeID string) (bool, error)
+
+	// ============================================================================
+	// Multi-Bank Support Methods
+	// User Story: Multi-Bank Support
+	// ============================================================================
+
+	// GetBankAccounts retrieves all accounts for a specific bank
+	// BR-003: Data Isolation Enforcement - returns only accounts for specified bank
+	// BR-004: Returns empty slice if no accounts exist (not error)
+	GetBankAccounts(ctx context.Context, bankID string) ([]*models.MappedBankAccount, error)
+
+	// CreateBankAccount creates a new bank account
+	// BR-006: Bank-Scoped Resource Ownership - account is permanently associated with bank
+	CreateBankAccount(ctx context.Context, account *models.MappedBankAccount) error
+
+	// GetBankEntitlements retrieves all entitlements for a specific bank
+	// BR-005: Bank-Scoped Entitlements - returns only entitlements for specified bank
+	// BR-004: Returns empty slice if no entitlements exist (not error)
+	GetBankEntitlements(ctx context.Context, bankID string) ([]*models.MappedEntitlement, error)
+
+	// CreateBankEntitlement creates a new bank entitlement
+	// BR-005: Bank-Scoped Entitlements - entitlement is associated with specific bank
+	CreateBankEntitlement(ctx context.Context, entitlement *models.MappedEntitlement) error
+
+	// GetUserEntitlementForBank checks if a user has a specific entitlement for a bank
+	// BR-005: Bank-Scoped Entitlements - permissions are scoped to specific banks
+	// VR-008: Bank-Specific Entitlement Validation
+	GetUserEntitlementForBank(ctx context.Context, userID, bankID, roleName string) (*models.MappedEntitlement, error)
 }
 
 // bankRepository implements BankRepository
@@ -481,4 +509,189 @@ func (r *bankRepository) AttributeExistsByNameExcluding(ctx context.Context, ban
 		return false, err
 	}
 	return count > 0, nil
+}
+
+// ============================================================================
+// Multi-Bank Support Methods Implementation
+// User Story: Multi-Bank Support
+// ============================================================================
+
+// GetBankAccounts retrieves all accounts for a specific bank
+// BR-003: Data Isolation Enforcement - returns only accounts for specified bank
+// BR-004: Returns empty slice if no accounts exist (not error)
+func (r *bankRepository) GetBankAccounts(ctx context.Context, bankID string) ([]*models.MappedBankAccount, error) {
+	query := `
+		SELECT id, bank, theaccountid, accountcurrency, accountbalance, accountlabel, kind, createdat, updatedat
+		FROM mappedbankaccount
+		WHERE bank = ?
+		ORDER BY theaccountid ASC
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, bankID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// BR-004: Initialize as empty slice, not nil
+	accounts := make([]*models.MappedBankAccount, 0)
+
+	for rows.Next() {
+		account := &models.MappedBankAccount{}
+		err := rows.Scan(
+			&account.ID,
+			&account.BankID,
+			&account.AccountID,
+			&account.Currency,
+			&account.Balance,
+			&account.Label,
+			&account.Kind,
+			&account.CreatedAt,
+			&account.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		accounts = append(accounts, account)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return accounts, nil
+}
+
+// CreateBankAccount creates a new bank account
+// BR-006: Bank-Scoped Resource Ownership - account is permanently associated with bank
+func (r *bankRepository) CreateBankAccount(ctx context.Context, account *models.MappedBankAccount) error {
+	now := time.Now()
+	account.CreatedAt = now
+	account.UpdatedAt = now
+
+	query := `
+		INSERT INTO mappedbankaccount (bank, theaccountid, accountcurrency, accountbalance, accountlabel, kind, createdat, updatedat)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	`
+	result, err := r.db.ExecContext(ctx, query,
+		account.BankID,
+		account.AccountID,
+		account.Currency,
+		account.Balance,
+		account.Label,
+		account.Kind,
+		account.CreatedAt,
+		account.UpdatedAt,
+	)
+	if err != nil {
+		return err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	account.ID = id
+	return nil
+}
+
+// GetBankEntitlements retrieves all entitlements for a specific bank
+// BR-005: Bank-Scoped Entitlements - returns only entitlements for specified bank
+// BR-004: Returns empty slice if no entitlements exist (not error)
+func (r *bankRepository) GetBankEntitlements(ctx context.Context, bankID string) ([]*models.MappedEntitlement, error) {
+	query := `
+		SELECT id, entitlementid, mbankid, muserid, mrolename, createdat, updatedat
+		FROM mappedentitlement
+		WHERE mbankid = ?
+		ORDER BY mrolename ASC
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, bankID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// BR-004: Initialize as empty slice, not nil
+	entitlements := make([]*models.MappedEntitlement, 0)
+
+	for rows.Next() {
+		entitlement := &models.MappedEntitlement{}
+		err := rows.Scan(
+			&entitlement.ID,
+			&entitlement.EntitlementID,
+			&entitlement.BankID,
+			&entitlement.UserID,
+			&entitlement.RoleName,
+			&entitlement.CreatedAt,
+			&entitlement.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		entitlements = append(entitlements, entitlement)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return entitlements, nil
+}
+
+// CreateBankEntitlement creates a new bank entitlement
+// BR-005: Bank-Scoped Entitlements - entitlement is associated with specific bank
+func (r *bankRepository) CreateBankEntitlement(ctx context.Context, entitlement *models.MappedEntitlement) error {
+	now := time.Now()
+	entitlement.CreatedAt = now
+	entitlement.UpdatedAt = now
+
+	query := `
+		INSERT INTO mappedentitlement (entitlementid, mbankid, muserid, mrolename, createdat, updatedat)
+		VALUES (?, ?, ?, ?, ?, ?)
+	`
+	result, err := r.db.ExecContext(ctx, query,
+		entitlement.EntitlementID,
+		entitlement.BankID,
+		entitlement.UserID,
+		entitlement.RoleName,
+		entitlement.CreatedAt,
+		entitlement.UpdatedAt,
+	)
+	if err != nil {
+		return err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return err
+	}
+	entitlement.ID = id
+	return nil
+}
+
+// GetUserEntitlementForBank checks if a user has a specific entitlement for a bank
+// BR-005: Bank-Scoped Entitlements - permissions are scoped to specific banks
+// VR-008: Bank-Specific Entitlement Validation
+func (r *bankRepository) GetUserEntitlementForBank(ctx context.Context, userID, bankID, roleName string) (*models.MappedEntitlement, error) {
+	query := `
+		SELECT id, entitlementid, mbankid, muserid, mrolename, createdat, updatedat
+		FROM mappedentitlement
+		WHERE muserid = ? AND mbankid = ? AND mrolename = ?
+	`
+
+	entitlement := &models.MappedEntitlement{}
+	err := r.db.QueryRowContext(ctx, query, userID, bankID, roleName).Scan(
+		&entitlement.ID,
+		&entitlement.EntitlementID,
+		&entitlement.BankID,
+		&entitlement.UserID,
+		&entitlement.RoleName,
+		&entitlement.CreatedAt,
+		&entitlement.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return entitlement, nil
 }

@@ -28,11 +28,13 @@ func setupTestRouter(t *testing.T) (*gin.Engine, func()) {
 	repo := repositories.NewBankRepository(testDB)
 	bankService := services.NewBankService(repo)
 	bankAttributeService := services.NewBankAttributeService(repo)
+	multiBankService := services.NewMultiBankService(repo)
 	bankController := controllers.NewBankController(bankService)
 	bankAttributeController := controllers.NewBankAttributeController(bankAttributeService)
+	multiBankController := controllers.NewMultiBankController(multiBankService)
 
 	router := gin.New()
-	routes.SetupRoutes(router, bankController, bankAttributeController)
+	routes.SetupRoutes(router, bankController, bankAttributeController, multiBankController)
 
 	cleanup := func() {
 		testDB.Close()

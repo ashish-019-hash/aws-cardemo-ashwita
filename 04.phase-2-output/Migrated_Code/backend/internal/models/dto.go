@@ -261,3 +261,68 @@ type UpdateBankAttributeRequest struct {
 type BankAttributesListResponse struct {
 	BankAttributes []BankAttributeResponse `json:"bank_attributes"`
 }
+
+// ============================================================================
+// Multi-Bank Support DTOs
+// User Story: Multi-Bank Support
+// ============================================================================
+
+// BankAccountResponse represents a bank account in API responses
+// User Story: Multi-Bank Support - Bank-scoped account access
+// BR-003: Data Isolation Enforcement - only accounts for specified bank returned
+type BankAccountResponse struct {
+	BankID    string  `json:"bank_id"`
+	AccountID string  `json:"account_id"`
+	Currency  string  `json:"currency"`
+	Balance   float64 `json:"balance"`
+	Label     string  `json:"label,omitempty"`
+	Type      string  `json:"type"`
+}
+
+// BankAccountsListResponse represents the response for GET /banks/BANK_ID/accounts
+// User Story: Multi-Bank Support - Bank-scoped account access
+// BR-003: Data Isolation Enforcement - returns only accounts for specified bank
+// BR-004: Empty result returns 200 with empty array, not 404
+type BankAccountsListResponse struct {
+	Accounts []BankAccountResponse `json:"accounts"`
+}
+
+// EntitlementResponse represents a user entitlement in API responses
+// User Story: Multi-Bank Support - Bank-scoped entitlements
+// BR-005: Bank-Scoped Entitlements - permissions are scoped to specific banks
+type EntitlementResponse struct {
+	EntitlementID string `json:"entitlement_id"`
+	BankID        string `json:"bank_id"`
+	UserID        string `json:"user_id"`
+	RoleName      string `json:"role_name"`
+}
+
+// EntitlementsListResponse represents the response for GET /banks/BANK_ID/entitlements
+// User Story: Multi-Bank Support - Bank-scoped entitlements access
+// BR-005: Bank-Scoped Entitlements - returns only entitlements for specified bank
+// BR-004: Empty result returns 200 with empty array, not 404
+type EntitlementsListResponse struct {
+	Entitlements []EntitlementResponse `json:"entitlements"`
+}
+
+// ToBankAccountResponse converts a MappedBankAccount to BankAccountResponse
+func (a *MappedBankAccount) ToBankAccountResponse() BankAccountResponse {
+	return BankAccountResponse{
+		BankID:    a.BankID,
+		AccountID: a.AccountID,
+		Currency:  a.Currency,
+		Balance:   a.Balance,
+		Label:     a.Label,
+		Type:      a.Kind,
+	}
+}
+
+// ToEntitlementResponse converts a MappedEntitlement to EntitlementResponse
+func (e *MappedEntitlement) ToEntitlementResponse() EntitlementResponse {
+	return EntitlementResponse{
+		EntitlementID: e.EntitlementID,
+		BankID:        e.BankID,
+		UserID:        e.UserID,
+		RoleName:      e.RoleName,
+	}
+}

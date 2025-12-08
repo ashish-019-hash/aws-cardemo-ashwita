@@ -140,3 +140,130 @@ func NewBankAttribute(bankID, name, attrType, value string) *BankAttribute {
 		IsActive:        true, // Default to true as per user story
 	}
 }
+
+// ============================================================================
+// Multi-Bank Support Entities
+// User Story: Multi-Bank Support
+// ============================================================================
+
+// MappedBankAccount represents a bank account entity
+// Source: code/model/dataAccess/MappedBankAccount.scala
+// User Story: Multi-Bank Support - Bank-scoped account access
+// Database Class: MappedBankAccount (extends LongKeyedMapper[MappedBankAccount] with IdPK with CreatedUpdated)
+type MappedBankAccount struct {
+	// Internal database identifier (auto-generated)
+	ID int64 `json:"-" db:"id"`
+
+	// Foreign key reference to MappedBank.permalink - enforces bank isolation
+	// BR-003: Data Isolation Enforcement - accounts are scoped to specific bank
+	BankID string `json:"bank_id" db:"bank" validate:"required"`
+
+	// Unique account identifier within the bank
+	AccountID string `json:"account_id" db:"theaccountid" validate:"required,max=255"`
+
+	// Currency code for the account (e.g., USD, EUR)
+	Currency string `json:"currency" db:"accountcurrency" validate:"required,max=255"`
+
+	// Current balance of the account
+	Balance float64 `json:"balance" db:"accountbalance"`
+
+	// Display label for the account
+	Label string `json:"label,omitempty" db:"accountlabel" validate:"max=255"`
+
+	// Account type classification (e.g., CURRENT, SAVINGS)
+	Kind string `json:"type" db:"kind" validate:"required,max=255"`
+
+	// Timestamps from CreatedUpdated trait
+	CreatedAt time.Time `json:"created_at,omitempty" db:"createdat"`
+	UpdatedAt time.Time `json:"updated_at,omitempty" db:"updatedat"`
+}
+
+// BankAccount interface matching the Scala BankAccount trait
+// Source: com/openbankproject/commons/model/BankingModel.scala
+type BankAccount interface {
+	GetBankID() string
+	GetAccountID() string
+	GetCurrency() string
+	GetBalance() float64
+	GetLabel() string
+	GetKind() string
+}
+
+// Implement BankAccount interface for MappedBankAccount
+func (a *MappedBankAccount) GetBankID() string    { return a.BankID }
+func (a *MappedBankAccount) GetAccountID() string { return a.AccountID }
+func (a *MappedBankAccount) GetCurrency() string  { return a.Currency }
+func (a *MappedBankAccount) GetBalance() float64  { return a.Balance }
+func (a *MappedBankAccount) GetLabel() string     { return a.Label }
+func (a *MappedBankAccount) GetKind() string      { return a.Kind }
+
+// NewMappedBankAccount creates a new MappedBankAccount with default values
+// BR-006: Bank-Scoped Resource Ownership - account is permanently associated with bank
+func NewMappedBankAccount(bankID, accountID, currency, kind string) *MappedBankAccount {
+	now := time.Now()
+	return &MappedBankAccount{
+		BankID:    bankID,
+		AccountID: uuid.New().String(),
+		Currency:  currency,
+		Kind:      kind,
+		Balance:   0.0,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+}
+
+// MappedEntitlement represents a user entitlement/permission entity
+// Source: code/entitlement/MappedEntitlementsProvider.scala
+// User Story: Multi-Bank Support - Bank-scoped entitlements
+// Database Class: MappedEntitlement (extends LongKeyedMapper[MappedEntitlement] with IdPK with CreatedUpdated)
+// BR-005: Bank-Scoped Entitlements - permissions are scoped to specific banks
+type MappedEntitlement struct {
+	// Internal database identifier (auto-generated)
+	ID int64 `json:"-" db:"id"`
+
+	// Unique identifier for the entitlement
+	EntitlementID string `json:"entitlement_id" db:"entitlementid" validate:"required"`
+
+	// Foreign key reference to MappedBank.permalink - scopes entitlement to specific bank
+	// BR-005: User permissions are bank-specific
+	BankID string `json:"bank_id" db:"mbankid" validate:"required"`
+
+	// User identifier
+	UserID string `json:"user_id" db:"muserid" validate:"required,max=255"`
+
+	// Name of the role/permission (e.g., canCreateAccount, canViewTransactions)
+	RoleName string `json:"role_name" db:"mrolename" validate:"required,max=255"`
+
+	// Timestamps from CreatedUpdated trait
+	CreatedAt time.Time `json:"created_at,omitempty" db:"createdat"`
+	UpdatedAt time.Time `json:"updated_at,omitempty" db:"updatedat"`
+}
+
+// Entitlement interface matching the Scala Entitlement trait
+// Source: code/entitlement/Entitlement.scala
+type Entitlement interface {
+	GetEntitlementID() string
+	GetBankID() string
+	GetUserID() string
+	GetRoleName() string
+}
+
+// Implement Entitlement interface for MappedEntitlement
+func (e *MappedEntitlement) GetEntitlementID() string { return e.EntitlementID }
+func (e *MappedEntitlement) GetBankID() string        { return e.BankID }
+func (e *MappedEntitlement) GetUserID() string        { return e.UserID }
+func (e *MappedEntitlement) GetRoleName() string      { return e.RoleName }
+
+// NewMappedEntitlement creates a new MappedEntitlement with default values
+// BR-005: Bank-Scoped Entitlements - entitlement is associated with specific bank
+func NewMappedEntitlement(bankID, userID, roleName string) *MappedEntitlement {
+	now := time.Now()
+	return &MappedEntitlement{
+		EntitlementID: uuid.New().String(),
+		BankID:        bankID,
+		UserID:        userID,
+		RoleName:      roleName,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	}
+}

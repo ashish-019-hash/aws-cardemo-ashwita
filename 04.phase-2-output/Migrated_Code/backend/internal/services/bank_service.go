@@ -738,3 +738,273 @@ func (s *BankAttributeService) DeleteBankAttribute(ctx context.Context, bankID, 
 
 	return nil
 }
+
+// ============================================================================
+// Multi-Bank Support Service
+// User Story: Multi-Bank Support
+// ============================================================================
+
+// MultiBankService handles multi-bank support operations
+// Implements: BR-001 through BR-008 for multi-bank support
+type MultiBankService struct {
+	repo repositories.BankRepository
+}
+
+// NewMultiBankService creates a new MultiBankService instance
+func NewMultiBankService(repo repositories.BankRepository) *MultiBankService {
+	return &MultiBankService{
+		repo: repo,
+	}
+}
+
+// GetBankAccounts retrieves all accounts for a specific bank
+// Maps to: GET /banks/BANK_ID/accounts
+// Implements: BR-001 (Mandatory Bank Identifier)
+// Implements: BR-002 (Bank Existence Validation)
+// Implements: BR-003 (Data Isolation Enforcement)
+// Implements: BR-004 (Empty Result Handling - returns 200 with empty array)
+// Source: LocalMappedConnector.getBankAccounts
+func (s *MultiBankService) GetBankAccounts(ctx context.Context, bankID string) (*models.BankAccountsListResponse, error) {
+	// VR-001: Validate bank ID is provided (required)
+	if bankID == "" {
+		return nil, &ServiceError{
+			Code:       "BANK-VAL-001",
+			Message:    "Bank identifier must be provided for all bank-specific operations",
+			HTTPStatus: 400,
+			Field:      "bankId",
+		}
+	}
+
+	// BR-002, VR-002: Validate bank exists
+	_, err := s.repo.GetBankByPermalink(ctx, bankID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// VR-010: Return 404 for non-existent bank (generic message to prevent info leakage)
+			return nil, &ServiceError{
+				Code:       "BANK-VAL-009",
+				Message:    "Bank not found",
+				HTTPStatus: 404,
+				Field:      "bankId",
+			}
+		}
+		return nil, &ServiceError{
+			Code:       "BANK-ERR-001",
+			Message:    "Failed to validate bank existence",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-003: Retrieve accounts scoped to this bank only (data isolation)
+	accounts, err := s.repo.GetBankAccounts(ctx, bankID)
+	if err != nil {
+		return nil, &ServiceError{
+			Code:       "BANK-ERR-001",
+			Message:    "Failed to retrieve bank accounts",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-004: Return empty array if no accounts exist (not 404)
+	accountResponses := make([]models.BankAccountResponse, 0, len(accounts))
+	for _, account := range accounts {
+		accountResponses = append(accountResponses, account.ToBankAccountResponse())
+	}
+
+	return &models.BankAccountsListResponse{
+		Accounts: accountResponses,
+	}, nil
+}
+
+// GetBankEntitlements retrieves all entitlements for a specific bank
+// Maps to: GET /banks/BANK_ID/entitlements
+// Implements: BR-001 (Mandatory Bank Identifier)
+// Implements: BR-002 (Bank Existence Validation)
+// Implements: BR-005 (Bank-Scoped Entitlements)
+// Implements: BR-004 (Empty Result Handling - returns 200 with empty array)
+// Source: MappedEntitlementsProvider.getEntitlementsByBankId
+func (s *MultiBankService) GetBankEntitlements(ctx context.Context, bankID string) (*models.EntitlementsListResponse, error) {
+	// VR-001: Validate bank ID is provided (required)
+	if bankID == "" {
+		return nil, &ServiceError{
+			Code:       "BANK-VAL-001",
+			Message:    "Bank identifier must be provided for all bank-specific operations",
+			HTTPStatus: 400,
+			Field:      "bankId",
+		}
+	}
+
+	// BR-002, VR-002: Validate bank exists
+	_, err := s.repo.GetBankByPermalink(ctx, bankID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// VR-010: Return 404 for non-existent bank (generic message to prevent info leakage)
+			return nil, &ServiceError{
+				Code:       "BANK-VAL-009",
+				Message:    "Bank not found",
+				HTTPStatus: 404,
+				Field:      "bankId",
+			}
+		}
+		return nil, &ServiceError{
+			Code:       "BANK-ERR-001",
+			Message:    "Failed to validate bank existence",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-005: Retrieve entitlements scoped to this bank only (bank-scoped entitlements)
+	entitlements, err := s.repo.GetBankEntitlements(ctx, bankID)
+	if err != nil {
+		return nil, &ServiceError{
+			Code:       "BANK-ERR-001",
+			Message:    "Failed to retrieve bank entitlements",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-004: Return empty array if no entitlements exist (not 404)
+	entitlementResponses := make([]models.EntitlementResponse, 0, len(entitlements))
+	for _, entitlement := range entitlements {
+		entitlementResponses = append(entitlementResponses, entitlement.ToEntitlementResponse())
+	}
+
+	return &models.EntitlementsListResponse{
+		Entitlements: entitlementResponses,
+	}, nil
+}
+
+// ValidateUserEntitlementForBank checks if a user has a specific entitlement for a bank
+// Implements: BR-005 (Bank-Scoped Entitlements)
+// Implements: VR-008 (Bank-Specific Entitlement Validation)
+// Returns nil if user has the entitlement, error otherwise
+func (s *MultiBankService) ValidateUserEntitlementForBank(ctx context.Context, userID, bankID, roleName string) error {
+	// VR-001: Validate bank ID is provided
+	if bankID == "" {
+		return &ServiceError{
+			Code:       "BANK-VAL-001",
+			Message:    "Bank identifier must be provided",
+			HTTPStatus: 400,
+			Field:      "bankId",
+		}
+	}
+
+	// VR-009: Validate user ID is provided (authentication required)
+	if userID == "" {
+		return &ServiceError{
+			Code:       "AUTH-VAL-001",
+			Message:    "Authentication required",
+			HTTPStatus: 401,
+			Field:      "userId",
+		}
+	}
+
+	// BR-002: Validate bank exists
+	_, err := s.repo.GetBankByPermalink(ctx, bankID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &ServiceError{
+				Code:       "BANK-VAL-009",
+				Message:    "Bank not found",
+				HTTPStatus: 404,
+				Field:      "bankId",
+			}
+		}
+		return &ServiceError{
+			Code:       "BANK-ERR-001",
+			Message:    "Failed to validate bank existence",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-005, VR-008: Check if user has the specific entitlement for this bank
+	_, err = s.repo.GetUserEntitlementForBank(ctx, userID, bankID, roleName)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// User does not have the required entitlement for this bank
+			return &ServiceError{
+				Code:       "AUTH-VAL-002",
+				Message:    "User does not have required entitlement for this bank",
+				HTTPStatus: 403,
+				Field:      "entitlement",
+			}
+		}
+		return &ServiceError{
+			Code:       "BANK-ERR-001",
+			Message:    "Failed to validate user entitlement",
+			HTTPStatus: 500,
+		}
+	}
+
+	// User has the required entitlement
+	return nil
+}
+
+// CreateBankAccount creates a new bank account (for testing/seeding)
+// Implements: BR-006 (Bank-Scoped Resource Ownership)
+func (s *MultiBankService) CreateBankAccount(ctx context.Context, bankID, currency, kind string) (*models.BankAccountResponse, error) {
+	// Validate bank exists
+	_, err := s.repo.GetBankByPermalink(ctx, bankID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, &ServiceError{
+				Code:       "BANK-VAL-009",
+				Message:    "Bank not found",
+				HTTPStatus: 404,
+				Field:      "bankId",
+			}
+		}
+		return nil, &ServiceError{
+			Code:       "BANK-ERR-001",
+			Message:    "Failed to validate bank existence",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-006: Create account permanently associated with bank
+	account := models.NewMappedBankAccount(bankID, "", currency, kind)
+	if err := s.repo.CreateBankAccount(ctx, account); err != nil {
+		return nil, &ServiceError{
+			Code:       "BANK-ERR-002",
+			Message:    "Failed to create bank account: " + err.Error(),
+			HTTPStatus: 500,
+		}
+	}
+
+	response := account.ToBankAccountResponse()
+	return &response, nil
+}
+
+// CreateBankEntitlement creates a new bank entitlement (for testing/seeding)
+// Implements: BR-005 (Bank-Scoped Entitlements)
+func (s *MultiBankService) CreateBankEntitlement(ctx context.Context, bankID, userID, roleName string) (*models.EntitlementResponse, error) {
+	// Validate bank exists
+	_, err := s.repo.GetBankByPermalink(ctx, bankID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, &ServiceError{
+				Code:       "BANK-VAL-009",
+				Message:    "Bank not found",
+				HTTPStatus: 404,
+				Field:      "bankId",
+			}
+		}
+		return nil, &ServiceError{
+			Code:       "BANK-ERR-001",
+			Message:    "Failed to validate bank existence",
+			HTTPStatus: 500,
+		}
+	}
+
+	// BR-005: Create entitlement scoped to specific bank
+	entitlement := models.NewMappedEntitlement(bankID, userID, roleName)
+	if err := s.repo.CreateBankEntitlement(ctx, entitlement); err != nil {
+		return nil, &ServiceError{
+			Code:       "BANK-ERR-002",
+			Message:    "Failed to create bank entitlement: " + err.Error(),
+			HTTPStatus: 500,
+		}
+	}
+
+	response := entitlement.ToEntitlementResponse()
+	return &response, nil
+}

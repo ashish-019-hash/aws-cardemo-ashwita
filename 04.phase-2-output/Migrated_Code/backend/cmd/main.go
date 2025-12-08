@@ -29,10 +29,12 @@ func main() {
 	// Initialize services
 	bankService := services.NewBankService(bankRepo)
 	bankAttributeService := services.NewBankAttributeService(bankRepo)
+	multiBankService := services.NewMultiBankService(bankRepo)
 
 	// Initialize controllers
 	bankController := controllers.NewBankController(bankService)
 	bankAttributeController := controllers.NewBankAttributeController(bankAttributeService)
+	multiBankController := controllers.NewMultiBankController(multiBankService)
 
 	// Setup Gin router
 	if cfg.IsProduction() {
@@ -41,7 +43,7 @@ func main() {
 	router := gin.Default()
 
 	// Setup routes
-	routes.SetupRoutes(router, bankController, bankAttributeController)
+	routes.SetupRoutes(router, bankController, bankAttributeController, multiBankController)
 
 	// Start server
 	log.Printf("Starting server on %s", cfg.GetServerAddress())
@@ -54,6 +56,8 @@ func main() {
 	log.Printf("  GET  http://%s/banks/{bankId}/attributes/{attributeId} - Get Bank Attribute", cfg.GetServerAddress())
 	log.Printf("  PUT  http://%s/banks/{bankId}/attributes/{attributeId} - Update Bank Attribute", cfg.GetServerAddress())
 	log.Printf("  DELETE http://%s/banks/{bankId}/attributes/{attributeId} - Delete Bank Attribute", cfg.GetServerAddress())
+	log.Printf("  GET  http://%s/banks/{bankId}/accounts - Get Bank Accounts (Multi-Bank Support)", cfg.GetServerAddress())
+	log.Printf("  GET  http://%s/banks/{bankId}/entitlements - Get Bank Entitlements (Multi-Bank Support)", cfg.GetServerAddress())
 
 	if err := router.Run(cfg.GetServerAddress()); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

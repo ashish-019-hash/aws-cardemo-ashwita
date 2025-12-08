@@ -372,3 +372,88 @@ func (c *BankAttributeController) DeleteBankAttribute(ctx *gin.Context) {
 
 	ctx.Status(http.StatusNoContent)
 }
+
+// ============================================================================
+// Multi-Bank Support Handlers
+// User Story: Multi-Bank Support
+// ============================================================================
+
+// MultiBankController handles HTTP requests for multi-bank support operations
+// Implements: BR-001 through BR-008 for multi-bank support
+type MultiBankController struct {
+	service *services.MultiBankService
+}
+
+// NewMultiBankController creates a new MultiBankController instance
+func NewMultiBankController(service *services.MultiBankService) *MultiBankController {
+	return &MultiBankController{service: service}
+}
+
+// GetBankAccounts handles GET /banks/:bankId/accounts
+// Maps to: User Story "Multi-Bank Support - Retrieve Bank Accounts"
+// Response: BankAccountsListResponse (200 OK) or ErrorResponse (400/404)
+// Implements: BR-001 (Mandatory Bank Identifier for Resource Access)
+// Implements: BR-002 (Bank Existence Validation)
+// Implements: BR-003 (Data Isolation Enforcement)
+// Implements: BR-004 (Empty Result Handling - returns 200 with empty array)
+// Implements: VR-001 (Bank Identifier Required Validation)
+// Implements: VR-002 (Bank Identifier Existence Validation)
+// Implements: VR-003 (Data Isolation Enforcement Validation)
+// Implements: VR-010 (Cross-Bank Access Error Response Validation)
+// Source: LocalMappedConnector.getBankAccounts
+func (c *MultiBankController) GetBankAccounts(ctx *gin.Context) {
+	bankID := ctx.Param("bankId")
+
+	response, err := c.service.GetBankAccounts(ctx.Request.Context(), bankID)
+	if err != nil {
+		if serviceErr, ok := err.(*services.ServiceError); ok {
+			ctx.JSON(serviceErr.HTTPStatus, models.ErrorResponse{
+				Code:    serviceErr.Code,
+				Message: serviceErr.Message,
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Code:    "BANK-ERR-INTERNAL",
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	// BR-004: Return 200 OK with accounts (empty array if none)
+	ctx.JSON(http.StatusOK, response)
+}
+
+// GetBankEntitlements handles GET /banks/:bankId/entitlements
+// Maps to: User Story "Multi-Bank Support - Retrieve Bank Entitlements"
+// Response: EntitlementsListResponse (200 OK) or ErrorResponse (400/404)
+// Implements: BR-001 (Mandatory Bank Identifier for Resource Access)
+// Implements: BR-002 (Bank Existence Validation)
+// Implements: BR-005 (Bank-Scoped Entitlements)
+// Implements: BR-004 (Empty Result Handling - returns 200 with empty array)
+// Implements: VR-001 (Bank Identifier Required Validation)
+// Implements: VR-002 (Bank Identifier Existence Validation)
+// Implements: VR-008 (Bank-Specific Entitlement Validation)
+// Source: MappedEntitlementsProvider.getEntitlementsByBankId
+func (c *MultiBankController) GetBankEntitlements(ctx *gin.Context) {
+	bankID := ctx.Param("bankId")
+
+	response, err := c.service.GetBankEntitlements(ctx.Request.Context(), bankID)
+	if err != nil {
+		if serviceErr, ok := err.(*services.ServiceError); ok {
+			ctx.JSON(serviceErr.HTTPStatus, models.ErrorResponse{
+				Code:    serviceErr.Code,
+				Message: serviceErr.Message,
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Code:    "BANK-ERR-INTERNAL",
+			Message: "Internal server error",
+		})
+		return
+	}
+
+	// BR-004: Return 200 OK with entitlements (empty array if none)
+	ctx.JSON(http.StatusOK, response)
+}
