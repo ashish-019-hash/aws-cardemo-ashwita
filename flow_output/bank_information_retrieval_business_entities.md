@@ -85,27 +85,6 @@ This document contains the business entities extracted from the Bank Information
 
 ---
 
-### Entity 3: BankId
-
-**Source File:** `obp-commons/src/main/scala/com/openbankproject/commons/model/BankingModel.scala`
-
-**Description:** BankId is a value object (case class) that encapsulates the bank identifier. It provides type safety and validation for bank identifiers throughout the application.
-
-**Type:** Value Object / Case Class (not a separate database table)
-
-**Attributes:**
-
-| Attribute Name | Data Type | Description | Required | Constraints |
-|----------------|-----------|-------------|----------|-------------|
-| value | String | The actual bank identifier string | Yes | Non-empty string |
-
-**Relevance to User Story:**
-- Used as the path parameter in `GET /banks/{BANK_ID}` endpoint
-- Provides type-safe bank identification across the application
-- Includes permission checking for bank access control
-
----
-
 ## Entity Relationship Diagram
 
 ```
