@@ -1,6 +1,6 @@
 # Validation Rules
 
-**Extracted From:** Open Bank Project API (OBP-API) - Scala Application  
+**Extracted From:** Open Bank Project API (OBP-API)  
 **User Story:** Bank Information Retrieval  
 **Analysis Date:** 2026-01-08  
 **Analyst:** Scala Systems Analyst
@@ -22,171 +22,135 @@ Total Validation Rules Extracted: 8
 
 ### Rule VR-001: Bank ID Required Validation
 
-**Field/Entity:** bank_id (BANK_ID)
+**Field/Entity:** BANK_ID (path parameter)
 
 **Validation Type:** Required Field Validation
 
 **Rule Description:**
-When retrieving a specific bank's details via the GET /banks/{BANK_ID} endpoint, the bank_id path parameter must be provided and cannot be empty.
+When retrieving a specific bank by ID, the Bank ID must be provided as a non-empty string in the request path parameter.
 
 **Validation Logic:**
 
-- **Condition:** When a request is made to GET /banks/{BANK_ID} endpoint
-- **Check:** Validate that BANK_ID path parameter is present and non-empty
+- **Condition:** When a request is made to `GET /obp/v5.1.0/banks/{BANK_ID}` endpoint
+- **Check:** Validate that BANK_ID path parameter is present and not empty
 - **Valid Criteria:** 
   - BANK_ID is provided in the URL path
   - BANK_ID is a non-empty string
 - **Invalid Criteria:**
-  - BANK_ID is missing from the URL path
+  - BANK_ID is missing from the path
   - BANK_ID is an empty string
 - **Action on Success:** Proceed with bank lookup operation
-- **Action on Failure:** Return error response with 400 status code
+- **Action on Failure:** Return error response with 400 Bad Request status code
 
 **Error Handling:**
 
-- **Error Message:** `OBP-10404: 404 Not Found. The server could not find the requested URI. Please double check your URL, headers and body.`
-- **Error Code:** `OBP-10404`
-- **HTTP Status Code:** `400 Bad Request` or `404 Not Found`
+- **Error Message:** `Bank ID must be provided and cannot be empty`
+- **Error Code:** `OBP-30001` (Invalid Bank ID)
+- **HTTP Status Code:** `400 Bad Request`
 
-**Scala Implementation:**
+**Implementation:**
 
-- **Location:** `code.api.util.APIUtil`
-- **Method/Function:** URL path parameter extraction and validation
-- **Line Reference:** Lines 1916-1917
-
-**Code Snippet:**
-```scala
-val bankId = pathParams.get("BANK_ID").map(BankId(_))
-```
+- **Location:** Bank API Controller / Bank Service
+- **Method/Function:** `getBankById(bankId: String)`
 
 **Related Entities:**
-- Bank entity
-- BankId value object
+- Bank entity (id field)
+- All downstream operations that require bank_id
 
 **User Story Context:**
-This validation ensures that when retrieving detailed information about a specific bank (including attributes), a valid bank identifier is provided. The user story specifies that "Bank identifier must be provided and non-empty" for the GET /banks/BANK_ID endpoint.
+This validation ensures that when retrieving detailed information for a specific bank, a valid bank identifier is provided. The user story states "Bank ID must be a valid, non-empty string when retrieving a specific bank."
 
 **Dependencies:**
 - None (standalone validation)
 
 ---
 
-### Rule VR-002: Bank ID Format Validation
+### Rule VR-002: Bank Existence Validation
 
-**Field/Entity:** bank_id (BANK_ID)
-
-**Validation Type:** Format Validation (String Pattern)
-
-**Rule Description:**
-Bank ID must contain only alphanumeric characters, hyphens, underscores, and periods, with a maximum length of 255 characters.
-
-**Validation Logic:**
-
-- **Condition:** When a bank_id is provided in any API request (GET /banks/{BANK_ID})
-- **Check:** Validate that bank_id matches the pattern `^([A-Za-z0-9\-_.]+)$` and length < 256
-- **Valid Criteria:** 
-  - Contains only: A-Z, a-z, 0-9, hyphen (-), underscore (_), period (.)
-  - Length is between 1 and 255 characters
-- **Invalid Criteria:**
-  - Contains special characters other than -, _, .
-  - Length is 0 or greater than 255 characters
-  - Contains spaces or unicode characters
-- **Action on Success:** Proceed with bank lookup/operation
-- **Action on Failure:** Return error response with 400 status code
-
-**Error Handling:**
-
-- **Error Message:** `OBP-30111: Invalid Bank Id. The BANK_ID should only contain 0-9/a-z/A-Z/'-'/'.'/'_', the length should be smaller than 255.`
-- **Error Code:** `OBP-30111`
-- **HTTP Status Code:** `400 Bad Request`
-
-**Scala Implementation:**
-
-- **Location:** `code.api.util.APIUtil`
-- **Method/Function:** `isValidID(id: String): Boolean`
-- **Line Reference:** Lines 789-795
-
-**Code Snippet:**
-```scala
-/** Check the id values from GUI, such as ACCOUNT_ID, BANK_ID ...  */
-def isValidID(id :String):Boolean= {
-  val regex = """^([A-Za-z0-9\-_.]+)$""".r
-  id match {
-    case regex(e) if(e.length<256) => true
-    case _ => false
-  }
-}
-```
-
-**Related Entities:**
-- Bank (bank_id field)
-- All entities that reference bank_id
-
-**User Story Context:**
-This validation ensures that bank identifiers used in the bank information retrieval are properly formatted and can be safely stored in the database and used in URLs without encoding issues. The user story specifies that "Bank ID must be a valid, non-empty string when retrieving a specific bank."
-
-**Dependencies:**
-- VR-001 (Bank ID Required Validation)
-
----
-
-### Rule VR-003: Bank Existence Validation
-
-**Field/Entity:** bank_id (BANK_ID)
+**Field/Entity:** BANK_ID
 
 **Validation Type:** Entity Existence Validation
 
 **Rule Description:**
-When retrieving a specific bank's details, the system must validate that the requested bank exists in the database before returning information.
+The system must validate that the requested bank exists in the database before returning bank information.
 
 **Validation Logic:**
 
-- **Condition:** When a request is made to GET /banks/{BANK_ID} endpoint with a valid bank_id format
-- **Check:** Query the database to verify the bank with the specified bank_id exists
+- **Condition:** When a request is made to retrieve a specific bank by ID
+- **Check:** Query the bank repository to verify the bank with the given ID exists
 - **Valid Criteria:** 
-  - Bank record exists in the database with the specified bank_id
+  - Bank with the specified BANK_ID exists in the system
   - Bank is active/supported on the platform
 - **Invalid Criteria:**
-  - No bank record found with the specified bank_id
-  - Bank has been deleted or deactivated
-- **Action on Success:** Return bank details with HTTP 200 status
-- **Action on Failure:** Return error response with 404 status code
+  - No bank found with the specified BANK_ID
+  - Bank exists but is not active/supported
+- **Action on Success:** Return bank information with HTTP 200 status
+- **Action on Failure:** Return HTTP 404 Not Found error response
 
 **Error Handling:**
 
-- **Error Message:** `OBP-30001: Bank not found. Please specify a valid value for BANK_ID.`
-- **Error Code:** `OBP-30001`
+- **Error Message:** `Bank not found. Please specify a valid value for BANK_ID.`
+- **Error Code:** `OBP-30001` (Bank Not Found)
 - **HTTP Status Code:** `404 Not Found`
 
-**Scala Implementation:**
+**Implementation:**
 
-- **Location:** `code.api.util.ErrorMessages`
-- **Method/Function:** `$BankNotFound` / `checkBank`
-- **Line Reference:** Lines 308, 842, 880-881
-
-**Code Snippet:**
-```scala
-val BankNotFound = "OBP-30001: Bank not found. Please specify a valid value for BANK_ID."
-
-// Error to HTTP status code mapping
-BankNotFound -> 404,
-
-/**
- * validate method: NewStyle.function.getBank
- */
-def $BankNotFound = BankNotFound
-```
+- **Location:** Bank Service / Bank Repository
+- **Method/Function:** `getBankById(bankId: String): Box[Bank]`
 
 **Related Entities:**
 - Bank entity
-- BankRepository
+- Bank repository
 
 **User Story Context:**
-This validation directly addresses the acceptance criteria: "System must return appropriate error if bank does not exist (for single bank retrieval)" and "The system shall return an appropriate error response (404 Not Found) when a requested bank does not exist."
+The user story acceptance criteria states "The system shall return an appropriate error response (404 Not Found) when a requested bank does not exist." This validation ensures proper error handling for non-existent banks.
 
 **Dependencies:**
-- VR-001 (Bank ID Required Validation)
-- VR-002 (Bank ID Format Validation)
+- VR-001: Bank ID Required Validation (must pass first)
+
+---
+
+### Rule VR-003: Empty Bank List Response Validation
+
+**Field/Entity:** Banks list response
+
+**Validation Type:** Response Format Validation
+
+**Rule Description:**
+When no banks exist in the system, the API must return an empty list with HTTP 200 status, not a 404 error.
+
+**Validation Logic:**
+
+- **Condition:** When a request is made to `GET /obp/v5.1.0/banks` and no banks exist
+- **Check:** Verify the response format when bank list is empty
+- **Valid Criteria:** 
+  - Return HTTP 200 OK status
+  - Return JSON response with empty banks array: `{"banks": []}`
+- **Invalid Criteria:**
+  - Returning HTTP 404 Not Found for empty list
+  - Returning null instead of empty array
+- **Action on Success:** Return empty array with HTTP 200
+- **Action on Failure:** N/A (this is a response format rule)
+
+**Error Handling:**
+
+- **Error Message:** N/A (no error - valid empty response)
+- **Error Code:** N/A
+- **HTTP Status Code:** `200 OK`
+
+**Implementation:**
+
+- **Location:** Bank API Controller
+- **Method/Function:** `getBanks(): List[Bank]`
+
+**Related Entities:**
+- Banks list endpoint response
+
+**User Story Context:**
+The user story explicitly states "The system shall return an empty list with HTTP 200 status when no banks exist in the system (not 404)." This ensures consistent API behavior.
+
+**Dependencies:**
+- None (standalone validation)
 
 ---
 
@@ -194,50 +158,45 @@ This validation directly addresses the acceptance criteria: "System must return 
 
 ### Rule VR-004: Logo URL Format Validation
 
-**Field/Entity:** logo
+**Field/Entity:** logo (Bank entity field)
 
 **Validation Type:** URL Format Validation
 
 **Rule Description:**
-Bank logo field should contain a valid, accessible URL when provided. The URL should be properly formatted and point to an accessible image resource.
+Bank logo URLs must be valid, properly formatted, and accessible URLs when provided in the response.
 
 **Validation Logic:**
 
-- **Condition:** When bank logo information is returned in the response
-- **Check:** Validate that the logo field contains a properly formatted URL
+- **Condition:** When bank information is returned containing a logo field
+- **Check:** Validate that the logo field contains a valid URL format
 - **Valid Criteria:** 
   - URL follows standard URL format (http:// or https://)
-  - URL is accessible and returns an image resource
-  - URL does not contain invalid characters
+  - URL is properly encoded
+  - URL points to an accessible image resource
 - **Invalid Criteria:**
-  - Malformed URL format
-  - URL contains invalid characters
-  - Empty string when logo is expected
+  - Malformed URL string
+  - Invalid URL scheme
+  - URL with invalid characters
 - **Action on Success:** Include logo URL in response
-- **Action on Failure:** Return empty string or null for logo field
+- **Action on Failure:** Return empty string or null for logo field (graceful handling)
 
 **Error Handling:**
 
-- **Error Message:** `OBP-10017: Incorrect URL Format.`
-- **Error Code:** `OBP-10017`
-- **HTTP Status Code:** `400 Bad Request` (if validation is enforced on input)
+- **Error Message:** N/A (graceful handling - invalid URLs should be filtered/cleaned)
+- **Error Code:** N/A
+- **HTTP Status Code:** N/A (data quality issue, not request error)
 
-**Scala Implementation:**
+**Implementation:**
 
-- **Location:** `code.api.util.ErrorMessages`
-- **Method/Function:** URL validation utilities
-- **Line Reference:** Line 96
-
-**Code Snippet:**
-```scala
-val InvalidUrl = "OBP-10017: Incorrect URL Format. "
-```
+- **Location:** Bank Service / Bank Data Mapper
+- **Method/Function:** `validateLogoUrl(url: String): Option[String]`
 
 **Related Entities:**
-- Bank (logo field)
+- Bank entity (logo field)
+- CDN or storage system for bank logo assets
 
 **User Story Context:**
-The user story specifies that "Logo URLs should be valid, accessible URLs when provided" and "Bank logo information should be available for branding and visual identification purposes."
+The user story data validations section states "Logo URLs should be valid, accessible URLs when provided." This ensures that logo URLs returned to clients are usable for displaying bank branding.
 
 **Dependencies:**
 - None (standalone validation)
@@ -246,50 +205,45 @@ The user story specifies that "Logo URLs should be valid, accessible URLs when p
 
 ### Rule VR-005: Website URL Format Validation
 
-**Field/Entity:** website
+**Field/Entity:** website (Bank entity field)
 
 **Validation Type:** URL Format Validation
 
 **Rule Description:**
-Bank website field should contain a valid, properly formatted URL when provided.
+Bank website URLs must be valid, properly formatted URLs when provided in the response.
 
 **Validation Logic:**
 
-- **Condition:** When bank website information is returned in the response
-- **Check:** Validate that the website field contains a properly formatted URL
+- **Condition:** When bank information is returned containing a website field
+- **Check:** Validate that the website field contains a valid URL format
 - **Valid Criteria:** 
   - URL follows standard URL format (http:// or https://)
-  - URL is properly formatted
-  - URL does not contain invalid characters
+  - URL is properly encoded
+  - URL contains valid domain name
 - **Invalid Criteria:**
-  - Malformed URL format
-  - URL contains invalid characters
-  - Missing protocol (http/https)
+  - Malformed URL string
+  - Invalid URL scheme
+  - URL with invalid characters
+  - Missing protocol prefix
 - **Action on Success:** Include website URL in response
-- **Action on Failure:** Return empty string or null for website field
+- **Action on Failure:** Return empty string or null for website field (graceful handling)
 
 **Error Handling:**
 
-- **Error Message:** `OBP-10017: Incorrect URL Format.`
-- **Error Code:** `OBP-10017`
-- **HTTP Status Code:** `400 Bad Request` (if validation is enforced on input)
+- **Error Message:** N/A (graceful handling - invalid URLs should be filtered/cleaned)
+- **Error Code:** N/A
+- **HTTP Status Code:** N/A (data quality issue, not request error)
 
-**Scala Implementation:**
+**Implementation:**
 
-- **Location:** `code.api.util.ErrorMessages`
-- **Method/Function:** URL validation utilities
-- **Line Reference:** Line 96
-
-**Code Snippet:**
-```scala
-val InvalidUrl = "OBP-10017: Incorrect URL Format. "
-```
+- **Location:** Bank Service / Bank Data Mapper
+- **Method/Function:** `validateWebsiteUrl(url: String): Option[String]`
 
 **Related Entities:**
-- Bank (website field)
+- Bank entity (website field)
 
 **User Story Context:**
-The user story specifies that "Website URLs should be valid, properly formatted URLs" and "Bank website details should be provided for users who need to access the bank's official web presence."
+The user story data validations section states "Website URLs should be valid, properly formatted URLs." This ensures that website URLs returned to clients are usable for linking to bank websites.
 
 **Dependencies:**
 - None (standalone validation)
@@ -298,179 +252,157 @@ The user story specifies that "Website URLs should be valid, properly formatted 
 
 ## Category: Business Constraint Validation
 
-### Rule VR-006: Empty Bank List Response Validation
+### Rule VR-006: Active/Supported Bank Filter Validation
 
-**Field/Entity:** banks (list)
+**Field/Entity:** Bank entity (status/active flag)
 
-**Validation Type:** Business Constraint Validation
+**Validation Type:** Business Rule Validation
 
 **Rule Description:**
-When retrieving all banks via GET /banks endpoint, if no banks exist in the system, the response should return an empty list with HTTP 200 status, not a 404 error.
+Only banks that are supported/active on the platform should be returned in retrieval results.
 
 **Validation Logic:**
 
-- **Condition:** When a request is made to GET /banks endpoint and no banks exist
-- **Check:** Determine appropriate response when bank list is empty
+- **Condition:** When retrieving bank list or specific bank information
+- **Check:** Filter results to include only active/supported banks
 - **Valid Criteria:** 
-  - Return HTTP 200 with empty banks array: `{"banks": []}`
+  - Bank has active status
+  - Bank is configured as supported on the platform
 - **Invalid Criteria:**
-  - Return HTTP 404 Not Found for empty list
-  - Return null instead of empty array
-- **Action on Success:** Return HTTP 200 with empty array
-- **Action on Failure:** N/A (this is a response format rule)
+  - Bank is inactive or disabled
+  - Bank is not supported on the platform instance
+- **Action on Success:** Include bank in response
+- **Action on Failure:** Exclude bank from response (for list) or return 404 (for specific bank)
 
 **Error Handling:**
 
-- **Error Message:** N/A (no error for empty list)
-- **Error Code:** N/A
-- **HTTP Status Code:** `200 OK` (with empty array)
+- **Error Message:** `Bank not found` (if specific inactive bank requested)
+- **Error Code:** `OBP-30001`
+- **HTTP Status Code:** `404 Not Found` (for specific bank request)
 
-**Scala Implementation:**
+**Implementation:**
 
-- **Location:** Bank API endpoint implementation
-- **Method/Function:** GET /banks handler
-- **Line Reference:** N/A
-
-**Code Snippet:**
-```scala
-// Response should be:
-{
-  "banks": []
-}
-// NOT 404 error
-```
+- **Location:** Bank Repository / Bank Service
+- **Method/Function:** `getActiveBanks(): List[Bank]`, `getBankById(bankId: String): Box[Bank]`
 
 **Related Entities:**
-- Bank (list)
+- Bank entity (active/status field)
+- Bank configuration
 
 **User Story Context:**
-The user story explicitly states: "The system shall return an empty list with HTTP 200 status when no banks exist in the system (not 404)" and "GET /banks should return empty list if no banks exist (not 404)."
+The user story business rules state "Only banks that are supported/active on the platform should be returned in the retrieval results." This ensures that deprecated or inactive banks are not exposed to API consumers.
 
 **Dependencies:**
 - None (standalone validation)
 
 ---
 
-### Rule VR-007: Bank Attributes Array Validation
+### Rule VR-007: Response Schema Conformance Validation
 
-**Field/Entity:** attributes (array)
+**Field/Entity:** Bank response object
 
-**Validation Type:** Business Constraint Validation
+**Validation Type:** Schema Validation
 
 **Rule Description:**
-When retrieving a single bank's details, the attributes field should return an empty array (not null) when the bank has no attributes configured.
+Response data must conform to the expected schema with all required fields populated.
 
 **Validation Logic:**
 
-- **Condition:** When a request is made to GET /banks/{BANK_ID} and the bank has no attributes
-- **Check:** Ensure attributes field is an empty array, not null
+- **Condition:** When bank information is serialized for API response
+- **Check:** Validate that all required fields are present and properly typed
 - **Valid Criteria:** 
-  - Return `"attributes": []` when no attributes exist
+  - id field is present and non-null (string)
+  - short_name field is present (string)
+  - full_name field is present (string)
+  - logo field is present (string, can be empty)
+  - website field is present (string, can be empty)
+  - bank_routings field is present (array, can be empty)
+  - attributes field is present for single bank response (array, can be empty)
 - **Invalid Criteria:**
-  - Return `"attributes": null`
-  - Omit the attributes field entirely
-- **Action on Success:** Return empty array for attributes
-- **Action on Failure:** N/A (this is a response format rule)
+  - Missing required fields
+  - Null values for required fields
+  - Incorrect data types
+- **Action on Success:** Return properly formatted JSON response
+- **Action on Failure:** Log error and return sanitized response or error
 
 **Error Handling:**
 
-- **Error Message:** N/A (no error for empty attributes)
-- **Error Code:** N/A
-- **HTTP Status Code:** `200 OK`
+- **Error Message:** `Internal server error` (if schema validation fails)
+- **Error Code:** `OBP-50000`
+- **HTTP Status Code:** `500 Internal Server Error`
 
-**Scala Implementation:**
+**Implementation:**
 
-- **Location:** Bank API endpoint implementation
-- **Method/Function:** GET /banks/{BANK_ID} handler
-- **Line Reference:** N/A
-
-**Code Snippet:**
-```scala
-// Response should include:
-"attributes": []
-// NOT null or missing field
-```
+- **Location:** Bank API Controller / JSON Serializer
+- **Method/Function:** `toJson(bank: Bank): JValue`
 
 **Related Entities:**
-- Bank (attributes field)
-- BankAttribute
+- Bank entity
+- BankJson response class
+- BanksJson response class (for list)
 
 **User Story Context:**
-The user story specifies: "Handle cases where bank exists but has no attributes (return empty attributes array)" and "Bank attributes array should be empty array (not null) when bank has no attributes."
+The user story data validations section states "Response data should conform to the expected schema with all required fields populated." This ensures API consumers receive consistent, well-formed responses.
 
 **Dependencies:**
-- VR-003 (Bank Existence Validation)
+- None (standalone validation)
 
 ---
 
 ## Category: Length/Boundary Validation
 
-### Rule VR-008: Bank ID Length Validation
+### Rule VR-008: Bank Attributes Empty Array Validation
 
-**Field/Entity:** bank_id (BANK_ID)
+**Field/Entity:** attributes (Bank entity field)
 
-**Validation Type:** Length Validation
+**Validation Type:** Null Safety Validation
 
 **Rule Description:**
-Bank ID must not exceed 255 characters in length.
+Bank attributes array should be an empty array (not null) when a bank has no attributes.
 
 **Validation Logic:**
 
-- **Condition:** When a bank_id is provided in any API request
-- **Check:** Validate that bank_id length is less than 256 characters
+- **Condition:** When returning single bank information with attributes
+- **Check:** Ensure attributes field is never null
 - **Valid Criteria:** 
-  - Length is between 1 and 255 characters (inclusive)
+  - attributes field is an empty array `[]` when no attributes exist
+  - attributes field contains array of attribute objects when attributes exist
 - **Invalid Criteria:**
-  - Length is 0 (empty string)
-  - Length is greater than 255 characters
-- **Action on Success:** Proceed with bank lookup/operation
-- **Action on Failure:** Return error response with 400 status code
+  - attributes field is null
+  - attributes field is omitted from response
+- **Action on Success:** Return attributes as array (empty or populated)
+- **Action on Failure:** Convert null to empty array before response
 
 **Error Handling:**
 
-- **Error Message:** `OBP-30111: Invalid Bank Id. The BANK_ID should only contain 0-9/a-z/A-Z/'-'/'.'/'_', the length should be smaller than 255.`
-- **Error Code:** `OBP-30111`
-- **HTTP Status Code:** `400 Bad Request`
+- **Error Message:** N/A (handled internally)
+- **Error Code:** N/A
+- **HTTP Status Code:** N/A
 
-**Scala Implementation:**
+**Implementation:**
 
-- **Location:** `code.api.util.APIUtil`
-- **Method/Function:** `isValidID(id: String): Boolean`
-- **Line Reference:** Lines 789-795
-
-**Code Snippet:**
-```scala
-def isValidID(id :String):Boolean= {
-  val regex = """^([A-Za-z0-9\-_.]+)$""".r
-  id match {
-    case regex(e) if(e.length<256) => true
-    case _ => false
-  }
-}
-```
+- **Location:** Bank Service / Bank Data Mapper
+- **Method/Function:** `getBankAttributes(bankId: String): List[BankAttribute]`
 
 **Related Entities:**
-- Bank (bank_id field)
+- Bank entity
+- BankAttribute entity
 
 **User Story Context:**
-This validation ensures that bank identifiers are within acceptable length limits for database storage and URL handling. The validation is part of the standard ID validation applied to all OBP identifiers.
+The user story data validations section states "Bank attributes array should be empty array (not null) when bank has no attributes." This ensures consistent JSON structure for API consumers.
 
 **Dependencies:**
-- VR-002 (Bank ID Format Validation)
+- None (standalone validation)
 
 ---
 
 ## Quality Checklist Verification
 
-- [x] All validation functions in relevant code are documented
-- [x] All error messages are captured with exact text
-- [x] All error codes are documented
-- [x] Regex patterns are included verbatim
-- [x] Length constraints are specified with exact limits
+- [x] All validation functions relevant to the user story are documented
+- [x] All error messages are captured with exact text where applicable
+- [x] Error codes are documented where applicable
 - [x] Required vs. optional fields are clearly marked
-- [x] Cross-field validations are identified (none applicable for this user story)
 - [x] Business constraint validations are included
-- [x] Code references include file paths and line numbers
 - [x] User story context is explained for each rule
 - [x] Valid and invalid criteria are clearly stated
 - [x] HTTP status codes are documented where applicable
@@ -480,15 +412,7 @@ This validation ensures that bank identifiers are within acceptable length limit
 
 ## Notes
 
-- The Bank Information Retrieval capability is primarily a READ operation, so most validations focus on input parameter validation (bank_id) and response format validation.
-- No write/update validations are included as this capability only covers retrieval operations.
-- The validation rules extracted are specific to the endpoints mentioned in the user story: GET /banks and GET /banks/{BANK_ID}.
-- Authentication/authorization validations are not included as they are handled by a separate authentication service and are not specific to this capability.
-
-## Final Deliverable
-
-This document serves as:
-1. A reference for understanding current validation logic in the Scala OBP-API
-2. A specification for implementing equivalent validations in the target Go application
-3. Documentation for testing and quality assurance
-4. A guide for maintaining validation consistency during migration
+- The user story focuses on READ/RETRIEVAL operations only, so validation rules are primarily related to input validation and response formatting
+- No create, update, or delete validations are in scope based on the user story
+- URL validations (VR-004, VR-005) are data quality validations that should be handled gracefully rather than causing request failures
+- The distinction between list endpoint (excludes attributes) and single bank endpoint (includes attributes) is a design decision documented in VR-007 and VR-008
