@@ -18,15 +18,17 @@ This document contains the business entities extracted from the Bank Information
 
 ## Extracted Business Entities
 
-### Entity 1: Bank
+### Entity 1: MappedBank
+
+**Scala Class:** `MappedBank` (extends `Bank` trait)
 
 **Source File:** `obp-api/src/main/scala/code/model/dataAccess/MappedBank.scala`
 
 **Trait Definition:** `obp-commons/src/main/scala/com/openbankproject/commons/model/BankingModel.scala`
 
-**Description:** The Bank entity represents a financial institution registered on the platform. It contains identification, branding, and routing information for each bank.
+**Description:** The MappedBank entity represents a financial institution registered on the platform. It contains identification, branding, and routing information for each bank. The class implements the `Bank` trait and uses Lift Mapper ORM for database persistence.
 
-**Database Table:** `mappedbank` (Lift Mapper ORM)
+**Database Table:** `mappedbank` (Lift Mapper ORM - lowercase class name by default)
 
 **Attributes:**
 
@@ -46,7 +48,7 @@ This document contains the business entities extracted from the Bank Information
 - One-to-Many with BankAttribute (a bank can have multiple attributes)
 
 **Relevance to User Story:**
-- The Bank entity is the primary entity for the Bank Information Retrieval capability
+- The MappedBank entity is the primary entity for the Bank Information Retrieval capability
 - All fields (id, short_name, full_name, logo, website, bank_routings) in the API response are sourced from this entity
 - Used in both `GET /banks` and `GET /banks/{BANK_ID}` endpoints
 
@@ -66,7 +68,7 @@ This document contains the business entities extracted from the Bank Information
 
 | Attribute Name | Data Type | Description | Required | Constraints |
 |----------------|-----------|-------------|----------|-------------|
-| bankId | BankId (String) | Foreign key reference to the Bank entity | Yes | Must exist in Bank table |
+| bankId | BankId (String) | Foreign key reference to the MappedBank entity | Yes | Must exist in mappedbank table |
 | bankAttributeId | String (UUID) | Unique identifier for the attribute | Yes | UUID format, Auto-generated |
 | name | String | Name/key of the attribute | Yes | Max 50 characters |
 | attributeType | BankAttributeType (Enum) | Type classification of the attribute | Yes | Valid enum value |
@@ -74,7 +76,7 @@ This document contains the business entities extracted from the Bank Information
 | isActive | Boolean | Flag indicating if the attribute is active | No | Default: true |
 
 **Relationships:**
-- Many-to-One with Bank (multiple attributes belong to one bank)
+- Many-to-One with MappedBank (multiple attributes belong to one bank)
 
 **Relevance to User Story:**
 - BankAttribute is included in the response for single bank retrieval (`GET /banks/{BANK_ID}`)
@@ -108,7 +110,8 @@ This document contains the business entities extracted from the Bank Information
 
 ```
 +------------------+          +-------------------+
-|      Bank        |          |   BankAttribute   |
+|   MappedBank     |          |   BankAttribute   |
+| (table:mappedbank)|         | (table:bankattribute)|
 +------------------+          +-------------------+
 | bankId (PK)      |<-------->| bankId (FK)       |
 | shortName        |    1:N   | bankAttributeId   |
@@ -130,25 +133,25 @@ This document contains the business entities extracted from the Bank Information
 
 | API Field | Entity | Entity Attribute |
 |-----------|--------|------------------|
-| id | Bank | bankId |
-| short_name | Bank | shortName |
-| full_name | Bank | fullName |
-| logo | Bank | logoUrl |
-| website | Bank | websiteUrl |
-| bank_routings[].scheme | Bank | bankRoutingScheme |
-| bank_routings[].address | Bank | bankRoutingAddress |
+| id | MappedBank | bankId |
+| short_name | MappedBank | shortName |
+| full_name | MappedBank | fullName |
+| logo | MappedBank | logoUrl |
+| website | MappedBank | websiteUrl |
+| bank_routings[].scheme | MappedBank | bankRoutingScheme |
+| bank_routings[].address | MappedBank | bankRoutingAddress |
 
 ### GET /banks/{BANK_ID} Response Mapping
 
 | API Field | Entity | Entity Attribute |
 |-----------|--------|------------------|
-| id | Bank | bankId |
-| short_name | Bank | shortName |
-| full_name | Bank | fullName |
-| logo | Bank | logoUrl |
-| website | Bank | websiteUrl |
-| bank_routings[].scheme | Bank | bankRoutingScheme |
-| bank_routings[].address | Bank | bankRoutingAddress |
+| id | MappedBank | bankId |
+| short_name | MappedBank | shortName |
+| full_name | MappedBank | fullName |
+| logo | MappedBank | logoUrl |
+| website | MappedBank | websiteUrl |
+| bank_routings[].scheme | MappedBank | bankRoutingScheme |
+| bank_routings[].address | MappedBank | bankRoutingAddress |
 | attributes[].bank_id | BankAttribute | bankId |
 | attributes[].name | BankAttribute | name |
 | attributes[].type | BankAttribute | attributeType |
@@ -189,7 +192,7 @@ For the Go implementation, the following struct definitions are recommended:
 
 The Bank Information Retrieval capability requires two primary database entities:
 
-1. **Bank** - Core entity containing bank identification, branding, and routing information
-2. **BankAttribute** - Extension entity for additional bank metadata
+1. **MappedBank** (table: `mappedbank`) - Core entity containing bank identification, branding, and routing information
+2. **BankAttribute** (table: `bankattribute`) - Extension entity for additional bank metadata
 
 These entities support the retrieval operations defined in the user stories and should be migrated to Go with equivalent struct definitions and database mappings.
