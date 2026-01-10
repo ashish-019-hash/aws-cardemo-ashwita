@@ -2,7 +2,7 @@
 
 **Extracted From:** OBP-API Scala Application  
 **User Story:** Bank Information Retrieval  
-**Analysis Date:** 2026-01-09  
+**Analysis Date:** 2026-01-10  
 **Analyst:** Scala Systems Analyst
 
 ## Summary
@@ -107,8 +107,8 @@ Bank ID must be a valid string identifier that can be used for database lookup. 
 
 **Error Handling:**
 
-- **Error Message:** `Invalid Bank ID format. Bank ID must contain only alphanumeric characters, hyphens, underscores, and periods.`
-- **Error Code:** `OBP-30002`
+- **Error Message:** `OBP-30111: Invalid Bank Id. The BANK_ID should only contain 0-9/a-z/A-Z/'-'/'.'/'_', the length should be smaller than 255.`
+- **Error Code:** `OBP-30111`
 - **HTTP Status Code:** `400 Bad Request`
 
 **Scala Implementation:**
@@ -166,8 +166,8 @@ When retrieving a specific bank by ID, the system must verify that the bank exis
 
 **Error Handling:**
 
-- **Error Message:** `Bank not found. Please specify a valid value for BANK_ID.`
-- **Error Code:** `OBP-30003`
+- **Error Message:** `OBP-30001: Bank not found. Please specify a valid value for BANK_ID.`
+- **Error Code:** `OBP-30001`
 - **HTTP Status Code:** `404 Not Found`
 
 **Scala Implementation:**
