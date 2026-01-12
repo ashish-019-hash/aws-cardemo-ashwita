@@ -1,5 +1,25 @@
 # User Story for Bank Information Retrieval
 
+## Capability Input
+
+- **Name**: Bank Information Retrieval
+- **Description**: Retrieve information about banks supported on the platform including identifiers, names, logos, and websites
+- **Frequency**: Real-time
+- **Volume**: High
+
+## Operation Verb Analysis
+
+Based on the capability description, the following operation verbs are identified:
+
+| Verb Found | Operation Type | Justification |
+|------------|---------------|---------------|
+| "Retrieve" | READ/RETRIEVAL | Explicitly stated: "Retrieve information about banks" |
+
+**Operations NOT included** (verbs not present in description):
+- CREATE operations: No "create", "register", "add" mentioned
+- UPDATE operations: No "manage", "configure", "update" mentioned
+- DELETE operations: No "delete", "remove", "deactivate" mentioned
+
 ## Story Overview
 
 **As a** third-party developer or fintech application
@@ -33,7 +53,7 @@
 
 ## Relevant Endpoints
 
-**IMPORTANT**: Each endpoint is justified by specific words/phrases from the capability description.
+**IMPORTANT**: Each endpoint is justified by specific words/phrases from the capability description. Only READ/RETRIEVAL operations are included as the description only contains the verb "Retrieve".
 
 ### Endpoint 1: Get All Banks
 - **Endpoint**: `GET /banks`
@@ -61,7 +81,7 @@
 
 ### Endpoint 2: Get Bank by ID
 - **Endpoint**: `GET /banks/{bank_id}`
-  - **Justification (from description)**: "Retrieve information about banks" - supports retrieval of specific bank details by identifier
+  - **Justification (from description)**: "Retrieve information about banks" combined with "including identifiers" - supports retrieval of specific bank details by identifier
   - **Purpose**: Retrieve detailed information about a specific bank using its identifier
   - **Request**: 
     ```
@@ -81,26 +101,35 @@
     }
     ```
 
+### Endpoints NOT Included (with justification)
+
+| Endpoint | Operation Type | Reason for Exclusion |
+|----------|---------------|---------------------|
+| POST /banks | CREATE | No "create", "register", or "add" verb in description |
+| PUT /banks/{bank_id} | UPDATE | No "manage", "update", or "configure" verb in description |
+| DELETE /banks/{bank_id} | DELETE | No "delete", "remove", or "deactivate" verb in description |
+
 ## Business Rules (from capability description)
 
-1. Bank information must include identifiers for unique identification
-2. Bank information must include names for display purposes
-3. Bank information must include logos for visual representation in applications
-4. Bank information must include website URLs for reference
-5. Information retrieval must support real-time access patterns
-6. The system must handle high volume of retrieval requests
+1. Bank information must include identifiers for unique identification (from: "including identifiers")
+2. Bank information must include names for display purposes (from: "names")
+3. Bank information must include logos for visual representation in applications (from: "logos")
+4. Bank information must include website URLs for reference (from: "websites")
+5. Information retrieval must support real-time access patterns (from: Frequency = Real-time)
+6. The system must handle high volume of retrieval requests (from: Volume = High)
 
 ## Data Validations (if applicable)
 
-- Bank identifier must be valid and exist in the system
+- Bank identifier must be valid and exist in the system when retrieving specific bank
 - Response data must include all required fields (id, name, logo, website)
 - Logo URLs must be valid and accessible
 - Website URLs must be properly formatted
+- Error response returned when bank_id is not found (HTTP 404)
 
 ## Dependencies
 
 - **Upstream**: 
-  - Bank data must be pre-populated in the system
+  - Bank data must be pre-populated in the system (Bank Creation capability)
   - User/application must be authenticated to access bank information
 - **Downstream**: 
   - Retrieved bank information may be used for bank selection in payment flows
@@ -115,6 +144,7 @@
 - Consider pagination for the list endpoint if the number of banks grows significantly
 - Ensure proper error handling for cases where bank_id is not found
 - **Needs SME Input**: Clarify if there are any access restrictions on which banks can be viewed by different user types
+- **Needs SME Input**: Determine if filtering/search parameters should be supported on the list endpoint
 
 ## Quality Checklist Verification
 
@@ -124,7 +154,7 @@
 - [x] Acceptance criteria are testable
 - [x] All major logic paths from the description are covered
 - [x] Dependencies mentioned in the description are documented
-- [x] Unclear areas are flagged (access restrictions)
+- [x] Unclear areas are flagged (access restrictions, filtering parameters)
 - [x] Only relevant endpoints are included (GET operations only)
 - [x] All details align with the capability description provided
 - [x] No information from other capabilities is included
