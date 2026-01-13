@@ -2,19 +2,19 @@
 
 **Extracted From:** OBP-API Scala Application  
 **User Story:** Bank Information Retrieval  
-**Analysis Date:** 2026-01-10  
+**Analysis Date:** 2026-01-13  
 **Analyst:** Scala Systems Analyst
 
 ## Summary
 
-Total Validation Rules Extracted: 6
+Total Validation Rules Extracted: 8
 
 ### Validation Categories
 - Input Validation Rules: 2
-- Format Validation Rules: 2
+- Format Validation Rules: 3
 - Business Constraint Rules: 1
 - Length/Boundary Rules: 0
-- Cross-Field Validation Rules: 1
+- Cross-Field Validation Rules: 2
 
 ---
 
