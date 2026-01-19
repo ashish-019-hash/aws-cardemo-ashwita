@@ -1,0 +1,1330 @@
+{
+  "coreCapabilities": [
+    {
+      "category": "Bank & Institution Management",
+      "capabilities": [
+        {
+          "id": 1,
+          "name": "Bank Information Retrieval",
+          "description": "Retrieve information about banks supported on the platform including identifiers, names, logos, and websites",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 2,
+          "name": "Bank Creation",
+          "description": "Create new bank entities on the platform with associated metadata and configuration",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 3,
+          "name": "Bank Attribute Management",
+          "description": "Manage custom attributes associated with banks for extended metadata storage",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 4,
+          "name": "Branch Management",
+          "description": "Create, update, retrieve, and delete bank branch information including locations and services",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 5,
+          "name": "ATM Management",
+          "description": "Create, update, retrieve, and delete ATM information including locations, supported languages, currencies, and accessibility features",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 6,
+          "name": "Settlement Account Management",
+          "description": "Create and manage settlement accounts for double-entry bookkeeping and payment processing",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "Account Management",
+      "capabilities": [
+        {
+          "id": 7,
+          "name": "Account Listing",
+          "description": "Retrieve list of accounts at a bank that a user has access to with various detail levels",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 8,
+          "name": "Account Details Retrieval",
+          "description": "Get detailed information about a specific account including balance and metadata",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 9,
+          "name": "Account Creation",
+          "description": "Create new bank accounts with specified parameters and ownership",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 10,
+          "name": "Account Label Update",
+          "description": "Update the display label for a bank account",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 11,
+          "name": "Account Balance Retrieval",
+          "description": "Get current balance information for accounts",
+          "frequency": "Real-time",
+          "volume": "Very High"
+        },
+        {
+          "id": 12,
+          "name": "Account Routing Lookup",
+          "description": "Find accounts by routing information such as IBAN or account number",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 13,
+          "name": "Account Attribute Management",
+          "description": "Manage custom attributes associated with accounts",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 14,
+          "name": "Firehose Account Access",
+          "description": "Bulk access to all accounts at a bank for authorized applications",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 15,
+          "name": "Account Balance Management",
+          "description": "Create, update, and delete account balance records",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        }
+      ]
+    },
+    {
+      "category": "Transaction Management",
+      "capabilities": [
+        {
+          "id": 16,
+          "name": "Transaction Listing",
+          "description": "Retrieve transaction history for accounts with filtering and pagination",
+          "frequency": "Real-time",
+          "volume": "Very High"
+        },
+        {
+          "id": 17,
+          "name": "Transaction Details",
+          "description": "Get detailed information about a specific transaction",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 18,
+          "name": "Double-Entry Transaction Retrieval",
+          "description": "View double-entry bookkeeping transactions showing debit and credit sides",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 19,
+          "name": "Balancing Transaction Retrieval",
+          "description": "Get the balancing transaction for a given transaction",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 20,
+          "name": "Transaction Tagging",
+          "description": "Add, retrieve, and delete tags on transactions for categorization",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 21,
+          "name": "Transaction Attribute Management",
+          "description": "Manage custom attributes associated with transactions",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        }
+      ]
+    },
+    {
+      "category": "Payment Initiation",
+      "capabilities": [
+        {
+          "id": 22,
+          "name": "SEPA Credit Transfer Initiation",
+          "description": "Initiate SEPA credit transfer payments between accounts",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 23,
+          "name": "Account-to-Account Transfer",
+          "description": "Initiate transfers between accounts within the platform",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 24,
+          "name": "Counterparty Payment",
+          "description": "Initiate payments to registered counterparties",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 25,
+          "name": "Card Payment Processing",
+          "description": "Process card-based payment transactions",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 26,
+          "name": "Refund Processing",
+          "description": "Process refund transactions for previous payments",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 27,
+          "name": "Free-Form Payment",
+          "description": "Initiate payments with flexible parameters",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 28,
+          "name": "Simple Payment",
+          "description": "Initiate basic payment transactions with minimal parameters",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 29,
+          "name": "Agent Cash Withdrawal",
+          "description": "Process cash withdrawal requests through agents",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 30,
+          "name": "Periodic Payment Initiation",
+          "description": "Set up recurring/periodic payment schedules",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 31,
+          "name": "Bulk Payment Initiation",
+          "description": "Initiate multiple payments in a single batch",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 32,
+          "name": "Payment Cancellation",
+          "description": "Cancel pending payment transactions",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 33,
+          "name": "Transaction Request Status",
+          "description": "Check the status of payment/transaction requests",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 34,
+          "name": "Challenge Response",
+          "description": "Answer security challenges for payment authorization",
+          "frequency": "Real-time",
+          "volume": "High"
+        }
+      ]
+    },
+    {
+      "category": "Direct Debit & Standing Orders",
+      "capabilities": [
+        {
+          "id": 35,
+          "name": "Direct Debit Creation",
+          "description": "Create direct debit mandates for recurring collections",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 36,
+          "name": "Direct Debit Management",
+          "description": "Manage and administer direct debit arrangements",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 37,
+          "name": "Standing Order Creation",
+          "description": "Create standing orders for recurring payments",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 38,
+          "name": "Standing Order Management",
+          "description": "Manage and administer standing order arrangements",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "Customer Management",
+      "capabilities": [
+        {
+          "id": 39,
+          "name": "Customer Creation",
+          "description": "Create new customer records with personal and contact information",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 40,
+          "name": "Customer Retrieval",
+          "description": "Retrieve customer information by various identifiers",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 41,
+          "name": "Customer Search",
+          "description": "Search for customers by phone number, legal name, or other criteria",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 42,
+          "name": "Customer Attribute Management",
+          "description": "Manage custom attributes associated with customers",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 43,
+          "name": "Customer Address Management",
+          "description": "Manage customer address information",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 44,
+          "name": "Customer Messages",
+          "description": "Send and retrieve messages to/from customers",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 45,
+          "name": "Customer-Account Linking",
+          "description": "Link customers to bank accounts",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        }
+      ]
+    },
+    {
+      "category": "KYC (Know Your Customer)",
+      "capabilities": [
+        {
+          "id": 46,
+          "name": "KYC Status Management",
+          "description": "Manage customer KYC verification status",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 47,
+          "name": "KYC Document Management",
+          "description": "Store and manage KYC-related documents",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 48,
+          "name": "KYC Check Management",
+          "description": "Record and manage KYC verification checks",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 49,
+          "name": "KYC Media Management",
+          "description": "Manage media files related to KYC processes",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "Counterparty Management",
+      "capabilities": [
+        {
+          "id": 50,
+          "name": "Counterparty Creation",
+          "description": "Create counterparty records for payment recipients",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 51,
+          "name": "Counterparty Retrieval",
+          "description": "Retrieve counterparty information by ID or name",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 52,
+          "name": "Counterparty Deletion",
+          "description": "Remove counterparty records",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 53,
+          "name": "Counterparty Limit Management",
+          "description": "Set and manage transaction limits for counterparties",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "User & Access Management",
+      "capabilities": [
+        {
+          "id": 54,
+          "name": "User Creation",
+          "description": "Create new user accounts with specified roles",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 55,
+          "name": "User Retrieval",
+          "description": "Retrieve user information by ID, username, or email",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 56,
+          "name": "User Listing",
+          "description": "List all users with filtering and pagination",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 57,
+          "name": "User Deletion",
+          "description": "Remove user accounts from the system",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 58,
+          "name": "User Lock/Unlock",
+          "description": "Lock or unlock user accounts for security purposes",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 59,
+          "name": "User Invitation",
+          "description": "Send invitations for new users to join the platform",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 60,
+          "name": "User Attribute Management",
+          "description": "Manage custom attributes associated with users",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 61,
+          "name": "Current User Information",
+          "description": "Retrieve information about the currently authenticated user",
+          "frequency": "Real-time",
+          "volume": "Very High"
+        }
+      ]
+    },
+    {
+      "category": "View & Permission Management",
+      "capabilities": [
+        {
+          "id": 62,
+          "name": "View Creation",
+          "description": "Create custom views defining data access permissions",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 63,
+          "name": "View Retrieval",
+          "description": "Retrieve view definitions and permissions",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 64,
+          "name": "View Update",
+          "description": "Modify view permissions and configurations",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 65,
+          "name": "View Deletion",
+          "description": "Remove custom views",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 66,
+          "name": "System View Management",
+          "description": "Manage predefined system views",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 67,
+          "name": "View Access Grant",
+          "description": "Grant user access to specific views on accounts",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 68,
+          "name": "View Access Revocation",
+          "description": "Revoke user access to views",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        }
+      ]
+    },
+    {
+      "category": "Entitlement & Role Management",
+      "capabilities": [
+        {
+          "id": 69,
+          "name": "Entitlement Listing",
+          "description": "List entitlements for users",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 70,
+          "name": "Entitlement Creation",
+          "description": "Grant entitlements/roles to users",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 71,
+          "name": "Entitlement Deletion",
+          "description": "Remove entitlements from users",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 72,
+          "name": "Scope Management",
+          "description": "Manage OAuth scopes for API access control",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 73,
+          "name": "Entitlement Request Management",
+          "description": "Process requests for new entitlements",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "Consent Management",
+      "capabilities": [
+        {
+          "id": 74,
+          "name": "Consent Creation",
+          "description": "Create consent records for account access authorization",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 75,
+          "name": "Consent Retrieval",
+          "description": "Retrieve consent information and status",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 76,
+          "name": "Consent Revocation",
+          "description": "Revoke previously granted consents",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 77,
+          "name": "Consent Status Update",
+          "description": "Update the status of consent records",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 78,
+          "name": "Consent Account Access Update",
+          "description": "Modify account access permissions within a consent",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "PSD2 Berlin Group Compliance (Account Information Service - AIS)",
+      "capabilities": [
+        {
+          "id": 79,
+          "name": "Berlin Group Consent Creation",
+          "description": "Create PSD2-compliant consent for account information access",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 80,
+          "name": "Berlin Group Consent Deletion",
+          "description": "Delete/revoke Berlin Group consents",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 81,
+          "name": "Berlin Group Account List",
+          "description": "Retrieve account list per Berlin Group specification",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 82,
+          "name": "Berlin Group Balance Retrieval",
+          "description": "Get account balances per Berlin Group specification",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 83,
+          "name": "Berlin Group Transaction List",
+          "description": "Retrieve transactions per Berlin Group specification",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 84,
+          "name": "Berlin Group Consent Status",
+          "description": "Check consent status per Berlin Group specification",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 85,
+          "name": "Berlin Group Consent Authorisation",
+          "description": "Manage consent authorisation sub-resources",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 86,
+          "name": "Berlin Group Card Account Access",
+          "description": "Access card account information per Berlin Group specification",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        }
+      ]
+    },
+    {
+      "category": "PSD2 Berlin Group Compliance (Payment Initiation Service - PIS)",
+      "capabilities": [
+        {
+          "id": 87,
+          "name": "Berlin Group Payment Initiation",
+          "description": "Initiate payments per Berlin Group specification",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 88,
+          "name": "Berlin Group Periodic Payment",
+          "description": "Initiate periodic payments per Berlin Group specification",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 89,
+          "name": "Berlin Group Bulk Payment",
+          "description": "Initiate bulk payments per Berlin Group specification",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 90,
+          "name": "Berlin Group Payment Status",
+          "description": "Check payment status per Berlin Group specification",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 91,
+          "name": "Berlin Group Payment Cancellation",
+          "description": "Cancel payments per Berlin Group specification",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 92,
+          "name": "Berlin Group Payment Authorisation",
+          "description": "Manage payment authorisation sub-resources",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 93,
+          "name": "Berlin Group SCA Status",
+          "description": "Check Strong Customer Authentication status",
+          "frequency": "Real-time",
+          "volume": "High"
+        }
+      ]
+    },
+    {
+      "category": "PSD2 Berlin Group Compliance (Confirmation of Funds - PIIS)",
+      "capabilities": [
+        {
+          "id": 94,
+          "name": "Funds Availability Check",
+          "description": "Check if sufficient funds are available for a transaction",
+          "frequency": "Real-time",
+          "volume": "High"
+        }
+      ]
+    },
+    {
+      "category": "PSD2 Berlin Group Compliance (Signing Baskets)",
+      "capabilities": [
+        {
+          "id": 95,
+          "name": "Signing Basket Creation",
+          "description": "Create signing baskets for batch authorisation",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 96,
+          "name": "Signing Basket Retrieval",
+          "description": "Retrieve signing basket information",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 97,
+          "name": "Signing Basket Deletion",
+          "description": "Delete signing baskets",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 98,
+          "name": "Signing Basket Authorisation",
+          "description": "Authorise signing baskets with SCA",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 99,
+          "name": "Signing Basket Status",
+          "description": "Check signing basket status",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        }
+      ]
+    },
+    {
+      "category": "Product & Service Catalog",
+      "capabilities": [
+        {
+          "id": 100,
+          "name": "Product Creation",
+          "description": "Create banking product definitions",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 101,
+          "name": "Product Retrieval",
+          "description": "Retrieve product information and details",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 102,
+          "name": "Product Tree Retrieval",
+          "description": "Get hierarchical product structure",
+          "frequency": "Real-time",
+          "volume": "Low"
+        },
+        {
+          "id": 103,
+          "name": "Product Collection Management",
+          "description": "Manage collections of related products",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 104,
+          "name": "Product Attribute Management",
+          "description": "Manage custom attributes for products",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 105,
+          "name": "Product Fee Management",
+          "description": "Define and manage fees associated with products",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "Card Management",
+      "capabilities": [
+        {
+          "id": 106,
+          "name": "Card Creation",
+          "description": "Create new card records for accounts",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 107,
+          "name": "Card Update",
+          "description": "Update card information and status",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 108,
+          "name": "Card Deletion",
+          "description": "Remove card records",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 109,
+          "name": "Card Attribute Management",
+          "description": "Manage custom attributes for cards",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "Consumer/Application Management",
+      "capabilities": [
+        {
+          "id": 110,
+          "name": "Consumer Registration",
+          "description": "Register new API consumer applications",
+          "frequency": "On-demand",
+          "volume": "Medium"
+        },
+        {
+          "id": 111,
+          "name": "Consumer Retrieval",
+          "description": "Retrieve consumer application information",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 112,
+          "name": "Consumer Update",
+          "description": "Update consumer application details",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 113,
+          "name": "Consumer Enable/Disable",
+          "description": "Activate or deactivate consumer applications",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 114,
+          "name": "Consumer Rate Limiting",
+          "description": "Set API call limits for consumer applications",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 115,
+          "name": "Consumer Certificate Management",
+          "description": "Manage client certificates for mTLS authentication",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "Authentication & Security",
+      "capabilities": [
+        {
+          "id": 116,
+          "name": "OAuth 1.0a Authentication",
+          "description": "Authenticate users via OAuth 1.0a protocol",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 117,
+          "name": "OAuth 2.0 / OpenID Connect",
+          "description": "Authenticate users via OAuth 2.0 and OIDC",
+          "frequency": "Real-time",
+          "volume": "Very High"
+        },
+        {
+          "id": 118,
+          "name": "Direct Login",
+          "description": "Authenticate users with direct credentials",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 119,
+          "name": "Gateway Login",
+          "description": "Authenticate via external gateway systems",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 120,
+          "name": "Logout",
+          "description": "Terminate user sessions",
+          "frequency": "On-demand",
+          "volume": "High"
+        },
+        {
+          "id": 121,
+          "name": "Challenge Creation",
+          "description": "Create security challenges for transaction authorisation",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 122,
+          "name": "Challenge Validation",
+          "description": "Validate challenge responses for SCA",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 123,
+          "name": "mTLS Certificate Information",
+          "description": "Retrieve client certificate information for mTLS",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 124,
+          "name": "Authentication Type Validation",
+          "description": "Validate authentication methods for endpoints",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 125,
+          "name": "JSON Schema Validation",
+          "description": "Validate request payloads against JSON schemas",
+          "frequency": "Real-time",
+          "volume": "High"
+        }
+      ]
+    },
+    {
+      "category": "Dynamic Configuration",
+      "capabilities": [
+        {
+          "id": 126,
+          "name": "Dynamic Entity Management",
+          "description": "Create, update, and delete runtime-defined data entities",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 127,
+          "name": "Dynamic Endpoint Management",
+          "description": "Create, update, and delete runtime-defined API endpoints",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 128,
+          "name": "Dynamic Resource Documentation",
+          "description": "Manage documentation for dynamic resources",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 129,
+          "name": "Dynamic Message Documentation",
+          "description": "Manage connector message documentation",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 130,
+          "name": "Endpoint Mapping Management",
+          "description": "Configure endpoint routing and mapping",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 131,
+          "name": "Endpoint Tag Management",
+          "description": "Manage tags for API endpoints",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 132,
+          "name": "Method Routing Configuration",
+          "description": "Configure connector method routing rules",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 133,
+          "name": "Connector Method Management",
+          "description": "Manage custom connector methods",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 134,
+          "name": "Web UI Properties Management",
+          "description": "Configure web interface properties",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "API Collections & Documentation",
+      "capabilities": [
+        {
+          "id": 135,
+          "name": "API Collection Creation",
+          "description": "Create collections of API endpoints",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 136,
+          "name": "API Collection Retrieval",
+          "description": "Retrieve API collection information",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 137,
+          "name": "API Collection Endpoint Management",
+          "description": "Add and remove endpoints from collections",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 138,
+          "name": "Featured Collections",
+          "description": "Retrieve featured/highlighted API collections",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 139,
+          "name": "Resource Documentation",
+          "description": "Generate and retrieve API documentation",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 140,
+          "name": "Swagger/OpenAPI Generation",
+          "description": "Generate OpenAPI specifications for APIs",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 141,
+          "name": "Message Documentation",
+          "description": "Retrieve connector message documentation",
+          "frequency": "Real-time",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "Metrics & Monitoring",
+      "capabilities": [
+        {
+          "id": 142,
+          "name": "API Metrics Collection",
+          "description": "Collect metrics on API usage and performance",
+          "frequency": "Real-time",
+          "volume": "Very High"
+        },
+        {
+          "id": 143,
+          "name": "Aggregate Metrics Retrieval",
+          "description": "Retrieve aggregated API usage statistics",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 144,
+          "name": "Detailed Metrics Retrieval",
+          "description": "Retrieve detailed API call metrics",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 145,
+          "name": "Rate Limiting Information",
+          "description": "Retrieve rate limiting status and configuration",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        }
+      ]
+    },
+    {
+      "category": "Scheduled Background Tasks",
+      "capabilities": [
+        {
+          "id": 146,
+          "name": "Consent Expiration Processing",
+          "description": "Automatically expire outdated and invalid consents",
+          "frequency": "Scheduled (Periodic)",
+          "volume": "Medium"
+        },
+        {
+          "id": 147,
+          "name": "Berlin Group Consent Cleanup",
+          "description": "Process unfinished Berlin Group consents",
+          "frequency": "Scheduled (Periodic)",
+          "volume": "Medium"
+        },
+        {
+          "id": 148,
+          "name": "Metrics Archival",
+          "description": "Archive old metrics data to maintain performance",
+          "frequency": "Scheduled (Daily)",
+          "volume": "High"
+        },
+        {
+          "id": 149,
+          "name": "Database Maintenance",
+          "description": "Perform database cleanup and maintenance tasks",
+          "frequency": "Scheduled (Periodic)",
+          "volume": "Low"
+        },
+        {
+          "id": 150,
+          "name": "Transaction Processing",
+          "description": "Process pending transactions in background",
+          "frequency": "Scheduled (Periodic)",
+          "volume": "Medium"
+        }
+      ]
+    },
+    {
+      "category": "Webhook & Notification",
+      "capabilities": [
+        {
+          "id": 151,
+          "name": "Account Webhook Management",
+          "description": "Configure webhooks for account events",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 152,
+          "name": "Bank Account Notification",
+          "description": "Send notifications for bank account events",
+          "frequency": "Event-driven",
+          "volume": "High"
+        },
+        {
+          "id": 153,
+          "name": "System Account Notification",
+          "description": "Send system-level account notifications",
+          "frequency": "Event-driven",
+          "volume": "Medium"
+        }
+      ]
+    },
+    {
+      "category": "Foreign Exchange",
+      "capabilities": [
+        {
+          "id": 154,
+          "name": "FX Rate Management",
+          "description": "Create and manage foreign exchange rates",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 155,
+          "name": "Currency Conversion",
+          "description": "Convert amounts between currencies",
+          "frequency": "Real-time",
+          "volume": "High"
+        }
+      ]
+    },
+    {
+      "category": "Regulatory & Compliance",
+      "capabilities": [
+        {
+          "id": 156,
+          "name": "Regulated Entity Management",
+          "description": "Manage regulated entity registrations",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 157,
+          "name": "Regulated Entity Attribute Management",
+          "description": "Manage attributes for regulated entities",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 158,
+          "name": "Tax Residence Management",
+          "description": "Manage customer tax residence information",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "CRM & Meetings",
+      "capabilities": [
+        {
+          "id": 159,
+          "name": "Meeting Creation",
+          "description": "Schedule meetings between bank staff and customers",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 160,
+          "name": "Meeting Retrieval",
+          "description": "Retrieve meeting information",
+          "frequency": "Real-time",
+          "volume": "Low"
+        },
+        {
+          "id": 161,
+          "name": "CRM Event Management",
+          "description": "Manage customer relationship events",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "System Administration",
+      "capabilities": [
+        {
+          "id": 162,
+          "name": "Database Information",
+          "description": "Retrieve database configuration and status",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 163,
+          "name": "Adapter Information",
+          "description": "Retrieve backend adapter configuration",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 164,
+          "name": "System Configuration",
+          "description": "Retrieve and manage system configuration",
+          "frequency": "On-demand",
+          "volume": "Low"
+        },
+        {
+          "id": 165,
+          "name": "API Version Information",
+          "description": "Retrieve available API versions",
+          "frequency": "Real-time",
+          "volume": "Medium"
+        },
+        {
+          "id": 166,
+          "name": "Health Check",
+          "description": "Check system health and connectivity",
+          "frequency": "Real-time",
+          "volume": "High"
+        },
+        {
+          "id": 167,
+          "name": "Call Context Retrieval",
+          "description": "Retrieve request context information for debugging",
+          "frequency": "On-demand",
+          "volume": "Low"
+        }
+      ]
+    },
+    {
+      "category": "IBAN Validation",
+      "capabilities": [
+        {
+          "id": 168,
+          "name": "IBAN Validation",
+          "description": "Validate and check IBAN numbers for correctness",
+          "frequency": "Real-time",
+          "volume": "High"
+        }
+      ]
+    }
+  ]
+}
