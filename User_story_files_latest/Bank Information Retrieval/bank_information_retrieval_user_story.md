@@ -48,21 +48,25 @@ Based on the capability description, the following operation verbs are identifie
 
 ## Technical Context
 
-- **Classes/Services Involved**: 
-  - Bank service/controller handling bank information queries
-  - Bank repository/data access layer for retrieving bank records
-  - Response serialization for JSON output formatting
+- **Classes/Services Involved** (from Scala source code):
+  - `APIMethods400` (code.api.v4_0_0.APIMethods400) - REST endpoint definitions for bank retrieval
+  - `JSONFactory400` (code.api.v4_0_0.JSONFactory4.0.0) - JSON response factory with `createBanksJson()` and `createBankJSON400()` methods
+  - `NewStyle.function` (code.api.util.NewStyle) - Service layer with `getBanks()` and `getBank()` methods
+  - `Connector` (code.bankconnectors.Connector) - Backend connector abstraction for bank data access
+  - `BankJson400` / `BanksJson400` - Case classes defining response structure
 
 - **Input Data**: 
-  - For list retrieval: No required parameters (optional filtering/pagination parameters may be supported)
-  - For specific bank retrieval: Bank identifier (bank_id) as path parameter
+  - For list retrieval (`GET /banks`): No required parameters
+  - For specific bank retrieval (`GET /banks/BANK_ID`): Bank identifier (BANK_ID) as path parameter
 
-- **Output Data**: 
-  - Bank identifier (string/UUID) - unique identification
-  - Bank name (string) - display name of the bank
-  - Bank logo (URL string) - reference to bank's logo image
-  - Bank website (URL string) - bank's official website
-  - Additional metadata as applicable (e.g., short name, full name)
+- **Output Data** (based on `BankJson400` case class):
+  - `id` (String) - Unique bank identifier
+  - `short_name` (String) - Short display name of the bank
+  - `full_name` (String) - Full legal name of the bank
+  - `logo` (String) - URL reference to bank's logo image
+  - `website` (String) - Bank's official website URL
+  - `bank_routings` (List[BankRoutingJsonV121]) - Bank routing information (OBP, BIC, etc.)
+  - `attributes` (Option[List[BankAttributeBankResponseJsonV400]]) - Optional custom bank attributes (only for single bank retrieval)
 
 - **Processing Type**: API / Real-time / Synchronous request-response
 
@@ -74,17 +78,18 @@ Based on the capability description, the following operation verbs are identifie
 
 ### Endpoint 1: Get All Banks
 
-- **Endpoint**: `GET /banks`
+- **Endpoint**: `GET /obp/v4.0.0/banks`
   - **Justification (from description)**: "Retrieve information about banks supported on the platform"
   - **Purpose**: Retrieve a list of all banks available on the platform with their basic information including identifiers, names, logos, and websites
+  - **Scala Implementation**: `APIMethods400.getBanks` -> `NewStyle.function.getBanks()` -> `JSONFactory400.createBanksJson()`
   - **Request**: 
     ```
-    GET /banks
+    GET /obp/v4.0.0/banks
     Headers:
-      Authorization: Bearer {token}
+      Authorization: Bearer {token} (or DirectLogin token)
       Content-Type: application/json
     ```
-  - **Response**: 
+  - **Response** (based on `BanksJson400` case class): 
     ```json
     {
       "banks": [
@@ -93,14 +98,24 @@ Based on the capability description, the following operation verbs are identifie
           "short_name": "Example Bank",
           "full_name": "Example Bank Corporation",
           "logo": "https://example.com/logo.png",
-          "website": "https://www.examplebank.com"
+          "website": "https://www.examplebank.com",
+          "bank_routings": [
+            {"scheme": "OBP", "address": "bank-id-001"},
+            {"scheme": "BIC", "address": "EXBKUS33XXX"}
+          ],
+          "attributes": null
         },
         {
           "id": "bank-id-002",
           "short_name": "Sample Bank",
           "full_name": "Sample Bank International",
           "logo": "https://samplebank.com/logo.png",
-          "website": "https://www.samplebank.com"
+          "website": "https://www.samplebank.com",
+          "bank_routings": [
+            {"scheme": "OBP", "address": "bank-id-002"},
+            {"scheme": "BIC", "address": "SMBKGB2LXXX"}
+          ],
+          "attributes": null
         }
       ]
     }
@@ -108,26 +123,35 @@ Based on the capability description, the following operation verbs are identifie
 
 ### Endpoint 2: Get Bank by ID
 
-- **Endpoint**: `GET /banks/{bank_id}`
+- **Endpoint**: `GET /obp/v4.0.0/banks/BANK_ID`
   - **Justification (from description)**: "Retrieve information about banks" combined with "including identifiers" - supports retrieval of specific bank details by its unique identifier
-  - **Purpose**: Retrieve detailed information about a specific bank using its unique identifier
+  - **Purpose**: Retrieve detailed information about a specific bank using its unique identifier, including bank attributes
+  - **Scala Implementation**: `APIMethods400.getBank` -> `NewStyle.function.getBank()` + `NewStyle.function.getBankAttributesByBank()` -> `JSONFactory400.createBankJSON400()`
   - **Request**: 
     ```
-    GET /banks/{bank_id}
+    GET /obp/v4.0.0/banks/BANK_ID
     Headers:
-      Authorization: Bearer {token}
+      Authorization: Bearer {token} (or DirectLogin token)
       Content-Type: application/json
     Path Parameters:
-      bank_id: The unique identifier of the bank (required)
+      BANK_ID: The unique identifier of the bank (required)
     ```
-  - **Response**: 
+  - **Response** (based on `BankJson400` case class): 
     ```json
     {
       "id": "bank-id-001",
       "short_name": "Example Bank",
       "full_name": "Example Bank Corporation",
       "logo": "https://example.com/logo.png",
-      "website": "https://www.examplebank.com"
+      "website": "https://www.examplebank.com",
+      "bank_routings": [
+        {"scheme": "OBP", "address": "bank-id-001"},
+        {"scheme": "BIC", "address": "EXBKUS33XXX"}
+      ],
+      "attributes": [
+        {"name": "COUNTRY", "value": "US"},
+        {"name": "CURRENCY", "value": "USD"}
+      ]
     }
     ```
 
@@ -156,13 +180,16 @@ Based on the capability description, the following operation verbs are identifie
 
 ## Data Validations (if applicable)
 
-- Bank identifier (bank_id) must be valid and exist in the system when retrieving a specific bank
-- Response data must include all required fields: id, name, logo, website
+- Bank identifier (BANK_ID) must be valid and exist in the system when retrieving a specific bank
+- Response data must include all required fields: `id`, `short_name`, `full_name`, `logo`, `website`, `bank_routings`
 - Logo URLs must be valid, properly formatted URLs pointing to accessible image resources
 - Website URLs must be properly formatted and valid HTTP/HTTPS URLs
-- Error response (HTTP 404 Not Found) must be returned when bank_id does not exist
-- Error response (HTTP 400 Bad Request) for malformed bank_id parameter
+- `bank_routings` must contain valid routing schemes (OBP, BIC, etc.) with non-null addresses
+- `attributes` field is optional and only populated for single bank retrieval when active attributes exist
+- Error response (HTTP 404 Not Found / `BankNotFound`) must be returned when BANK_ID does not exist
+- Error response (HTTP 400 Bad Request) for malformed BANK_ID parameter
 - All string fields must be properly encoded (UTF-8)
+- Null values are handled via `stringOrNull()` utility function in JSONFactory
 
 ---
 
