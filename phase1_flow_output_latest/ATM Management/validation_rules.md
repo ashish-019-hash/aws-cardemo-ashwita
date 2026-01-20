@@ -7,13 +7,14 @@
 
 ## Summary
 
-Total Validation Rules Extracted: 12
+Total Validation Rules Extracted: 17
 
 ### Validation Categories
 - Input Validation Rules: 4
-- Format Validation Rules: 4
+- Format Validation Rules: 8
 - Business Constraint Rules: 3
-- Length/Boundary Rules: 1
+- Enumeration Validation Rules: 2
+- Length/Boundary Rules: 0
 - Cross-Field Validation Rules: 0
 
 ---
@@ -456,6 +457,185 @@ This validation supports the acceptance criteria for update and delete operation
 
 ---
 
+### Rule VR-013: Country Code Format Validation
+
+**Field/Entity:** address.country_code
+
+**Validation Type:** Format Validation (ISO Code)
+
+**Rule Description:**
+The country code in the ATM address must be a valid ISO 3166-1 alpha-2 two-letter country code to ensure standardized country identification.
+
+**Validation Logic:**
+
+- **Condition:** When address with country_code is provided in the ATM record
+- **Check:** Validate that the country_code is a valid ISO 3166-1 alpha-2 code
+- **Valid Criteria:** Country code is a valid two-letter ISO 3166-1 alpha-2 code (e.g., "DE", "US", "GB", "FR")
+- **Invalid Criteria:** Country code is not a valid ISO 3166-1 code, is empty, or has incorrect format
+- **Action on Success:** Accept the country code and store in ATM address record
+- **Action on Failure:** Return error response indicating invalid country code
+
+**Error Handling:**
+
+- **Error Message:** `OBP-30013: Invalid country code. Address country code must be a valid ISO 3166-1 alpha-2 code.`
+- **Error Code:** `OBP-30013`
+- **HTTP Status Code:** `400 Bad Request`
+
+**Related Entities:**
+- ATM (primary entity)
+- Address object (nested entity)
+
+**User Story Context:**
+This validation ensures that ATM addresses use standardized country codes for proper geographic identification and integration with mapping services as mentioned in the user story's address structure.
+
+**Dependencies:**
+- None (standalone validation)
+
+---
+
+### Rule VR-014: Accessibility Features Validation
+
+**Field/Entity:** accessibility_features[]
+
+**Validation Type:** Enumeration Validation
+
+**Rule Description:**
+Each accessibility feature in the accessibility_features array must be a valid predefined accessibility feature code to ensure consistent documentation of ATM accessibility capabilities.
+
+**Validation Logic:**
+
+- **Condition:** When accessibility_features array is provided in the ATM record
+- **Check:** Validate that each element in the array is a valid accessibility feature code
+- **Valid Criteria:** Each accessibility feature is one of the predefined values: "WHEELCHAIR_ACCESS", "AUDIO_GUIDANCE", "BRAILLE_KEYPAD", "LARGE_PRINT", "HEARING_LOOP", "LOW_COUNTER"
+- **Invalid Criteria:** Accessibility feature is not a recognized code or is empty
+- **Action on Success:** Accept the accessibility features and store in ATM record
+- **Action on Failure:** Return error response indicating invalid accessibility feature
+
+**Error Handling:**
+
+- **Error Message:** `OBP-30014: Invalid accessibility feature. Accessibility features must be valid predefined codes.`
+- **Error Code:** `OBP-30014`
+- **HTTP Status Code:** `400 Bad Request`
+
+**Related Entities:**
+- ATM (primary entity)
+- Accessibility features array
+
+**User Story Context:**
+This validation supports the acceptance criteria: "Accessibility features shall be documented per ATM (e.g., wheelchair access, audio guidance, braille keypad)" and the business rule: "Accessibility features must be documented to comply with accessibility regulations and customer information requirements."
+
+**Dependencies:**
+- None (standalone validation)
+
+---
+
+### Rule VR-015: Services Validation
+
+**Field/Entity:** services[]
+
+**Validation Type:** Enumeration Validation
+
+**Rule Description:**
+Each service in the services array must be a valid predefined ATM service code to ensure consistent documentation of ATM capabilities.
+
+**Validation Logic:**
+
+- **Condition:** When services array is provided in the ATM record
+- **Check:** Validate that each element in the array is a valid ATM service code
+- **Valid Criteria:** Each service is one of the predefined values: "CASH_WITHDRAWAL", "BALANCE_INQUIRY", "DEPOSIT", "TRANSFER", "BILL_PAYMENT", "MINI_STATEMENT", "PIN_CHANGE"
+- **Invalid Criteria:** Service is not a recognized code or is empty
+- **Action on Success:** Accept the services and store in ATM record
+- **Action on Failure:** Return error response indicating invalid service
+
+**Error Handling:**
+
+- **Error Message:** `OBP-30015: Invalid service. Services must be valid predefined ATM service codes.`
+- **Error Code:** `OBP-30015`
+- **HTTP Status Code:** `400 Bad Request`
+
+**Related Entities:**
+- ATM (primary entity)
+- Services array
+
+**User Story Context:**
+This validation ensures that ATM services are documented using standardized codes as shown in the user story request example with services like "CASH_WITHDRAWAL", "BALANCE_INQUIRY", and "DEPOSIT".
+
+**Dependencies:**
+- None (standalone validation)
+
+---
+
+### Rule VR-016: Fee Amount Format Validation
+
+**Field/Entity:** cash_withdrawal_national_fee, cash_withdrawal_international_fee, balance_inquiry_fee
+
+**Validation Type:** Format Validation (Numeric)
+
+**Rule Description:**
+Fee amounts must be valid non-negative decimal numbers representing currency amounts to ensure proper fee documentation and transparency.
+
+**Validation Logic:**
+
+- **Condition:** When fee fields are provided in the ATM record
+- **Check:** Validate that fee values are valid non-negative decimal numbers
+- **Valid Criteria:** Fee value is a non-negative decimal number with up to 2 decimal places (e.g., "0.00", "2.50", "5.00")
+- **Invalid Criteria:** Fee value is negative, not a valid number, or has more than 2 decimal places
+- **Action on Success:** Accept the fee values and store in ATM record
+- **Action on Failure:** Return error response indicating invalid fee format
+
+**Error Handling:**
+
+- **Error Message:** `OBP-30016: Invalid fee format. Fee amounts must be non-negative decimal numbers with up to 2 decimal places.`
+- **Error Code:** `OBP-30016`
+- **HTTP Status Code:** `400 Bad Request`
+
+**Related Entities:**
+- ATM (primary entity)
+- Fee fields
+
+**User Story Context:**
+This validation supports the business rule: "Fee information for withdrawals and inquiries should be transparent" and ensures proper documentation of ATM fees as shown in the user story request example.
+
+**Dependencies:**
+- None (standalone validation)
+
+---
+
+### Rule VR-017: Minimum Withdrawal Amount Validation
+
+**Field/Entity:** minimum_withdrawal
+
+**Validation Type:** Format Validation (Numeric)
+
+**Rule Description:**
+Minimum withdrawal amount must be a valid positive decimal number representing the minimum cash amount that can be withdrawn from the ATM.
+
+**Validation Logic:**
+
+- **Condition:** When minimum_withdrawal field is provided in the ATM record
+- **Check:** Validate that minimum_withdrawal is a valid positive decimal number
+- **Valid Criteria:** Minimum withdrawal value is a positive decimal number (e.g., "10", "20.00", "50")
+- **Invalid Criteria:** Minimum withdrawal value is zero, negative, or not a valid number
+- **Action on Success:** Accept the minimum withdrawal value and store in ATM record
+- **Action on Failure:** Return error response indicating invalid minimum withdrawal format
+
+**Error Handling:**
+
+- **Error Message:** `OBP-30017: Invalid minimum withdrawal amount. Value must be a positive decimal number.`
+- **Error Code:** `OBP-30017`
+- **HTTP Status Code:** `400 Bad Request`
+
+**Related Entities:**
+- ATM (primary entity)
+
+**User Story Context:**
+This validation ensures proper documentation of ATM withdrawal limits as shown in the user story request example with minimum_withdrawal field.
+
+**Dependencies:**
+- None (standalone validation)
+
+---
+
 ## Validation Rule Summary Table
 
 | Rule ID | Field/Entity | Validation Type | Error Code | HTTP Status |
@@ -472,6 +652,11 @@ This validation supports the acceptance criteria for update and delete operation
 | VR-010 | bank_id | Entity Existence | OBP-30010 | 404 |
 | VR-011 | id (ATM ID) | Uniqueness | OBP-30011 | 409 |
 | VR-012 | ATM_ID (path) | Entity Existence | OBP-30012 | 404 |
+| VR-013 | address.country_code | Format (ISO 3166-1) | OBP-30013 | 400 |
+| VR-014 | accessibility_features[] | Enumeration | OBP-30014 | 400 |
+| VR-015 | services[] | Enumeration | OBP-30015 | 400 |
+| VR-016 | fee amounts | Format (Numeric) | OBP-30016 | 400 |
+| VR-017 | minimum_withdrawal | Format (Numeric) | OBP-30017 | 400 |
 
 ---
 
@@ -481,4 +666,4 @@ This validation supports the acceptance criteria for update and delete operation
 - Error codes follow the OBP-XXXXX format convention for consistency with the existing system.
 - HTTP status codes follow REST API best practices: 400 for client input errors, 404 for not found, 409 for conflicts.
 - Authorization validations (user entitlements/permissions) are handled separately by the authentication/authorization layer and are not included in this document.
-- Additional validations for accessibility features and services may be needed based on SME input as noted in the user story.
+- The list of valid accessibility features and services may be extended based on SME input as noted in the user story implementation notes.
