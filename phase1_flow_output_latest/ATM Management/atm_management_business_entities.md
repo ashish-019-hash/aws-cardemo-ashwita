@@ -13,7 +13,7 @@ The following business entities have been extracted from the user story and veri
 ### 1. MappedAtm (Primary Entity)
 
 **Database Table:** `mappedatm`  
-**Source File:** `code/atms/MappedAtmsProvider.scala`  
+**Source File:** `obp-api/src/main/scala/code/atms/MappedAtmsProvider.scala`  
 **Trait:** `AtmT`
 
 **Description:** The primary entity representing an ATM machine with all its associated information including location, operating hours, supported services, languages, currencies, and accessibility features.
@@ -78,7 +78,7 @@ The following business entities have been extracted from the user story and veri
 ### 2. AtmAttribute (Supporting Entity)
 
 **Database Table:** `atmattribute`  
-**Source File:** `code/atmattribute/MappedAtmAttributeProvider.scala`  
+**Source File:** `obp-api/src/main/scala/code/atmattribute/MappedAtmAttributeProvider.scala`  
 **Trait:** `AtmAttributeTrait`
 
 **Description:** Entity for storing extensible attributes associated with ATMs. Allows adding custom key-value pairs to ATM records for flexibility.
@@ -101,7 +101,7 @@ The following business entities have been extracted from the user story and veri
 ### 3. MappedBank (Referenced Entity)
 
 **Database Table:** `mappedbank`  
-**Source File:** `code/model/dataAccess/MappedBank.scala`  
+**Source File:** `obp-api/src/main/scala/code/model/dataAccess/MappedBank.scala`  
 **Trait:** `Bank`
 
 **Description:** Entity representing a bank. Referenced by ATM entities through the bankId field. ATMs must be associated with a valid bank entity.
