@@ -1,5 +1,8 @@
 # Business Entity Extraction for ATM Management
 
+**Last Verified:** January 20, 2026  
+**Verification Status:** All entities verified against Scala codebase database tables in OBP-API
+
 ## Story Overview
 
 **As a** Bank Administrator or Operations Manager  
