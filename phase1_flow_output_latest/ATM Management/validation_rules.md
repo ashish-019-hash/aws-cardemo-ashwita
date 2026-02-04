@@ -1,21 +1,20 @@
 # Validation Rules
 
-**Extracted From:** ATM Management Capability  
-**User Story:** ATM Management User Story  
-**Analysis Date:** 2026-01-20  
+**Extracted From:** OBP-API Scala Application  
+**User Story:** ATM Management  
+**Analysis Date:** 2026-02-04  
 **Analyst:** Scala Systems Analyst
 
 ## Summary
 
-Total Validation Rules Extracted: 17
+Total Validation Rules Extracted: 18
 
 ### Validation Categories
-- Input Validation Rules: 4
-- Format Validation Rules: 8
-- Business Constraint Rules: 3
-- Enumeration Validation Rules: 2
-- Length/Boundary Rules: 0
-- Cross-Field Validation Rules: 0
+- Input Validation Rules: 6
+- Format Validation Rules: 5
+- Business Constraint Rules: 4
+- Length/Boundary Rules: 2
+- Cross-Field Validation Rules: 1
 
 ---
 
