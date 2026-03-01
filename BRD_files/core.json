@@ -1,0 +1,16 @@
+{
+  "coreCapabilities": [
+    {
+      "category": "Bank and Institution Management",
+      "capabilities": [
+        {
+          "id": 1,
+          "name": "Bank Information Retrieval",
+          "description": "Retrieve information about banks supported on the platform including identifiers, names, logos, and websites",
+          "frequency": "Real-time",
+          "volume": "High"
+        }
+      ]
+    }
+  ]
+}

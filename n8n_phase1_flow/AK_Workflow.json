@@ -1,0 +1,653 @@
+{
+  "name": "AK_Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2672,
+        272
+      ],
+      "id": "0dd5c34e-f156-4633-8cce-ebadbf2bb77d",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "coreCapabilities",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1488,
+        272
+      ],
+      "id": "a450987a-1925-4955-a781-4ade947fe4cc",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "url": "=https://raw.githubusercontent.com/ashish-019-hash/aws-cardemo-ashwita/devin/1762152678-copy-scala-prompt/BRD_files/core.json\n",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1984,
+        272
+      ],
+      "id": "43a3e94f-b967-442c-bbc5-325ffbae1bd2",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "capabilities",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1216,
+        272
+      ],
+      "id": "1a48ebd4-1c2d-449b-a561-db4223be58ae",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -912,
+        272
+      ],
+      "id": "bcb5cb6f-2bb5-485d-bbfa-9c16f7583f1b",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.devin.ai/v1/sessions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "=I am migrating scalar application to Go application. Assume i have another application with its corresponding test cases. Post migration, i will validate the new go based application using the test cases that i have. So consider all the functions with exact endpoints present in scalar application while migrating. Refer the BRD output which is generated in the previous node.  **INPUT - Capability to Process:** - **Name**: {{ $json.name }} - **Description**: {{ $json.description }}  Execute user_story_extraction_prompt_scala.md prompt file on the above capability. Under devin/1762152678-copy-scala-prompt branch @ashish-019-hash/aws-cardemo-ashwita repo's create folder as User_story_files.Under that create separate folder based on {{ $json.name }} name and  save the output."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -784,
+        624
+      ],
+      "id": "1ea2d76d-5f14-4fd2-9cf7-5a581bce0e1a",
+      "name": "Extract user stories",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oe3VcJh1xxsxLPu1",
+          "name": "Bearer Auth account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.devin.ai/v1/sessions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "=I am migrating a Scala application to a Go application. Post migration, I will validate the new Go-based application using existing test cases. Consider all functions with exact endpoints present in the Scala application while migrating.\n\nI have a BRD document with core capability inventories. From that, I took 1 capability and its description and created user stories. Now I need to extract business rules from those user stories.\n\n**INPUT - User Stories from Previous Node:**\n{{ $('HTTP Request').item.json }}\n\n**TASK:**\nUnder devin/1762152678-copy-scala-prompt branch @ashish-019-hash/aws-cardemo-ashwita repo's Playbooks/Phase1_prompts folder there is Business_rule_prompt.md file. Execute Business_rule_prompt.md prompt file on the user story content above.\n\nExtract Business rules which are ONLY relevant to the content present in the user story file.\n\n**OUTPUT:**\nSave the output in the SAME capability folder where the user story was saved. The folder is named based on the capability name ({{ $('Loop Over Items').item.json.name }}). Save the business rules file in that folder under devin/1762152678-copy-scala-prompt branch @ashish-019-hash/aws-cardemo-ashwita/phase1_flow_output repo."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        512,
+        128
+      ],
+      "id": "f96fb42d-ed76-49f1-96fc-a7a0395f2c22",
+      "name": "Extract BR",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oe3VcJh1xxsxLPu1",
+          "name": "Bearer Auth account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.devin.ai/v1/sessions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "=I am migrating a Scala application to a Go application. Post migration, I will validate the new Go-based application using existing test cases. Consider all functions with exact endpoints present in the Scala application while migrating.\n\nI have a BRD document with core capability inventories. From that, I took 1 capability and its description and created user stories. Now I need to extract business entities from those user stories.\n\n**INPUT - User Stories from Previous Node:**\n{{ $('HTTP Request').item.json }}\n\n**TASK:**\nGo through the user story output above. Under devin/1762152678-copy-scala-prompt branch @ashish-019-hash/aws-cardemo-ashwita repo's Playbooks/Phase1_prompts folder, there is Business_Entity_Extraction_Prompt.md file. Execute Business_Entity_Extraction_Prompt.md prompt file on the user story content.\n\n**IMPORTANT - Database Verification:**\nCheck the entity in the database table of the Scala codebase. If present, get me the EXACT entity name present in the database. No irrelevant entities must be added.\n\nExtract Business Entities that are:\n1. Only present in the database of the Scala codebase\n2. Only relevant to the content present in the user story file\n3. Verified against actual database tables - use exact entity names from the database\n\n**OUTPUT:**\nSave the output in the SAME capability folder where the user story was saved. The folder is named based on the capability name ({{ $('Loop Over Items').item.json.name }}). Save the file in that folder under devin/1762152678-copy-scala-prompt branch @ashish-019-hash/aws-cardemo-ashwita/phase1_flow_output repo."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        560,
+        624
+      ],
+      "id": "ff1fab8f-6379-40c4-9fb4-62a254ff5fa2",
+      "name": "Extract entity",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oe3VcJh1xxsxLPu1",
+          "name": "Bearer Auth account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.devin.ai/v1/sessions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "=I am migrating a Scala application to a Go application. Post migration, I will validate the new Go-based application using existing test cases. Consider all functions with exact endpoints present in the Scala application while migrating.\n\nI have a BRD document with core capability inventories. From that, I took 1 capability and its description and created user stories. Now I need to extract validation rules from those user stories.\n\n**INPUT - User Stories from Previous Node:**\n{{ $('HTTP Request').item.json }}\n\n**TASK:**\nGo through the user story output above. Under devin/1762152678-copy-scala-prompt branch @ashish-019-hash/aws-cardemo-ashwita repo's Playbooks/Phase1_prompts folder, there is validation_rules_extraction_prompt.md file. Execute validation_rules_extraction_prompt.md prompt file on the user story content.\n\nExtract Validation Rules that are ONLY relevant to the content present in the user story file.\n\n**OUTPUT:**\nSave the output as validation_rules.md in the SAME capability folder where the user story was saved. The folder is named based on the capability name ({{ $('Loop Over Items').item.json.name }}). Save the file in that folder under devin/1762152678-copy-scala-prompt branch @ashish-019-hash/aws-cardemo-ashwita/phase1_flow_output repo."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        528,
+        368
+      ],
+      "id": "1218d576-e35b-4cfe-9624-e3fcc430ea18",
+      "name": "Extract VR",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oe3VcJh1xxsxLPu1",
+          "name": "Bearer Auth account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "=GET",
+        "url": "=https://api.github.com/repos/ashish-019-hash/aws-cardemo-ashwita/contents/{{ $json.path }}?ref=devin/1762152678-copy-scala-prompt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        16,
+        -16
+      ],
+      "id": "d432c482-43b4-4445-9a4a-97445f9b688d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        912,
+        368
+      ],
+      "id": "65f65be3-6394-49d5-8cda-0377117639a9",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1136,
+        640
+      ],
+      "id": "5cf98efe-f793-4ccb-b155-15a97927acfd",
+      "name": "Wait1",
+      "webhookId": "645f13c8-a71f-468b-9005-71a4cb880f98"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.devin.ai/v1/sessions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "=I am migrating the Scala application to a Go application. Assume I have another application with its corresponding test cases. Post migration, I will validate the new Go-based application using the test cases that I have. So consider all the functions with exact endpoints present in the Scala application while migrating.\n\n@ashish-019-hash/OBP-API-Cloned → go through this repo under obp-api/src/main folder. This has the codebase.\n\nUnder devin/1762152678-copy-scala-prompt branch @ashish-019-hash/aws-cardemo-ashwita repo's Playbooks folder, there is a prompt in edited_prompt_scala.md file.\n\nExecute the prompt in edited_prompt_scala.md file on the codebase mentioned and extract the details and Core Capabilities Inventory.\n\nOutput Requirements\nUnder devin/1762152678-copy-scala-prompt branch @ashish-019-hash/aws-cardemo-ashwita repo, create a folder named BRD_files and save two output files:\n\nFile 1: Complete BRD Document\nFilename: brd_document.md\n\nThis file should contain the complete High-Level Requirements Document with all sections:\n\nSection 1: System Overview & Purpose\n\nSection 2: Core Capabilities Inventory (in markdown table format)\n\nOpen Questions & Clarifications Needed (if applicable)\n\nFile 2: Core Capabilities JSON Only\nFilename: core_capabilities.json\n\nThis file should contain ONLY the Core Capabilities Inventory in JSON format, following this exact structure:\n\n{\n  \"coreCapabilities\": [\n    {\n      \"category\": \"<Category Name>\",\n      \"capabilities\": [\n        {\n          \"id\": 1,\n          \"name\": \"<Capability Name>\",\n          \"description\": \"<Description>\",\n          \"frequency\": \"<Frequency>\",\n          \"volume\": \"<Volume>\"\n        }\n      ]\n    }\n  ]\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2416,
+        -16
+      ],
+      "id": "042fc6ff-8ad4-4a1e-8f13-ff08c9052c59",
+      "name": "Extract BRD",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "oe3VcJh1xxsxLPu1",
+          "name": "Bearer Auth account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -2016,
+        -16
+      ],
+      "id": "4f8d4507-2f15-4fb2-a6e9-3b34e1f59448",
+      "name": "Wait2",
+      "webhookId": "645f13c8-a71f-468b-9005-71a4cb880f98"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        688
+      ],
+      "id": "457bf423-bec8-45d8-ac49-a557e39b8862",
+      "name": "Wait",
+      "webhookId": "645f13c8-a71f-468b-9005-71a4cb880f98"
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/ashish-019-hash/aws-cardemo-ashwita/contents/User_story_files?ref=devin/1762152678-copy-scala-prompt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -704,
+        -48
+      ],
+      "id": "9df4091e-4d66-4357-852b-acb906bc2163",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": "={{ false }}"
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -288,
+        -48
+      ],
+      "id": "4f5049e5-df9b-4bdb-bb7c-038461942cb7",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        320,
+        -128
+      ],
+      "id": "524a22bf-61c6-483c-b7fc-ce2b85fefb53",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.download_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        288
+      ],
+      "id": "6faedf26-8463-4422-b0df-8120dcd7cc07",
+      "name": "HTTP Request3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Extract BRD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract user stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract user stories": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract entity": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Extract VR": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract BR": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract BRD": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Extract BR",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract VR",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract entity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "72ed7de7-c542-46a5-892b-d829ddb9f81f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1704b8e4392d2300fa609e438926bac28a4c38e1d139bdee11f78921dd32d8b6"
+  },
+  "id": "AYTyJAzvJlCpXKVi",
+  "tags": []
+}
